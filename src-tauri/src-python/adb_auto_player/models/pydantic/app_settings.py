@@ -6,7 +6,7 @@ Because schemars for rust uses a different schema version.
 """
 
 import json
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 NonNegativeInt = Annotated[int, Field(ge=0)]
 
 
-class Theme(str, Enum):
+class Theme(StrEnum):
     """Theme Enum."""
 
     catppuccin = "catppuccin"
@@ -34,7 +34,7 @@ class Theme(str, Enum):
     wintry = "wintry"
 
 
-class Locale(str, Enum):
+class Locale(StrEnum):
     """Locale Enum."""
 
     en = "en"

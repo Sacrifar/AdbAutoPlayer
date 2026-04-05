@@ -94,7 +94,7 @@ class StringHelper:
         home_dir: str = os.path.expanduser("~")
 
         if "\\" in home_dir:  # Windows path
-            username: str = home_dir.split("\\")[-1]
+            username: str = home_dir.rsplit("\\", maxsplit=1)[-1]
             pattern: str = re.escape(f":\\Users\\{username}")
             replacement = r":\\Users\\$env:USERNAME"
             log_message = re.sub(pattern, replacement, log_message)
@@ -103,7 +103,7 @@ class StringHelper:
             log_message = re.sub(pattern, replacement, log_message)
 
         else:  # Unix path
-            username = home_dir.split("/")[-1]
+            username = home_dir.rsplit("/", maxsplit=1)[-1]
             pattern = f"/home/{username}"
             replacement = "/home/$USER"
             log_message = re.sub(pattern, replacement, log_message)

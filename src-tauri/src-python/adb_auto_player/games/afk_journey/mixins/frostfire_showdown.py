@@ -302,7 +302,9 @@ class FrostfireShowdownMixin(AFKJourneyBase, ABC):
         )
 
         if depleted_check is not None:
-            stamina_level = depleted_template.split("_")[-1].replace(".png", "")
+            stamina_level = depleted_template.rsplit("_", maxsplit=1)[-1].replace(
+                ".png", ""
+            )
             logging.info(
                 f"[Stamina Check] {hero_name} is DEPLETED ({stamina_level} stamina) - "
                 f"found on attempt {attempt}"

@@ -2,12 +2,14 @@
 name = "workspace"
 version = "0.1.0"
 requires-python = ">=3.13.9"
-dependencies = []
+dependencies = [
+    "pytest-cov>=7.1.0",
+]
 
 [dependency-groups]
 dev = [
     "adb-auto-player",
-    "ty>=0.0.1a22",
+    "ty>=0.0.29",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
 ]
@@ -71,6 +73,8 @@ ignore = [
     # PLR0913 is simply too annoying in practise we have a lot of optionals that
     # can be nice to have but not used all the time.
     "PLR0913", # too-many-arguments
+    # This one frequently leads to weird rabbit holes...
+    "PLW0108", # unnecessary-lambda
 ]
 
 [tool.ruff.lint.pydocstyle]
