@@ -32,6 +32,36 @@ class Fishing(BlueProtocolStarResonance):
     FISHING_POLE_BUTTON = Point(1740, 890)
     FISHING_POLE_INVENTORY_BUTTON = Point(400, 960)
     BAIT_INVENTORY_BUTTON = Point(250, 960)
+    FISH_HOOKED_EXCLAMATION_MARK = Box(
+        top_left=Point(943, 548),
+        width=28,
+        height=24,
+    )
+    LEFT_HELP_ARROW_BOX = Box(
+        top_left=Point(815, 530),
+        width=50,
+        height=25,
+    )
+    RIGHT_HELP_ARROW_BOX = Box(
+        top_left=Point(1050, 530),
+        width=50,
+        height=25,
+    )
+    REEL_CROP_BOX = Box(
+        top_left=Point(1270, 883),
+        width=24,
+        height=24,
+    )
+    FISHING_POLE_BROKEN_CROP_BOX = Box(
+        top_left=Point(444, 898),
+        width=12,
+        height=12,
+    )
+    BAIT_EMPTY_CROP_BOX = Box(
+        top_left=Point(294, 898),
+        width=12,
+        height=12,
+    )
 
     fish_caught_count = 0
     joystick_direction: HorizontalDirection = HorizontalDirection.CENTER
@@ -131,11 +161,7 @@ class Fishing(BlueProtocolStarResonance):
     def is_fishing_pole_broken(self) -> bool:
         cropped = Cropping.crop_to_box(
             self.get_screenshot(),
-            Box(
-                top_left=Point(444, 898),
-                width=12,
-                height=12,
-            ),
+            self.FISHING_POLE_BROKEN_CROP_BOX,
         )
 
         return TemplateMatcher.similar_image(
@@ -170,11 +196,7 @@ class Fishing(BlueProtocolStarResonance):
     def is_bait_empty(self) -> bool:
         cropped = Cropping.crop_to_box(
             self.get_screenshot(),
-            Box(
-                top_left=Point(294, 898),
-                width=12,
-                height=12,
-            ),
+            self.BAIT_EMPTY_CROP_BOX,
         )
 
         return TemplateMatcher.similar_image(
@@ -229,17 +251,11 @@ class Fishing(BlueProtocolStarResonance):
     ) -> bool:
         timeout = monotonic() + 30
         while monotonic() < timeout:
-            fish_hooked_exclamation_mark = Box(
-                top_left=Point(943, 548),
-                width=28,
-                height=24,
-            )
-
             if (
                 get_color_match_percentage(
                     image=Cropping.crop_to_box(
                         self.get_screenshot(),
-                        fish_hooked_exclamation_mark,
+                        self.FISH_HOOKED_EXCLAMATION_MARK,
                     ).image,
                     min_red=240,
                     max_green=120,
@@ -320,17 +336,11 @@ class Fishing(BlueProtocolStarResonance):
         max_green: int = 150,
         max_blue: int = 30,
     ) -> bool:
-        left_help_arrow_box = Box(
-            top_left=Point(815, 530),
-            width=50,
-            height=25,
-        )
-
         if (
             get_color_match_percentage(
                 image=Cropping.crop_to_box(
                     self.get_screenshot(),
-                    left_help_arrow_box,
+                    self.LEFT_HELP_ARROW_BOX,
                 ).image,
                 min_red=min_red,
                 max_green=max_green,
@@ -341,17 +351,11 @@ class Fishing(BlueProtocolStarResonance):
             self.step_left()
             return True
 
-        right_help_arrow_box = Box(
-            top_left=Point(1050, 530),
-            width=50,
-            height=25,
-        )
-
         if (
             get_color_match_percentage(
                 image=Cropping.crop_to_box(
                     self.get_screenshot(),
-                    right_help_arrow_box,
+                    self.RIGHT_HELP_ARROW_BOX,
                 ).image,
                 min_red=min_red,
                 max_green=max_green,
@@ -366,11 +370,7 @@ class Fishing(BlueProtocolStarResonance):
     def is_ready_to_reel(self):
         cropped = Cropping.crop_to_box(
             self.get_screenshot(),
-            Box(
-                top_left=Point(1270, 883),
-                width=24,
-                height=24,
-            ),
+            self.REEL_CROP_BOX,
         )
 
         return TemplateMatcher.similar_image(
