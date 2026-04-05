@@ -258,7 +258,10 @@ class Fishing(BlueProtocolStarResonance):
             if monotonic() - start_time > timeout:
                 logging.error("Failed to start reeling")
                 return
-            pass
+            if self.get_continue_fishing_button():
+                self.fish_caught_count += 1
+                logging.info(f"Fish caught: {self.fish_caught_count}")
+                return
 
         self.start_reeling()
         while True:
