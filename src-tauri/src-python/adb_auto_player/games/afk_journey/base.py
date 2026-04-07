@@ -418,7 +418,8 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
         """
         excluded_heroes_dict: dict[str, str] = {}
         for name in self.settings.general.excluded_heroes:
-            # Python 3.11 doesn't allow backslashes in f-strings, so handle the name processing first
+            # Python 3.11 doesn't allow backslashes in f-strings,
+            # so handle the name processing first
             clean_name = re.sub(r"[\s&]", "", name.value.lower())
             excluded_heroes_dict[f"heroes/{clean_name}.png"] = name.value
 

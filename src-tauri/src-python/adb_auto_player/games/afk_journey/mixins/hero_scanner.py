@@ -7,7 +7,6 @@ import re
 import shutil
 import time
 import urllib.request
-from typing import Optional
 from difflib import SequenceMatcher, get_close_matches
 from pathlib import Path
 
@@ -22,8 +21,6 @@ from adb_auto_player.games.afk_journey.heroes import HeroesEnum
 from adb_auto_player.models.decorators import GUIMetadata
 from adb_auto_player.models.geometry import Point
 from rapidocr import RapidOCR
-
-from ..settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +152,7 @@ class HeroScannerMixin:
             category=AFKJCategory.EVENTS_AND_OTHER,
         ),
     )
-    def scan_roster(self, total_heroes: Optional[int] = None):  # noqa: PLR0912, PLR0915
+    def scan_roster(self, total_heroes: int | None = None):  # noqa: PLR0912, PLR0915
         """Scans the entire hero roster and updates the backup tracker.
 
         Args:
@@ -335,8 +332,9 @@ class HeroScannerMixin:
         )
 
     def resolve_locked_paragons(self, full_data: dict):
-        """Resolves any heroes marked as 'Paragon Locked'
-        based on roster unlock thresholds.
+        """Resolves any heroes marked as 'Paragon Locked'.
+
+        Uses roster unlock thresholds to determine the actual rank.
 
         Args:
             full_data: The full tracker JSON data to be updated.
