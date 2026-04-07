@@ -188,7 +188,7 @@ class Navigation(PopupMessageHandler, ABC):
                         "resonating_hall/collections.png",
                         "resonating_hall/equipment.png",
                     ],
-                    timeout=2, # Increased timeout slightly
+                    timeout=2,  # Increased timeout slightly
                 )
                 return True
             except GameTimeoutError:

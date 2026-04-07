@@ -92,7 +92,7 @@ class HeroesEnum(StrEnum):
     Silven = auto()
     Silvina = auto()
     Sinbad = auto()
-    Smokey_and_Meerky = auto()
+    Smokey = auto()
     Solise = auto()
     Sonja = auto()
     Soren = auto()
