@@ -205,7 +205,7 @@ class HeroScannerMixin:
         self.tracker_file = str(template_file)
 
         # 3. Navigation to Hall
-        self.navigate_toresonating_hall()  # ty: ignore[unresolved-attribute]
+        self.navigate_to_resonating_hall()  # ty: ignore[unresolved-attribute]
         time.sleep(3)
 
         # 4. Load Data
