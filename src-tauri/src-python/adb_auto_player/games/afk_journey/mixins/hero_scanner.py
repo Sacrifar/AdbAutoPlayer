@@ -7,6 +7,7 @@ import re
 import shutil
 import time
 import urllib.request
+from typing import Optional
 from difflib import SequenceMatcher, get_close_matches
 from pathlib import Path
 
@@ -22,7 +23,6 @@ from adb_auto_player.models.decorators import GUIMetadata
 from adb_auto_player.models.geometry import Point
 from rapidocr import RapidOCR
 
-# ty: ignore[unresolved-reference]
 from ..settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -135,7 +135,7 @@ class HeroScannerMixin:
         if result:
             # New RapidOCROutput format (v1.3.0+)
             if hasattr(result, "txts") and result.txts:
-                return " ".join(result.txts).strip()
+                return " ".join(result.txts).strip()  # ty: ignore[no-matching-overload]
 
             # Handle list/tuple format
             texts = []
@@ -165,27 +165,22 @@ class HeroScannerMixin:
         if total_heroes is None:
             # We determine the limit by hero count in settings if possible
             try:
-                # ty: ignore[unresolved-attribute]
-                total_heroes = len(self.settings.general.excluded_heroes) + 100
+                total_heroes = (
+                    len(self.settings.general.excluded_heroes) + 100  # ty: ignore[unresolved-attribute]
+                )
             except Exception:
                 total_heroes = 120
 
         limit: int = total_heroes
         heroes_scanned = 0
 
-        # Create/Load scan result
-        full_data = self._load_tracker()
-
         # 3. Navigation to Hall
-        # ty: ignore[unresolved-attribute]
-        self.navigate_toresonating_hall()
+        self.navigate_toresonating_hall()  # ty: ignore[unresolved-attribute]
         time.sleep(3)
 
-        # 4. Iteration
         # Navigate to the first hero once (Antandra or Top-Left)
         first_hero_point = Point(130, 1050)
-        # ty: ignore[unresolved-attribute]
-        self.tap(first_hero_point)
+        self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
         time.sleep(4)
 
         root = self._get_project_root()
@@ -213,8 +208,7 @@ class HeroScannerMixin:
         self.tracker_file = str(template_file)
 
         # 3. Navigation to Hall
-        # ty: ignore[unresolved-attribute]
-        self.navigate_toresonating_hall()
+        self.navigate_toresonating_hall()  # ty: ignore[unresolved-attribute]
         time.sleep(3)
 
         # 4. Load Data
@@ -229,14 +223,12 @@ class HeroScannerMixin:
         heroes_scanned = 0
         # Navigate to the first hero once (Antandra or Top-Left)
         first_hero_point = Point(130, 1050)
-        # ty: ignore[unresolved-attribute]
-        self.tap(first_hero_point)
+        self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
         time.sleep(4)
 
         while heroes_scanned < limit:  # Safety cap, stop on Hammie/Chippy
             try:
-                # ty: ignore[unresolved-attribute]
-                screenshot = self.get_screenshot()
+                screenshot = self.get_screenshot()  # ty: ignore[unresolved-attribute]
                 hero_data = self._process_hero_screen(screenshot)
 
                 # 2. Check for Terminator Heroes (Hammie/Chippy) - Stop condition
@@ -309,21 +301,18 @@ class HeroScannerMixin:
 
                 # 5. Navigate Next
                 next_arrow = Point(1045, 1080)
-                # ty: ignore[unresolved-attribute]
-                self.tap(next_arrow)
+                self.tap(next_arrow)  # ty: ignore[unresolved-attribute]
                 time.sleep(3.5)
             except Exception as e:
                 logger.error(f"Error during scan at hero #{heroes_scanned + 1}: {e}")
                 # Try to recover by skipping to next hero
                 next_arrow = Point(1045, 1080)
-                # ty: ignore[unresolved-attribute]
-                self.tap(next_arrow)
+                self.tap(next_arrow)  # ty: ignore[unresolved-attribute]
                 time.sleep(4)
                 heroes_scanned += 1
 
         # Go back to main hall
-        # ty: ignore[unresolved-attribute]
-        self.press_back_button()
+        self.press_back_button()  # ty: ignore[unresolved-attribute]
 
         # Post-process any heroes that were locked out of the Ascend panel
         self.resolve_locked_paragons(full_data)
@@ -436,8 +425,7 @@ class HeroScannerMixin:
         """
         region_btn_check = (170, 1760, 560, 110)
         x1, y1, w, h = region_btn_check
-        # ty: ignore[unresolved-attribute]
-        full_ss = self.get_screenshot()
+        full_ss = self.get_screenshot()  # ty: ignore[unresolved-attribute]
         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
         btn_img_scaled = cv2.resize(
             btn_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC
