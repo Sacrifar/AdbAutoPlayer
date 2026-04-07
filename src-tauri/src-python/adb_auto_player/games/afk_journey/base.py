@@ -27,6 +27,7 @@ from adb_auto_player.util import SummaryGenerator
 
 from .battle_state import BattleState, Mode
 from .gui_category import AFKJCategory
+from .mixins.hero_scanner import HeroScannerMixin
 from .navigation import Navigation
 from .settings import Settings
 
@@ -39,7 +40,7 @@ from .settings import Settings
         categories=list(AFKJCategory),
     ),
 )
-class AFKJourneyBase(Navigation, Game):
+class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
     """AFK Journey Base Class."""
 
     def __init__(self) -> None:

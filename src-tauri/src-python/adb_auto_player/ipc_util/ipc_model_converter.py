@@ -77,6 +77,18 @@ class IPCModelConverter:
             IPCModelConverter._get_menu_options_from_commands("Commands", game)
         )
 
+        # Move the scanner to the end so it doesn't take up prime real estate
+        # and satisfies the user's preference for it to be last.
+        scanner_idx = -1
+        for i, opt in enumerate(menu_options):
+            if opt.label == "AFKJ Tracker Scan":
+                scanner_idx = i
+                break
+
+        if scanner_idx != -1:
+            scanner_opt = menu_options.pop(scanner_idx)
+            menu_options.append(scanner_opt)
+
         return menu_options
 
     @staticmethod

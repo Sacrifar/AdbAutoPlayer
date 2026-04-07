@@ -77,8 +77,40 @@ class Execute:
                 qual_name = cast(str, getattr(callable_function, "__qualname__", None))
                 cls_name: str = qual_name.split(".")[0]
                 mod = sys.modules[callable_function.__module__]
-                cls = getattr(mod, cls_name)
+
+                cls = None
+                # If the method belongs to a Mixin, we need to instantiate the host Game class instead.
+                # Mixins are just pieces of logic and don't have all attributes (like device or navigation).
+                if "Mixin" in cls_name:
+                    try:
+                        # e.g. adb_auto_player.games.afk_journey.mixins.hero_scanner
+                        parts = callable_function.__module__.split(".")
+                        if "games" in parts:
+                            idx = parts.index("games")
+                            # Root package of the game, e.g., adb_auto_player.games.afk_journey
+                            parent_pkg = ".".join(parts[: idx + 2])
+                            base_mod_name = f"{parent_pkg}.base"
+                            import importlib
+
+                            base_mod = importlib.import_module(base_mod_name)
+                            # Find the class that contains 'Base' in its name (e.g., AFKJourneyBase)
+                            for attr_name in dir(base_mod):
+                                attr = getattr(base_mod, attr_name)
+                                if (
+                                    inspect.isclass(attr)
+                                    and "Base" in attr_name
+                                    and attr.__module__ == base_mod_name
+                                ):
+                                    cls = attr
+                                    break
+                    except Exception:
+                        pass
+
+                if cls is None:
+                    cls = getattr(mod, cls_name)
+
                 instance = cls()
+
                 try:
                     callable_function(instance, **kwargs)
                 finally:
