@@ -27,10 +27,9 @@ logger = logging.getLogger(__name__)
 ASCENSION_OCR_MAP = {
     # Paragon ranks (Vertical badges often read as C', C", etc.)
     "C '": "Paragon 1",
-    "C \u0027": "Paragon 1",
     "C'": "Paragon 1",
     "C  ": "Paragon 1",
-    "Paragon 人": "Paragon 1",
+    "Paragon äºº": "Paragon 1",
     "Paragon 1": "Paragon 1",
     "Paragon 2": "Paragon 2",
     "Paragon 3": "Paragon 3",
@@ -43,7 +42,7 @@ ASCENSION_OCR_MAP = {
     "Mvthic": "Mythic",
     "Legend": "Legendary",
     # Garbage tokens found in Full Roster scans for Epic heroes
-    "￥": "Epic",
+    "ï¿¥": "Epic",
 }
 
 # Ascension ranks that do NOT have EX weapons unlocked
@@ -62,7 +61,7 @@ BELOW_MYTHIC_PLUS = [
 # Coordinates for Improved Ascension OCR (Ascend Panel)
 COORD_BTN_ASCEND = (350, 1830)
 COORD_BTN_BACK_PANEL = (100, 1830)
-# Region for "Current » Future" text in the Ascend panel: (x, y, w, h)
+# Region for "Current Â» Future" text in the Ascend panel: (x, y, w, h)
 # Expanded to 550px height to cover all vertical drift positions (Y=800 to Y=1350)
 REGION_ASCEND_LINE = (50, 800, 980, 550)
 
@@ -77,9 +76,9 @@ class HeroScannerMixin:
             The Path to the project root directory.
         """
         try:
-            # SettingsLoader.get_resource_dir() returns '.../src-tauri/src-python/adb_auto_player'
+            # SettingsLoader.getresource_dir() returns '.../src-tauri/src-python/adb_auto_player'
             # The root is 3 levels up.
-            return SettingsLoader.get_resource_dir().parents[2]
+            return SettingsLoader.getresource_dir().parents[2]
         except Exception:
             # Fallback for standalone scripts if SettingsLoader isn't fully initialized
             # Relative to this file: games/afk_journey/mixins/hero_scanner.py
@@ -179,7 +178,7 @@ class HeroScannerMixin:
         self.tracker_file = str(template_file)
 
         # 3. Navigation to Hall
-        self.navigate_to_resonating_hall()
+        self.navigate_toresonating_hall()
         time.sleep(3)
 
         # 4. Load Data
@@ -282,7 +281,7 @@ class HeroScannerMixin:
         self.press_back_button()
 
         # Post-process any heroes that were locked out of the Ascend panel
-        self._resolve_locked_paragons(full_data)
+        self.resolve_locked_paragons(full_data)
 
         # Rename template to backup
         try:
@@ -300,7 +299,7 @@ class HeroScannerMixin:
             f"PER L'UTENTE: Puoi trovare il file finale da importare su afkj-tracker.vercel.app qui: {backup_file}"
         )
 
-    def _resolve_locked_paragons(self, full_data: dict):
+    def resolve_locked_paragons(self, full_data: dict):
         """Resolves any heroes marked as 'Paragon Locked' based on roster unlock thresholds.
 
         Args:
@@ -310,8 +309,7 @@ class HeroScannerMixin:
 
         p1_list = ["Paragon 1", "Paragon 2", "Paragon 3", "Paragon 4", "Paragon Locked"]
         p2_list = ["Paragon 2", "Paragon 3", "Paragon 4", "Paragon Locked"]
-        p3_list = ["Paragon 3", "Paragon 4", "Paragon Locked"]
-        sup_list = ["Supreme+"] + p1_list
+        sup_list = ["Supreme+", *p1_list]
 
         sup_count = sum(1 for h in heroes if h.get("currentAscension") in sup_list)
         p1_count = sum(1 for h in heroes if h.get("currentAscension") in p1_list)
@@ -455,7 +453,7 @@ class HeroScannerMixin:
             # Return our special temporary placeholder
             return "Paragon Locked"
 
-        # 3. Capture and OCR the full ascension line (Current » Future)
+        # 3. Capture and OCR the full ascension line (Current Â» Future)
         x1, y1, w, h = REGION_ASCEND_LINE
         panel_crop = full_ss[y1 : y1 + h, x1 : x1 + w]
 
@@ -476,17 +474,14 @@ class HeroScannerMixin:
         stats_text = self._ocr_text_rapid(scaled_stats, None).upper()
 
         # 5. Determine if we are in Rivalry (Paragon) stats or Basic stats
-        is_rivalry = "RIVALRY" in stats_text
 
         # 6. Close the panel (Back button)
         self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
         time.sleep(0.5)
 
-        # 6. Parse the "Current » Future" logic (Main detection)
+        # 6. Parse the "Current Â» Future" logic (Main detection)
         if not full_line_text:
             return "Unknown"
-
-        import re as _re
 
         # ... (rest of _normalize_panel_text remains)
         def _normalize_panel_text(t: str) -> str:
@@ -498,7 +493,7 @@ class HeroScannerMixin:
             Returns:
                 Normalized text.
             """
-            t = _re.sub(r"(Paragon)(\d)", r"\1 \2", t, flags=_re.IGNORECASE)
+            t = re.sub(r"(Paragon)(\d)", r"\1 \2", t, flags=re.IGNORECASE)
             t = t.strip()
             return t
 
@@ -510,18 +505,18 @@ class HeroScannerMixin:
 
         # 1. Exact/Synonym matches from map
         for pattern, canonical in ASCENSION_OCR_MAP.items():
-            for m in _re.finditer(_re.escape(pattern.lower()), full_line_text.lower()):
+            for m in re.finditer(re.escape(pattern.lower()), full_line_text.lower()):
                 all_header_matches.append((m.start(), canonical))
 
         # 2. Fuzzy base matches
         for base in possible_bases:
-            for m in _re.finditer(base.lower(), full_line_text.lower()):
+            for m in re.finditer(base.lower(), full_line_text.lower()):
                 idx = m.start()
                 # Check for plus-suffix in the header
                 search_area = full_line_text[idx + len(base) : idx + len(base) + 2]
                 is_plus = any(
                     c in search_area
-                    for c in ["+", "t", "k", "*", "f", "v", "十", "i", "l", "1"]
+                    for c in ["+", "t", "k", "*", "f", "v", "å", "i", "l", "1"]
                 )
                 rank_name = f"{base}+" if is_plus and not base.endswith("+") else base
                 all_header_matches.append((idx, rank_name))
@@ -601,20 +596,20 @@ class HeroScannerMixin:
         if do_fallback:
             rank_patterns = [
                 (r"PARAGON (\d)", lambda m: f"Paragon {m.group(1)}"),
-                (r"SUPREME[\s]*[\+t\*k十vfi1l|]", "Supreme+"),
+                (r"SUPREME[\s]*[\+t\*kåvfi1l|]", "Supreme+"),
                 (r"SUPREME", "Supreme"),
-                (r"MYTHIC[\s]*[\+t\*k十vfi1l|]", "Mythic+"),
+                (r"MYTHIC[\s]*[\+t\*kåvfi1l|]", "Mythic+"),
                 (r"MYTHIC", "Mythic"),
-                (r"LEGENDARY[\s]*[\+t\*k十vfi1l|]", "Legendary+"),
+                (r"LEGENDARY[\s]*[\+t\*kåvfi1l|]", "Legendary+"),
                 (r"LEGENDARY", "Legendary"),
-                (r"EPIC[\s]*[\+t\*k十vfi1l|]", "Epic+"),
+                (r"EPIC[\s]*[\+t\*kåvfi1l|]", "Epic+"),
                 (r"EPIC", "Epic"),
             ]
 
             found_ranks = []
             for pattern, rank_val in rank_patterns:
                 # Use search on the combined context to find the earliest/clearest match
-                match = _re.search(pattern, combined_context, _re.IGNORECASE)
+                match = re.search(pattern, combined_context, re.IGNORECASE)
                 if match:
                     found_ranks.append(
                         (
@@ -661,8 +656,8 @@ class HeroScannerMixin:
                     break
 
             # IMPROVED REGEX: Ignore numbers followed by '%' (e.g. 15% is noise, not a milestone)
-            ALL_MILESTONES_REGEX = r"(?<!\d)(0|1|2|3|14|15|25|30|37|45|48|60)(?!\d|%)"
-            nums = _re.findall(ALL_MILESTONES_REGEX, clean_stats)
+            ALL_MILESTONESreGEX = r"(?<!\d)(0|1|2|3|14|15|25|30|37|45|48|60)(?!\d|%)"
+            nums = re.findall(ALL_MILESTONESreGEX, clean_stats)
 
             if nums:
                 num_ints = [int(n) for n in nums]
@@ -954,7 +949,7 @@ class HeroScannerMixin:
         text = raw_text.strip()
 
         # 1. Direct pattern match - we take the match that appears EARLIEST in the string
-        # This is critical for "Current » Future" lines where "Paragon" might appear as a goal.
+        # This is critical for "Current Â» Future" lines where "Paragon" might appear as a goal.
         best_match = None
         earliest_index = 999
 
@@ -994,7 +989,7 @@ class HeroScannerMixin:
             # Check for '+' or common OCR noise that looks like a '+'
             is_plus = any(
                 c in search_area
-                for c in ["+", "t", "k", "*", "f", "v", "十", "i", "l", "1"]
+                for c in ["+", "t", "k", "*", "f", "v", "å", "i", "l", "1"]
             )
 
             if is_plus and not base_rank.endswith("+"):
