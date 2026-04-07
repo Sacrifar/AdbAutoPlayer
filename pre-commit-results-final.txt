@@ -1,0 +1,852 @@
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check json...............................................................Passed
+check yaml...............................................................Passed
+check toml...............................................................Passed
+pretty format json.......................................................Passed
+shellcheck...............................................................Passed
+isort....................................................................Passed
+ruff check...............................................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+E501 Line too long (91 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:221:89
+    |
+219 |                         or hero_data["ascension"] in ["Unknown", "Epic", "Elite"]
+220 |                     )
+221 |                     # Logic Fix: Detect if the hero is maxed (Paragon 4) or needs deep scan
+    |                                                                                         ^^^
+222 |                     button_status = self._ascend_button_is_present()
+    |
+
+E501 Line too long (97 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:232:89
+    |
+230 |                     elif button_status is True:
+231 |                         logger.debug(
+232 |                             f"Ascend button found for {hero_data['name']} - Triggering Deep Scan"
+    |                                                                                         ^^^^^^^^^
+233 |                         )
+234 |                         deep_asc = self._scan_ascension_from_panel(
+    |
+
+E501 Line too long (107 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:243:89
+    |
+241 |                         hero_data["ascension"] = "Paragon 4"
+242 |                         logger.debug(
+243 |                             f"No button found for high-tier {hero_data['name']} -> Defaulting to Paragon 4"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^
+244 |                         )
+    |
+
+E501 Line too long (93 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:246:89
+    |
+244 |                         )
+245 |
+246 |                     # RE-PARSE EX WEAPON now that we have the final, corrected ascension rank
+    |                                                                                         ^^^^^
+247 |                     # This fixes cases where EX was 0 because the vertical badge lead to "Unknown" ascension.
+248 |                     hero_data["ex_weapon"] = self._parse_ex_level(
+    |
+
+E501 Line too long (109 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:247:89
+    |
+246 |                     # RE-PARSE EX WEAPON now that we have the final, corrected ascension rank
+247 |                     # This fixes cases where EX was 0 because the vertical badge lead to "Unknown" ascension.
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+248 |                     hero_data["ex_weapon"] = self._parse_ex_level(
+249 |                         hero_data["raw_ex"], hero_data["ascension"], hero_data["name"]
+    |
+
+E501 Line too long (90 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:263:89
+    |
+261 |                     logger.warning(
+262 |                         "!!! IDENTIFICATION FAILED !!! "
+263 |                         f"Hero #{heroes_scanned + 1} - Raw OCR: '{hero_data['raw_name']}'"
+    |                                                                                         ^^
+264 |                     )
+265 |                     logger.warning(
+    |
+
+E501 Line too long (115 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:303:89
+    |
+301 |         logger.info(f"Diagnostic scan completed! {heroes_scanned} heroes processed.")
+302 |         logger.info(
+303 |             f"PER L'UTENTE: Puoi trovare il file finale da importare su afkj-tracker.vercel.app qui: {backup_file}"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+304 |         )
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:307:89
+    |
+306 |     def resolve_locked_paragons(self, full_data: dict):
+307 |         """Resolves any heroes marked as 'Paragon Locked' based on roster unlock thresholds.
+    |                                                                                         ^^^^
+308 |
+309 |         Args:
+    |
+
+E501 Line too long (95 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:341:89
+    |
+339 |         if locked_heroes:
+340 |             logger.info(
+341 |                 f"Resolving {len(locked_heroes)} 'Paragon Locked' heroes to '{resolved_rank}' "
+    |                                                                                         ^^^^^^^
+342 |                 f"(Counts - S+: {sup_count}, P1: {p1_count}, P2: {p2_count})"
+343 |             )
+    |
+
+invalid-syntax: Expected `)`, found newline
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:399:37
+    |
+397 |         full_ss = self.get_screenshot()
+398 |         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
+399 |         btn_img_scaled = cv2.resize(
+    |                                     ^
+400 |         # 1. PRIORITY: Check for 'ascend' FIRST.
+401 |         # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
+    |
+
+E501 Line too long (94 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:443:89
+    |
+441 |         # 2. Check if a tooltip popped up instead of the full panel
+442 |         # When a hero's ascension is locked by Resonance (e.g., Lily May P2->P3),
+443 |         # clicking the padlocked Ascend button shows a tooltip instead of the Ascension Panel.
+    |                                                                                         ^^^^^^
+444 |         tooltip_crop = full_ss[1300:1700, 50:1030]
+445 |         tooltip_text = self._ocr_text_rapid(tooltip_crop, None).lower()
+    |
+
+E501 Line too long (90 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:448:89
+    |
+446 |         if "requirements" in tooltip_text or "unlock" in tooltip_text:
+447 |             logger.debug("Detected Ascend lock tooltip! Hero is locked from ascending.")
+448 |             # 1. Tap the hero portrait to dismiss the tooltip (this enters hero zoom mode)
+    |                                                                                         ^^
+449 |             self.tap(Point(540, 400))
+450 |             time.sleep(1.0)
+    |
+
+E501 Line too long (96 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:451:89
+    |
+449 |             self.tap(Point(540, 400))
+450 |             time.sleep(1.0)
+451 |             # 2. Tap the back button to exit zoom mode and return to the interactive hero screen
+    |                                                                                         ^^^^^^^^
+452 |             self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
+453 |             time.sleep(1.0)
+    |
+
+E501 Line too long (94 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:548:89
+    |
+547 |             # CONSENSUS LOGIC: Try to find the rank that confirms our side-badge guess
+548 |             # This prevents stray noise (like 'TltdraT') from being picked over the real rank.
+    |                                                                                         ^^^^^^
+549 |             match_found = False
+550 |             for i, (idx, rank) in enumerate(found_header_ranks):
+    |
+
+E501 Line too long (98 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:565:89
+    |
+563 |                 current_rank_idx = 0
+564 |                 logger.debug(
+565 |                     f"No consensus for {hero_name}: falling back to leftmost rank {current_rank}."
+    |                                                                                         ^^^^^^^^^^
+566 |                 )
+    |
+
+E501 Line too long (99 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:585:89
+    |
+583 |                     current_rank = "Supreme+"
+584 |                     logger.debug(
+585 |                         f"Future Deduction for {hero_name}: {future_rank} Goal -> Current Supreme+"
+    |                                                                                         ^^^^^^^^^^^
+586 |                     )
+    |
+
+E501 Line too long (99 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:589:89
+    |
+588 |         # 7. Statistics Fallback & Keyword Correction
+589 |         # To avoid over-correction (like Legendary -> Legendary+), we ONLY run the keyword fallback
+    |                                                                                         ^^^^^^^^^^^
+590 |         # if the header scan was inconclusive (Unknown) or for high-tier ranks where
+591 |         # side-badge misreads (like Supreme for Mythic) are common.
+    |
+
+E501 Line too long (95 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:623:89
+    |
+622 |             if found_ranks:
+623 |                 # Sort by start position ASCENDING to find the current rank (left/header first)
+    |                                                                                         ^^^^^^^
+624 |                 found_ranks.sort(key=lambda x: (x[0], -len(x[1])))
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:626:89
+    |
+624 |                 found_ranks.sort(key=lambda x: (x[0], -len(x[1])))
+625 |
+626 |                 # Only override if the found rank is more precise (has a plus or is paragon)
+    |                                                                                         ^^^^
+627 |                 # OR if the current detection was Unknown.
+628 |                 if (
+    |
+
+E501 Line too long (101 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:634:89
+    |
+632 |                 ):
+633 |                     logger.debug(
+634 |                         f"Fallback Correction for {hero_name}: {current_rank} -> {found_ranks[0][1]}"
+    |                                                                                         ^^^^^^^^^^^^^
+635 |                     )
+636 |                     current_rank = found_ranks[0][1]
+    |
+
+E501 Line too long (89 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:639:89
+    |
+638 |         # 8. Unified Numeric Milestone Logic - ABSOLUTE FINAL PRIORITY
+639 |         # This is the "Gold Standard": if we see a milestone number, it defines the rank.
+    |                                                                                         ^
+640 |
+641 |         # KEY PROTECTION: Numeric milestones are only valid in "Rivalry Stats" (Supreme+).
+    |
+
+E501 Line too long (90 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:641:89
+    |
+639 |         # This is the "Gold Standard": if we see a milestone number, it defines the rank.
+640 |
+641 |         # KEY PROTECTION: Numeric milestones are only valid in "Rivalry Stats" (Supreme+).
+    |                                                                                         ^^
+642 |         # Basic Stats (ATK, HP) are full of noise (15%, 25,000) that looks like milestones.
+643 |         has_rivalry = "RIVALRY" in stats_text.upper()
+    |
+
+E501 Line too long (91 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:642:89
+    |
+641 |         # KEY PROTECTION: Numeric milestones are only valid in "Rivalry Stats" (Supreme+).
+642 |         # Basic Stats (ATK, HP) are full of noise (15%, 25,000) that looks like milestones.
+    |                                                                                         ^^^
+643 |         has_rivalry = "RIVALRY" in stats_text.upper()
+    |
+
+E501 Line too long (103 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:646:89
+    |
+645 |         if has_rivalry:
+646 |             # Clean the text: ignore skill descriptions (which have noisy numbers like "25 Life Drain")
+    |                                                                                         ^^^^^^^^^^^^^^^
+647 |             clean_stats = stats_text
+648 |             for stop_word in [
+    |
+
+E501 Line too long (110 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:682:89
+    |
+680 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+681 |                     logger.debug(
+682 |                         f"Gold Standard Correction for {hero_name}: Milestone {target_goal} -> {current_rank}"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+683 |                     )
+684 |         else:
+    |
+
+E501 Line too long (104 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:686:89
+    |
+684 |         else:
+685 |             logger.debug(
+686 |                 f"Rivalry Shield active for {hero_name}: skipping numeric milestones (Basic Stats only)"
+    |                                                                                         ^^^^^^^^^^^^^^^^
+687 |             )
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:719:89
+    |
+717 |         for cnt in contours:
+718 |             x, y, w, h = cv2.boundingRect(cnt)
+719 |             # Filter for hero name letters: lower height threshold (40) to be more inclusive
+    |                                                                                         ^^^^
+720 |             if h > 40 and w > 10:
+721 |                 candidates.append((x, y, x + w, y + h))
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:842:89
+    |
+840 |         # 1. Reverse Roster Search (STRONGEST STRATEGY)
+841 |         # Check if any original hero name exists within the OCR text
+842 |         # This bypasses titles like 'Dungeon Adventurer' or 'Arctic Revenant' automatically.
+    |                                                                                         ^^^^
+843 |         clean_name = text_clean.replace("and", "")
+844 |         for h in HeroesEnum:
+    |
+
+E501 Line too long (127 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:858:89
+    |
+856 |             ):
+857 |                 logger.debug(
+858 |                     f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h.value}' (Match against {norm_hero_val}/{norm_hero_key})"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+859 |                 )
+860 |                 return str(h.value)
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:868:89
+    |
+866 |         if text_clean in norm_to_canonical and len(text_clean) >= 3:
+867 |             logger.debug(
+868 |                 f"MATCH STRATEGY: [EXACT] '{raw_text}' -> '{norm_to_canonical[text_clean]}'"
+    |                                                                                         ^^^^
+869 |             )
+870 |             return norm_to_canonical[text_clean]
+    |
+
+E501 Line too long (90 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:904:89
+    |
+902 |             best_len, best_name = synonym_matches[0]
+903 |             logger.debug(
+904 |                 f"MATCH STRATEGY: [SYNONYM-BEST] '{best_name}' (Match length: {best_len})"
+    |                                                                                         ^^
+905 |             )
+906 |             return best_name
+    |
+
+E501 Line too long (89 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:926:89
+    |
+924 |             norm_match = matches[0]
+925 |
+926 |             # EXTREMELY STRICT for short names (e.g. Vala, Odie) to avoid false positives
+    |                                                                                         ^
+927 |             if len(norm_match) < 6:  # noqa: PLR2004
+928 |                 strict_matches = get_close_matches(
+    |
+
+E501 Line too long (89 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:952:89
+    |
+950 |         text = raw_text.strip()
+951 |
+952 |         # 1. Direct pattern match - we take the match that appears EARLIEST in the string
+    |                                                                                         ^
+953 |         # This is critical for "Current ├é┬╗ Future" lines where "Paragon" might appear as a goal.
+954 |         best_match = None
+    |
+
+E501 Line too long (96 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:953:89
+    |
+952 |         # 1. Direct pattern match - we take the match that appears EARLIEST in the string
+953 |         # This is critical for "Current ├é┬╗ Future" lines where "Paragon" might appear as a goal.
+    |                                                                                         ^^^^^^^^
+954 |         best_match = None
+955 |         earliest_index = 999
+    |
+
+E501 Line too long (91 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:985:89
+    |
+984 |             # Check for "+" suffix logic
+985 |             # Tightened search area for "+" to avoid matching the *next* word in the string
+    |                                                                                         ^^^
+986 |             search_start = text.lower().find(base_rank.lower()) + len(base_rank) - 1
+987 |             # We only look 2 characters ahead now for greater precision
+    |
+
+PLR0912 Too many branches (16 > 12)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:44:9
+   |
+43 |     @staticmethod
+44 |     def function(
+   |         ^^^^^^^^
+45 |         callable_function: Callable,
+46 |         instance: object | None = None,
+   |
+
+E501 Line too long (103 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:82:89
+   |
+81 |                 cls = None
+82 |                 # If the method belongs to a Mixin, we need to instantiate the host Game class instead.
+   |                                                                                         ^^^^^^^^^^^^^^^
+83 |                 # Mixins are just pieces of logic and don't have all attributes (like device or navigation).
+84 |                 if "Mixin" in cls_name:
+   |
+
+E501 Line too long (108 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:83:89
+   |
+81 |                 cls = None
+82 |                 # If the method belongs to a Mixin, we need to instantiate the host Game class instead.
+83 |                 # Mixins are just pieces of logic and don't have all attributes (like device or navigation).
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+84 |                 if "Mixin" in cls_name:
+85 |                     try:
+   |
+
+E501 Line too long (95 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:90:89
+   |
+88 |                         if "games" in parts:
+89 |                             idx = parts.index("games")
+90 |                             # Root package of the game, e.g., adb_auto_player.games.afk_journey
+   |                                                                                         ^^^^^^^
+91 |                             parent_pkg = ".".join(parts[: idx + 2])
+92 |                             base_mod_name = f"{parent_pkg}.base"
+   |
+
+PLC0415 `import` should be at the top-level of a file
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:93:29
+   |
+91 |                             parent_pkg = ".".join(parts[: idx + 2])
+92 |                             base_mod_name = f"{parent_pkg}.base"
+93 |                             import importlib
+   |                             ^^^^^^^^^^^^^^^^
+94 |
+95 |                             base_mod = importlib.import_module(base_mod_name)
+   |
+
+E501 Line too long (100 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:96:89
+   |
+95 | ÔÇª                     base_mod = importlib.import_module(base_mod_name)
+96 | ÔÇª                     # Find the class that contains 'Base' in its name (e.g., AFKJourneyBase)
+   |                                                                                   ^^^^^^^^^^^^
+97 | ÔÇª                     for attr_name in dir(base_mod):
+98 | ÔÇª                         attr = getattr(base_mod, attr_name)
+   |
+
+Found 41 errors.
+
+ruff format..............................................................Failed
+- hook id: ruff-format
+- exit code: 2
+
+error: Failed to parse src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:399:37: Expected `)`, found newline
+211 files left unchanged
+
+ty-check.................................................................Failed
+- hook id: ty
+- exit code: 1
+
+All checks passed!
+All checks passed!
+warning[unused-ignore-comment]: Unused `ty: ignore` directive
+  --> src-tauri\src-python\adb_auto_player\ocr\tesseract_backend.py:63:86
+   |
+61 |                 first_str = str(first)
+62 |                 if "tesseract" in first_str.lower():
+63 |                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)  # ty: ignore[unresolved-attribute] macOS specific
+   |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+64 |             super().__init__(args, *popenargs, **kwargs)
+   |
+help: Remove the unused suppression comment
+60 |                     first = cmd
+61 |                 first_str = str(first)
+62 |                 if "tesseract" in first_str.lower():
+   -                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)  # ty: ignore[unresolved-attribute] macOS specific
+63 +                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)
+64 |             super().__init__(args, *popenargs, **kwargs)
+65 |
+66 |     # we are overwriting Popen on purpose so it does not open a terminal window
+
+Found 1 diagnostic
+All checks passed!
+All checks passed!
+error[invalid-syntax]: Cannot use an escape sequence (backslash) in f-strings on Python 3.11 (syntax was added in Python 3.12)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:420:33
+    |
+418 |         """
+419 |         excluded_heroes_dict: dict[str, str] = {
+420 |             f"heroes/{re.sub(r'[\s&]', '', name.value.lower())}.png": name.value
+    |                                 ^
+421 |             for name in self.settings.general.excluded_heroes
+422 |         }
+    |
+info: Python 3.11 was assumed when parsing syntax
+ --> pyproject.toml:4:19
+  |
+2 | name = "workspace"
+3 | version = "0.1.0"
+4 | requires-python = ">=3.11"
+  |                   ^^^^^^^^ Python version configuration
+5 | dependencies = [
+6 |     "pytest-cov>=7.1.0",
+  |
+
+Found 1 diagnostic
+All checks passed!
+All checks passed!
+All checks passed!
+error[no-matching-overload]: No overload of bound method `join` matches arguments
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:129:24
+    |
+127 |             # New RapidOCROutput format (v1.3.0+)
+128 |             if hasattr(result, "txts") and result.txts:
+129 |                 return " ".join(result.txts).strip()
+    |                        ^^^^^^^^^^^^^^^^^^^^^
+130 |
+131 |             # Handle list/tuple format
+    |
+info: First overload defined here
+    --> stdlib\builtins.pyi:1109:9
+     |
+1108 |     @overload
+1109 |     def join(self: LiteralString, iterable: Iterable[LiteralString], /) -> LiteralString:
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1110 |         """Concatenate any number of strings.
+     |
+info: Possible overloads for bound method `join`:
+info:   (self: LiteralString, iterable: Iterable[LiteralString], /) -> LiteralString
+info:   (self, iterable: Iterable[str], /) -> str
+info: rule `no-matching-overload` is enabled by default
+
+error[unresolved-reference]: Name `Optional` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:149:41
+    |
+147 |         ),
+148 |     )
+149 |     def scan_roster(self, total_heroes: Optional[int] = None):  # noqa: PLR0912, PLR0915
+    |                                         ^^^^^^^^
+150 |         """Scans the entire hero roster and updates the backup tracker.
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `navigate_toresonating_hall`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:184:9
+    |
+183 |         # 3. Navigation to Hall
+184 |         self.navigate_toresonating_hall()
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+185 |         time.sleep(3)
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:198:9
+    |
+196 |         # Navigate to the first hero once (Antandra or Top-Left)
+197 |         first_hero_point = Point(130, 1050)
+198 |         self.tap(first_hero_point)
+    |         ^^^^^^^^
+199 |         time.sleep(4)
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `get_screenshot`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:204:30
+    |
+202 |         while heroes_scanned < limit:  # Safety cap, stop on Hammie/Chippy
+203 |             try:
+204 |                 screenshot = self.get_screenshot()
+    |                              ^^^^^^^^^^^^^^^^^^^
+205 |                 hero_data = self._process_hero_screen(screenshot)
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:274:17
+    |
+272 |                 # 5. Navigate Next
+273 |                 next_arrow = Point(1045, 1080)
+274 |                 self.tap(next_arrow)
+    |                 ^^^^^^^^
+275 |                 time.sleep(3.5)
+276 |             except Exception as e:
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:280:17
+    |
+278 |                 # Try to recover by skipping to next hero
+279 |                 next_arrow = Point(1045, 1080)
+280 |                 self.tap(next_arrow)
+    |                 ^^^^^^^^
+281 |                 time.sleep(4)
+282 |                 heroes_scanned += 1
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@scan_roster` has no attribute `press_back_button`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:285:9
+    |
+284 |         # Go back to main hall
+285 |         self.press_back_button()
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+286 |
+287 |         # Post-process any heroes that were locked out of the Ascend panel
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-reference]: Name `Union` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:387:44
+    |
+385 |         return {}
+386 |
+387 |     def _ascend_button_is_present(self) -> Union[bool, str]:
+    |                                            ^^^^^
+388 |         """Checks if 'Ascend', 'Level Cap', or 'Phase' is present at the bottom.
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_ascend_button_is_present` has no attribute `get_screenshot`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:397:19
+    |
+395 |         region_btn_check = (170, 1760, 560, 110)
+396 |         x1, y1, w, h = region_btn_check
+397 |         full_ss = self.get_screenshot()
+    |                   ^^^^^^^^^^^^^^^^^^^
+398 |         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
+399 |         btn_img_scaled = cv2.resize(
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[no-matching-overload]: No overload of function `resize` matches arguments
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:399:26
+    |
+397 |         full_ss = self.get_screenshot()
+398 |         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
+399 |         btn_img_scaled = cv2.resize(
+    |                          ^^^^^^^^^^^
+400 |         # 1. PRIORITY: Check for 'ascend' FIRST.
+401 |         # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
+    |
+info: First overload defined here
+    --> .venv\Lib\site-packages\cv2\__init__.pyi:6228:5
+     |
+6227 | @_typing.overload
+6228 | def resize(src: cv2.typing.MatLike, dsize: cv2.typing.Size | None, dst: cv2.typing.MatLike | None = ..., fx: float = ..., fy: float = ..., interpolation: int = ...) -> cv2.typing.MatLike: ...
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6229 | @_typing.overload
+6230 | def resize(src: UMat, dsize: cv2.typing.Size | None, dst: UMat | None = ..., fx: float = ..., fy: float = ..., interpolation: int = ...) -> UMat: ...
+     |
+info: Possible overloads for function `resize`:
+info:   (src: ndarray[Any, dtype[integer[Any] | floating[Any]]], dsize: Sequence[int] | None, dst: ndarray[Any, dtype[integer[Any] | floating[Any]]] | None = ..., fx: int | float = ..., fy: int | float = ..., interpolation: int = ...) -> ndarray[Any, dtype[integer[Any] | floating[Any]]]
+info:   (src: UMat, dsize: Sequence[int] | None, dst: UMat | None = ..., fx: int | float = ..., fy: int | float = ..., interpolation: int = ...) -> UMat
+info: rule `no-matching-overload` is enabled by default
+
+error[invalid-syntax]: Expected `)`, found newline
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:399:37
+    |
+397 |         full_ss = self.get_screenshot()
+398 |         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
+399 |         btn_img_scaled = cv2.resize(
+    |                                     ^
+400 |         # 1. PRIORITY: Check for 'ascend' FIRST.
+401 |         # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
+    |
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:402:24
+    |
+400 |         # 1. PRIORITY: Check for 'ascend' FIRST.
+401 |         # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
+402 |         if "ascend" in btn_text:
+    |                        ^^^^^^^^
+403 |             logger.debug(f"Button area check: '{btn_text}' -> ascend word found")
+404 |             return True
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:403:49
+    |
+401 |         # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
+402 |         if "ascend" in btn_text:
+403 |             logger.debug(f"Button area check: '{btn_text}' -> ascend word found")
+    |                                                 ^^^^^^^^
+404 |             return True
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:406:21
+    |
+404 |             return True
+405 |
+406 |         for word in btn_text.split():
+    |                     ^^^^^^^^
+407 |             if SequenceMatcher(None, word, "ascend").ratio() >= 0.75:
+408 |                 logger.debug(
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:409:44
+    |
+407 |             if SequenceMatcher(None, word, "ascend").ratio() >= 0.75:
+408 |                 logger.debug(
+409 |                     f"Button area check: '{btn_text}' -> ascend word found (fuzzy)"
+    |                                            ^^^^^^^^
+410 |                 )
+411 |                 return True
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:416:22
+    |
+414 |         # Only check these if 'ascend' was NOT found.
+415 |         maxed_indicators = ["level cap", "phase", "cap", "limit", "max"]
+416 |         if any(kw in btn_text for kw in maxed_indicators):
+    |                      ^^^^^^^^
+417 |             logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
+418 |             return "MAXED"
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:417:49
+    |
+415 |         maxed_indicators = ["level cap", "phase", "cap", "limit", "max"]
+416 |         if any(kw in btn_text for kw in maxed_indicators):
+417 |             logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
+    |                                                 ^^^^^^^^
+418 |             return "MAXED"
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `btn_text` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:420:45
+    |
+418 |             return "MAXED"
+419 |
+420 |         logger.debug(f"Button area check: '{btn_text}' -> nothing found")
+    |                                             ^^^^^^^^
+421 |         return False
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_scan_ascension_from_panel` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:436:9
+    |
+434 |         """
+435 |         # 1. Click the Ascend button
+436 |         self.tap(Point(COORD_BTN_ASCEND[0], COORD_BTN_ASCEND[1]))
+    |         ^^^^^^^^
+437 |         time.sleep(0.8)  # Wait for panel animation or tooltip
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_scan_ascension_from_panel` has no attribute `get_screenshot`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:439:19
+    |
+437 |         time.sleep(0.8)  # Wait for panel animation or tooltip
+438 |
+439 |         full_ss = self.get_screenshot()
+    |                   ^^^^^^^^^^^^^^^^^^^
+440 |
+441 |         # 2. Check if a tooltip popped up instead of the full panel
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_scan_ascension_from_panel` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:449:13
+    |
+447 |             logger.debug("Detected Ascend lock tooltip! Hero is locked from ascending.")
+448 |             # 1. Tap the hero portrait to dismiss the tooltip (this enters hero zoom mode)
+449 |             self.tap(Point(540, 400))
+    |             ^^^^^^^^
+450 |             time.sleep(1.0)
+451 |             # 2. Tap the back button to exit zoom mode and return to the interactive hero screen
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_scan_ascension_from_panel` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:452:13
+    |
+450 |             time.sleep(1.0)
+451 |             # 2. Tap the back button to exit zoom mode and return to the interactive hero screen
+452 |             self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
+    |             ^^^^^^^^
+453 |             time.sleep(1.0)
+454 |             # Return our special temporary placeholder
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[unresolved-attribute]: Object of type `Self@_scan_ascension_from_panel` has no attribute `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:480:9
+    |
+479 |         # 6. Close the panel (Back button)
+480 |         self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
+    |         ^^^^^^^^
+481 |         time.sleep(0.5)
+    |
+info: rule `unresolved-attribute` is enabled by default
+
+error[call-top-callable]: Object of type `Top[(...) -> object]` is not safe to call; its signature is not known
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:618:53
+    |
+616 |                         (
+617 |                             match.start(),
+618 |                             (callable(rank_val) and rank_val(match)) or rank_val,
+    |                                                     ^^^^^^^^^^^^^^^
+619 |                         )
+620 |                     )
+    |
+info: This type includes all possible callables, so it cannot safely be called because there is no valid set of arguments for it
+info: Intersection element `Top[(...) -> object]` is incompatible with this call site
+info: Attempted to call intersection type `str & Top[(...) -> object]`
+info: Attempted to call union type `((m) -> str) | (str & Top[(...) -> object])`
+info: rule `call-top-callable` is enabled by default
+
+error[unresolved-reference]: Name `MASTER_GOAL_MAP` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:678:35
+    |
+676 |                 }
+677 |
+678 |                 if target_goal in MASTER_GOAL_MAP:
+    |                                   ^^^^^^^^^^^^^^^
+679 |                     # This is the gold standard. We trust the numbers above all else.
+680 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `MASTER_GOAL_MAP` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:680:36
+    |
+678 |                 if target_goal in MASTER_GOAL_MAP:
+679 |                     # This is the gold standard. We trust the numbers above all else.
+680 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |                                    ^^^^^^^^^^^^^^^
+681 |                     logger.debug(
+682 |                         f"Gold Standard Correction for {hero_name}: Milestone {target_goal} -> {current_rank}"
+    |
+info: rule `unresolved-reference` is enabled by default
+
+Found 27 diagnostics
+All checks passed!
+All checks passed!
+
+uv-lock..................................................................Passed
+fmt......................................................................Passed
+clippy...................................................................Passed
+cargo check..............................................................Passed
+prettier.................................................................Passed
+svelte-check.............................................................Passed
+Ensure only PNG images...............................(no files to check)Skipped

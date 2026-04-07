@@ -1,3 +1,3 @@
 """AFK Journey Game Package."""
 
-from .mixins.hero_scanner import HeroScannerMixin
+from .mixins.hero_scanner import HeroScannerMixin as HeroScannerMixin

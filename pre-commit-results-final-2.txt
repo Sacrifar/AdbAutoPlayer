@@ -1,0 +1,3122 @@
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check json...............................................................Passed
+check yaml...............................................................Passed
+check toml...............................................................Passed
+pretty format json.......................................................Passed
+shellcheck...............................................................Passed
+isort....................................................................Passed
+ruff check...............................................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+F821 Undefined name `Settings`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:85:27
+   |
+84 |     @property
+85 |     def settings(self) -> Settings: ...
+   |                           ^^^^^^^^
+86 |     # ----------------------------------------------
+   |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:326:89
+    |
+325 |     def resolve_locked_paragons(self, full_data: dict):
+326 |         """Resolves any heroes marked as 'Paragon Locked' based on roster unlock thresholds.
+    |                                                                                         ^^^^
+327 |
+328 |         Args:
+    |
+
+N806 Variable `SUP_THRESHOLD` in function should be lowercase
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:342:9
+    |
+341 |         # Paragon Roster Thresholds (AFKJ-Tracker Standard)
+342 |         SUP_THRESHOLD = 25
+    |         ^^^^^^^^^^^^^
+343 |         P1_THRESHOLD = 15
+344 |         P2_THRESHOLD = 15
+    |
+
+N806 Variable `P1_THRESHOLD` in function should be lowercase
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:343:9
+    |
+341 |         # Paragon Roster Thresholds (AFKJ-Tracker Standard)
+342 |         SUP_THRESHOLD = 25
+343 |         P1_THRESHOLD = 15
+    |         ^^^^^^^^^^^^
+344 |         P2_THRESHOLD = 15
+    |
+
+N806 Variable `P2_THRESHOLD` in function should be lowercase
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:344:9
+    |
+342 |         SUP_THRESHOLD = 25
+343 |         P1_THRESHOLD = 15
+344 |         P2_THRESHOLD = 15
+    |         ^^^^^^^^^^^^
+345 |
+346 |         if sup_count < SUP_THRESHOLD:
+    |
+
+F841 Local variable `master_goal_map` is assigned to but never used
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:695:17
+    |
+693 |                 target_goal = max(num_ints)
+694 |
+695 |                 master_goal_map = {
+    |                 ^^^^^^^^^^^^^^^
+696 |                     14: "Supreme",
+697 |                     25: "Supreme+",
+    |
+help: Remove assignment to unused variable `master_goal_map`
+
+F821 Undefined name `MASTER_GOAL_MAP`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:706:35
+    |
+704 |                 }
+705 |
+706 |                 if target_goal in MASTER_GOAL_MAP:
+    |                                   ^^^^^^^^^^^^^^^
+707 |                     # This is the gold standard. We trust the numbers above all else.
+708 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |
+
+F821 Undefined name `MASTER_GOAL_MAP`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:708:36
+    |
+706 |                 if target_goal in MASTER_GOAL_MAP:
+707 |                     # This is the gold standard. We trust the numbers above all else.
+708 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |                                    ^^^^^^^^^^^^^^^
+709 |                     logger.debug(
+710 |                         f"Gold Standard for {hero_name}: Milestone "
+    |
+
+E501 Line too long (92 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:746:89
+    |
+744 |         for cnt in contours:
+745 |             x, y, w, h = cv2.boundingRect(cnt)
+746 |             # Filter for hero name letters: lower height threshold (40) to be more inclusive
+    |                                                                                         ^^^^
+747 |             if h > 40 and w > 10:  # noqa: PLR2004
+748 |                 candidates.append((x, y, x + w, y + h))
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `4` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:881:38
+    |
+879 |             )
+880 |
+881 |             if len(norm_hero_val) >= 4 and (
+    |                                      ^
+882 |                 norm_hero_val in clean_name or norm_hero_key in clean_name
+883 |             ):
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `3` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:894:67
+    |
+892 |             re.sub(r"[^a-zA-Z0-9]", "", h.name).lower(): h.name for h in HeroesEnum
+893 |         }
+894 |         if text_clean in norm_to_canonical and len(text_clean) >= 3:
+    |                                                                   ^
+895 |             logger.debug(
+896 |                 f"MATCH STRATEGY: [EXACT] '{raw_text}' -> "
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `2` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:911:29
+    |
+909 |         tokens = [re.sub(r"[^a-zA-Z0-9]", "", t).lower() for t in raw_text.split()]
+910 |         for token in tokens:
+911 |             if len(token) < 2:
+    |                             ^
+912 |                 continue
+913 |             for pattern_raw, canonical in self.hero_synonyms.items():
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `5` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:917:36
+    |
+915 |                 if not pattern:
+916 |                     continue
+917 |                 if (len(pattern) < 5 and token == pattern) or (
+    |                                    ^
+918 |                     len(pattern) >= 5 and pattern in token
+919 |                 ):
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `5` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:918:37
+    |
+916 |                     continue
+917 |                 if (len(pattern) < 5 and token == pattern) or (
+918 |                     len(pattern) >= 5 and pattern in token
+    |                                     ^
+919 |                 ):
+920 |                     synonym_matches.append((len(pattern), canonical))
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `4` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:925:32
+    |
+923 |         for pattern_raw, canonical in self.hero_synonyms.items():
+924 |             pattern = re.sub(r"[^a-zA-Z0-9]", "", pattern_raw).lower()
+925 |             if len(pattern) >= 4 and pattern in text_clean:
+    |                                ^
+926 |                 synonym_matches.append((len(pattern), canonical))
+    |
+
+PLR2004 Magic value used in comparison, consider replacing `6` with a constant variable
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:939:31
+    |
+938 |         # 4. Long substring match fallback
+939 |         if len(text_clean) >= 6:  # Require significant length for substring matching
+    |                               ^
+940 |             for norm, canonical in norm_to_canonical.items():
+941 |                 if text_clean in norm or norm in text_clean:
+    |
+
+E501 Line too long (89 > 88)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:956:89
+    |
+954 |             norm_match = matches[0]
+955 |
+956 |             # EXTREMELY STRICT for short names (e.g. Vala, Odie) to avoid false positives
+    |                                                                                         ^
+957 |             if len(norm_match) < 6:  # noqa: PLR2004
+958 |                 strict_matches = get_close_matches(
+    |
+
+PLR0912 Too many branches (16 > 12)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:44:9
+   |
+43 |     @staticmethod
+44 |     def function(
+   |         ^^^^^^^^
+45 |         callable_function: Callable,
+46 |         instance: object | None = None,
+   |
+
+E501 Line too long (103 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:82:89
+   |
+81 |                 cls = None
+82 |                 # If the method belongs to a Mixin, we need to instantiate the host Game class instead.
+   |                                                                                         ^^^^^^^^^^^^^^^
+83 |                 # Mixins are just pieces of logic and don't have all attributes (like device or navigation).
+84 |                 if "Mixin" in cls_name:
+   |
+
+E501 Line too long (108 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:83:89
+   |
+81 |                 cls = None
+82 |                 # If the method belongs to a Mixin, we need to instantiate the host Game class instead.
+83 |                 # Mixins are just pieces of logic and don't have all attributes (like device or navigation).
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+84 |                 if "Mixin" in cls_name:
+85 |                     try:
+   |
+
+E501 Line too long (95 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:90:89
+   |
+88 |                         if "games" in parts:
+89 |                             idx = parts.index("games")
+90 |                             # Root package of the game, e.g., adb_auto_player.games.afk_journey
+   |                                                                                         ^^^^^^^
+91 |                             parent_pkg = ".".join(parts[: idx + 2])
+92 |                             base_mod_name = f"{parent_pkg}.base"
+   |
+
+PLC0415 `import` should be at the top-level of a file
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:93:29
+   |
+91 |                             parent_pkg = ".".join(parts[: idx + 2])
+92 |                             base_mod_name = f"{parent_pkg}.base"
+93 |                             import importlib
+   |                             ^^^^^^^^^^^^^^^^
+94 |
+95 |                             base_mod = importlib.import_module(base_mod_name)
+   |
+
+E501 Line too long (100 > 88)
+  --> src-tauri\src-python\adb_auto_player\util\execute.py:96:89
+   |
+95 | ÔÇª                     base_mod = importlib.import_module(base_mod_name)
+96 | ÔÇª                     # Find the class that contains 'Base' in its name (e.g., AFKJourneyBase)
+   |                                                                                   ^^^^^^^^^^^^
+97 | ÔÇª                     for attr_name in dir(base_mod):
+98 | ÔÇª                         attr = getattr(base_mod, attr_name)
+   |
+
+Found 23 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+
+ruff format..............................................................Failed
+- hook id: ruff-format
+- files were modified by this hook
+
+1 file reformatted, 211 files left unchanged
+
+ty-check.................................................................Failed
+- hook id: ty
+- exit code: 1
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\level_up_all.py:33:30
+   |
+31 |             for _ in range(3):
+32 |                 for _ in range(10):
+33 |                     self.tap(level_up_all_button, blocking=False, log=False)
+   |                              ^^^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+34 |                 sleep(2)
+35 |             sleep(3)
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `blocking` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\level_up_all.py:33:51
+   |
+31 |             for _ in range(3):
+32 |                 for _ in range(10):
+33 |                     self.tap(level_up_all_button, blocking=False, log=False)
+   |                                                   ^^^^^^^^^^^^^^
+34 |                 sleep(2)
+35 |             sleep(3)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\level_up_all.py:33:67
+   |
+31 |             for _ in range(3):
+32 |                 for _ in range(10):
+33 |                     self.tap(level_up_all_button, blocking=False, log=False)
+   |                                                                   ^^^^^^^^^
+34 |                 sleep(2)
+35 |             sleep(3)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:81:30
+   |
+79 |             match result.template:
+80 |                 case "arcane_labyrinth/quit_door.png":
+81 |                     self.tap(result)
+   |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+82 |                     sleep(0.2)
+83 |                 case _:
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:84:30
+   |
+82 |                     sleep(0.2)
+83 |                 case _:
+84 |                     self.tap(result)
+   |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+85 |                     continue
+86 |             break
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:182:18
+    |
+180 |             self._add_keys_farmed(9)
+181 |
+182 |         self.tap(result)
+    |                  ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+183 |         sleep(1)
+184 |         confirm = self.game_find_template_match(
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:189:22
+    |
+187 |         )
+188 |         if confirm:
+189 |             self.tap(confirm)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+190 |
+191 |     def _handle_arcane_labyrinth(self) -> bool:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:217:30
+    |
+215 |             ):
+216 |                 if self.arcane_tap_to_close_point is not None:
+217 |                     self.tap(self.arcane_tap_to_close_point)
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `Point`, found `Coordinates`
+218 |                 self.tap(Point(result.x, result.y + 500))
+219 |             case (
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:223:26
+    |
+221 |                 | "arcane_labyrinth/crest_crystal_ball.png"
+222 |             ):
+223 |                 self.tap(result)
+    |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+224 |                 self._handle_shop()
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:238:26
+    |
+236 |                 self._select_a_crest()
+237 |             case "arcane_labyrinth/quit.png":
+238 |                 self.tap(result)
+    |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+239 |                 return False
+240 |             case "arcane_labyrinth/tap_to_close.png":
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:242:26
+    |
+240 |             case "arcane_labyrinth/tap_to_close.png":
+241 |                 self.arcane_tap_to_close_point = result
+242 |                 self.tap(result)
+    |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+243 |                 while self.game_find_template_match(
+244 |                     template="arcane_labyrinth/tap_to_close.png",
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:247:30
+    |
+245 |                     crop_regions=CropRegions(top=0.8),
+246 |                 ):
+247 |                     self.tap(result)
+    |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+248 |         return True
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:283:30
+    |
+281 |                         "_arcane_lab_start_battle: additional challenge popup"
+282 |                     )
+283 |                     self.tap(result)
+    |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+284 |                 case "arcane_labyrinth/battle.png":
+285 |                     battle_click_count += 1
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:290:25
+    |
+288 |                         raise BattleCannotBeStartedError("Failed to start Battle")
+289 |                     self.tap(
+290 |                         result,
+    |                         ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+291 |                         log_message=(
+292 |                             "Tapped arcane_labyrinth/battle.png "
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:291:25
+    |
+289 |                       self.tap(
+290 |                           result,
+291 | /                         log_message=(
+292 | |                             "Tapped arcane_labyrinth/battle.png "
+293 | |                             f"attempt #{battle_click_count}"
+294 | |                         ),
+    | |_________________________^
+295 |                       )
+296 |               sleep(0.5)
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:313:30
+    |
+311 |                 logging.debug("Lowering difficulty")
+312 |                 while (max_difficulty - difficulty) > 0:
+313 |                     self.tap(left_arrow)
+    |                              ^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+314 |                     sleep(1)
+315 |                     difficulty += 1
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:325:22
+    |
+323 |             crop_regions=CropRegions(top=0.8, left=0.3),
+324 |         ):
+325 |             self.tap(enter)
+    |                      ^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+326 |             sleep(2)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:351:26
+    |
+349 |             )
+350 |             if checkbox is not None:
+351 |                 self.tap(checkbox)
+    |                          ^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+352 |         self._click_confirm_on_popup()
+353 |         _ = self.wait_for_any_template(
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:451:26
+    |
+449 |             case "arcane_labyrinth/tap_to_close.png":
+450 |                 self.arcane_tap_to_close_point = result
+451 |                 self.tap(self.arcane_tap_to_close_point)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+452 |             case "arcane_labyrinth/skip.png":
+453 |                 self.arcane_skip_point = result
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:468:22
+    |
+466 |     def _click_skip(self):
+467 |         if self.arcane_skip_point:
+468 |             self.tap(self.arcane_skip_point, log_message="Tapped skip")
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ Expected `Point`, found `Coordinates & ~AlwaysFalsy`
+469 |             sleep(1)
+470 |             self.handle_popup_messages()
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:468:46
+    |
+466 |     def _click_skip(self):
+467 |         if self.arcane_skip_point:
+468 |             self.tap(self.arcane_skip_point, log_message="Tapped skip")
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+469 |             sleep(1)
+470 |             self.handle_popup_messages()
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:481:22
+    |
+479 |         )
+480 |         if len(results) <= 1:
+481 |             self.tap(swords)
+    |                      ^^^^^^ Expected `Point`, found `Coordinates`
+482 |             return
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:498:22
+    |
+496 |         if result is None:
+497 |             logging.warning("Could not resolve best gate")
+498 |             self.tap(swords)
+    |                      ^^^^^^ Expected `Point`, found `Coordinates`
+499 |             return
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:504:18
+    |
+503 |         closest_match = min(results, key=lambda match: abs(match.x - result.x))
+504 |         self.tap(closest_match)
+    |                  ^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult | UnspecializedTypeVar`
+505 |         return
+    |
+info: Element `TemplateMatchResult` of this union is not assignable to `Point`
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:547:30
+    |
+545 |                         break
+546 |
+547 |                     self.tap(item_price)
+    |                              ^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+548 |                     sleep(0.5)
+549 |                     purchase = self.game_find_template_match(
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:557:30
+    |
+555 |                     purchase_count += 1
+556 |                     logging.info(f"Purchase #{purchase_count}")
+557 |                     self.tap(purchase)
+    |                              ^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+558 |                     sleep(2)
+559 |                     continue
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arcane_labyrinth.py:577:30
+    |
+575 |                     self._select_a_crest()
+576 |                 case _:
+577 |                     self.tap(result)
+    |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+578 |                     break
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 27 diagnostics
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:21:44
+   |
+19 |         logging.info("Tapping AFK Rewards chest.")
+20 |         for _ in range(3):
+21 |             self.tap(Point(x=520, y=1400), log=False)
+   |                                            ^^^^^^^^^
+22 |             self.tap(Point(x=550, y=1080), log=False)
+23 |             sleep(1)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:22:44
+   |
+20 |         for _ in range(3):
+21 |             self.tap(Point(x=520, y=1400), log=False)
+22 |             self.tap(Point(x=550, y=1080), log=False)
+   |                                            ^^^^^^^^^
+23 |             sleep(1)
+24 |         sleep(1)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:26:40
+   |
+24 |         sleep(1)
+25 |         # Make sure the Popup doesn't block collecting AFK Rewards
+26 |         self.tap(Point(x=550, y=1080), log=False)
+   |                                        ^^^^^^^^^
+27 |         if self.settings.claim_afk_rewards.claim_stage_rewards:
+28 |             for _ in range(5):
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:29:47
+   |
+27 |         if self.settings.claim_afk_rewards.claim_stage_rewards:
+28 |             for _ in range(5):
+29 |                 self.tap(Point(x=770, y=500), log=False)
+   |                                               ^^^^^^^^^
+30 |                 self.tap(Point(x=770, y=500), log=False)
+31 |                 sleep(1)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:30:47
+   |
+28 |             for _ in range(5):
+29 |                 self.tap(Point(x=770, y=500), log=False)
+30 |                 self.tap(Point(x=770, y=500), log=False)
+   |                                               ^^^^^^^^^
+31 |                 sleep(1)
+32 |             if cancel := self.game_find_template_match("cancel.png"):
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\claim_afk_rewards.py:33:26
+   |
+31 |                 sleep(1)
+32 |             if cancel := self.game_find_template_match("cancel.png"):
+33 |                 self.tap(cancel)
+   |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+34 |         logging.info("AFK Rewards claimed.")
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\frostfire_showdown.py:501:22
+    |
+499 |                 f"(Hero {selected_heroes + 1}/{hero_slots})"
+500 |             )
+501 |             self.tap(hero_checker)
+    |                      ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+502 |             sleep(1)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\homestead_helper.py:139:18
+    |
+137 |             ),
+138 |         )
+139 |         self.tap(building_button)
+    |                  ^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+140 |         sleep(2)
+141 |         # Static UI: tap the entry point, then wait for the production action button.
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\homestead_helper.py:147:26
+    |
+145 |                 list(self.PRODUCTION_ACTION_BUTTON_TEMPLATES)
+146 |             ):
+147 |                 self.tap(production_button)
+    |                          ^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+148 |                 sleep(3)
+149 |                 return True
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\homestead_helper.py:191:18
+    |
+189 |             timeout_message="Failed to find Homestead overview button.",
+190 |         )
+191 |         self.tap(overview_check)
+    |                  ^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+192 |         sleep(2)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\homestead_helper.py:206:22
+    |
+204 |                 timeout_message="Failed to find Homestead production button.",
+205 |             )
+206 |             self.tap(production_button)
+    |                      ^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+207 |             sleep(2)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 11 diagnostics
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dream_realm.py:97:22
+   |
+95 |         if buy:
+96 |             logging.debug("Purchasing DR attempt.")
+97 |             self.tap(buy)
+   |                      ^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+98 |             return True
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dream_realm.py:108:22
+    |
+106 |             )
+107 |             logging.debug("Purchasing DR attempt.")
+108 |             self.tap(buy)
+    |                      ^^^ Expected `Point`, found `TemplateMatchResult`
+109 |             return True
+110 |         except GameTimeoutError:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dream_realm.py:125:22
+    |
+123 |                 timeout=self.MIN_TIMEOUT,
+124 |             )
+125 |             self.tap(dr_mode)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+126 |             sleep(2)
+127 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dream_realm.py:140:18
+    |
+138 |             return
+139 |
+140 |         self.tap(reward)
+    |                  ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+141 |         sleep(2)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dream_realm.py:150:22
+    |
+148 |                 timeout_message="Dream Realm rewards already claimed.",
+149 |             )
+150 |             self.tap(tap_to_close)
+    |                      ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+151 |             sleep(1)
+152 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\sunlit_showdown.py:154:26
+    |
+152 |                     + hero_checker.template.split("/")[1].split("_")[0].capitalize()
+153 |                 )
+154 |                 self.tap(hero_checker)
+    |                          ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+155 |                 sleep(1)
+156 |                 selected_heroes += 1
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+warning[unused-ignore-comment]: Unused `ty: ignore` directive
+  --> src-tauri\src-python\adb_auto_player\ocr\tesseract_backend.py:63:86
+   |
+61 |                 first_str = str(first)
+62 |                 if "tesseract" in first_str.lower():
+63 |                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)  # ty: ignore[unresolved-attribute] macOS specific
+   |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+64 |             super().__init__(args, *popenargs, **kwargs)
+   |
+help: Remove the unused suppression comment
+60 |                     first = cmd
+61 |                 first_str = str(first)
+62 |                 if "tesseract" in first_str.lower():
+   -                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)  # ty: ignore[unresolved-attribute] macOS specific
+63 +                     kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)
+64 |             super().__init__(args, *popenargs, **kwargs)
+65 |
+66 |     # we are overwriting Popen on purpose so it does not open a terminal window
+
+Found 7 diagnostics
+All checks passed!
+All checks passed!
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:167:22
+    |
+165 |         retry_button = self._find_retry_button(timeout=5.0)
+166 |         if retry_button:
+167 |             self.tap(retry_button)
+    |                      ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+168 |             sleep(2)
+169 |             return
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:323:26
+    |
+321 |                 )
+322 |                 start_image = self.get_screenshot()
+323 |                 self.tap(formation_next)
+    |                          ^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+324 |                 sleep(15.0 / 30.0)
+325 |                 self.wait_for_roi_change(
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:355:22
+    |
+353 |         if cancel:
+354 |             logging.warning("Formation contains locked Artifacts or Heroes skipping")
+355 |             self.tap(cancel)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+356 |             return False
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-syntax]: Cannot use an escape sequence (backslash) in f-strings on Python 3.11 (syntax was added in Python 3.12)
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:420:33
+    |
+418 |         """
+419 |         excluded_heroes_dict: dict[str, str] = {
+420 |             f"heroes/{re.sub(r'[\s&]', '', name.value.lower())}.png": name.value
+    |                                 ^
+421 |             for name in self.settings.general.excluded_heroes
+422 |         }
+    |
+info: Python 3.11 was assumed when parsing syntax
+ --> pyproject.toml:4:19
+  |
+2 | name = "workspace"
+3 | version = "0.1.0"
+4 | requires-python = ">=3.11"
+  |                   ^^^^^^^^ Python version configuration
+5 | dependencies = [
+6 |     "pytest-cov>=7.1.0",
+  |
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:519:22
+    |
+517 |         )
+518 |         if result:
+519 |             self.tap(result)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+520 |             sleep(1)
+521 |             return True
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:667:25
+    |
+665 |                     self.tap(
+666 |                         Point(x=550, y=1800),
+667 |                         log_message=f"Lost Battle #{attempt}, retrying",
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+668 |                     )
+669 |                     sleep(3)
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:683:26
+    |
+681 |                     "Network Error or Battle data differs between client and server"
+682 |                 )
+683 |                 self.tap(match)
+    |                          ^^^^^ Expected `Point`, found `TemplateMatchResult`
+684 |                 sleep(3)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:694:26
+    |
+693 |             case "retry.png":
+694 |                 self.tap(match, log_message=f"Lost Battle #{attempt}, retrying")
+    |                          ^^^^^ Expected `Point`, found `TemplateMatchResult`
+695 |                 result = False
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:694:33
+    |
+693 |             case "retry.png":
+694 |                 self.tap(match, log_message=f"Lost Battle #{attempt}, retrying")
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+695 |                 result = False
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\base.py:716:22
+    |
+714 |             if result is None:
+715 |                 break
+716 |             self.tap(result)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+717 |             sleep(1)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\afk_stages.py:83:17
+   |
+81 |             self.tap(
+82 |                 Point(x=300, y=1610),
+83 |                 log_message="Clicking Season AFK Stages button",
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+84 |             )
+85 |         else:
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log_message` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\afk_stages.py:88:17
+   |
+86 |             self.tap(
+87 |                 Point(x=800, y=1610),
+88 |                 log_message="Clicking Battle button",
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+89 |             )
+90 |         sleep(2)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\afk_stages.py:95:22
+   |
+93 |             crop_regions=CropRegions(left=0.5, top=0.5),
+94 |         ):
+95 |             self.tap(confirm)
+   |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+96 |
+97 |     def check_stages_are_available(self) -> None:
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:108:22
+    |
+106 |                 timeout_message="No more free hourglasses.",
+107 |             )
+108 |             self.tap(free_hourglass)
+    |                      ^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+109 |             sleep(self.FAST_TIMEOUT)
+110 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:134:22
+    |
+132 |                 timeout_message="Failed to find Emporium.",
+133 |             )
+134 |             self.tap(emporium)
+    |                      ^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+135 |         except GameTimeoutError as fail:
+136 |             logging.error(fail)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:157:22
+    |
+155 |                 timeout_message="Failed to find Guild Store.",
+156 |             )
+157 |             self.tap(guild_store)
+    |                      ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+158 |         except GameTimeoutError as fail:
+159 |             logging.error(f"{fail} {self.LANG_ERROR}")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:169:22
+    |
+167 |                 timeout_message="Discount Invite Letter already purchased.",
+168 |             )
+169 |             self.tap(invite_letter)
+    |                      ^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+170 |
+171 |             logging.debug("Confirm purchase.")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:177:22
+    |
+175 |                 timeout_message="Failed to purchase Invite Letter.",
+176 |             )
+177 |             self.tap(buy_letter)
+    |                      ^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+178 |             sleep(self.FAST_TIMEOUT)  # pop up takes time to appear in slow devices
+179 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:203:22
+    |
+201 |                 timeout_message="Failed to find Friendship Store.",
+202 |             )
+203 |             self.tap(friendship_store)
+    |                      ^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+204 |             sleep(1)
+205 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:216:22
+    |
+214 |         if discount_affinity:
+215 |             logging.info("Attempting to buy the discount affinity item.")
+216 |             self.tap(discount_affinity)
+    |                      ^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+217 |             sleep(1)
+218 |             self.tap(Point(600, 1780))  # Purchase
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:237:22
+    |
+236 |         for affinity_item in other_affinity_items:
+237 |             self.tap(affinity_item)
+    |                      ^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+238 |             sleep(1)
+239 |             self.tap(Point(600, 1780))  # Purchase
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:261:22
+    |
+259 |                 timeout_message="Failed to find Dream Store.",
+260 |             )
+261 |             self.tap(dream_store)
+    |                      ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+262 |             sleep(1)
+263 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:284:22
+    |
+283 |             logging.info(f"Buying essence {i + 1}.")
+284 |             self.tap(essence)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+285 |             sleep(1)
+286 |             self.tap(Point(600, 1780))  # Purchase
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:309:22
+    |
+307 |                 timeout_message="Failed to find the Noble Tavern.",
+308 |             )
+309 |             self.tap(tavern)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+310 |             sleep(self.FAST_TIMEOUT)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:318:22
+    |
+316 |                 timeout_message="Failed to find All-Hero Recruitment.",
+317 |             )
+318 |             self.tap(all_hero_recruit)
+    |                      ^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+319 |             sleep(self.FAST_TIMEOUT)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:327:22
+    |
+325 |                 timeout_message="No Invite Letters.",
+326 |             )
+327 |             self.tap(recruit)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+328 |             sleep(self.FAST_TIMEOUT)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:335:26
+    |
+333 |             if max_hero_continue:
+334 |                 logging.debug("Dismiss max hero warning.")
+335 |                 self.tap(max_hero_continue)
+    |                          ^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+336 |
+337 |             logging.debug("Wait for back button.")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:343:22
+    |
+341 |                 timeout_message="Failed to recruit.",
+342 |             )
+343 |             self.tap(confirm_summon)
+    |                      ^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+344 |             sleep(self.FAST_TIMEOUT)
+345 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:379:22
+    |
+377 |                 timeout_message="Failed to find Friends. Sadge.",
+378 |             )
+379 |             self.tap(friends)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+380 |             sleep(1)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:388:22
+    |
+386 |                 timeout_message="Friend rewards already claimed.",
+387 |             )
+388 |             self.tap(send_receive)
+    |                      ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+389 |             sleep(self.FAST_TIMEOUT)
+390 |             self.tap(Point(540, 1620))  # Close confirmation
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:398:18
+    |
+396 |         logging.debug("Back.")  # TODO: Create generic back method.
+397 |         back = self.game_find_template_match("back.png")
+398 |         self.tap(back) if back else self.press_back_button()
+    |                  ^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+399 |
+400 |     def _claim_mail(self) -> None:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:410:22
+    |
+408 |                 timeout_message="Failed to find Mail.",
+409 |             )
+410 |             self.tap(mail)
+    |                      ^^^^ Expected `Point`, found `TemplateMatchResult`
+411 |             sleep(1)
+412 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:423:22
+    |
+421 |                 timeout_message="No mail.",
+422 |             )
+423 |             self.tap(read_all)
+    |                      ^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+424 |             sleep(1)
+425 |             self.tap(Point(540, 1620))  # Close confirmation
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:432:18
+    |
+430 |         logging.debug("Back.")
+431 |         back = self.game_find_template_match("back.png")
+432 |         self.tap(back) if back else self.press_back_button()
+    |                  ^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+433 |
+434 |     def _claim_battle_pass(self) -> None:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:444:22
+    |
+442 |                 timeout_message="Failed to find Battle Pass.",
+443 |             )
+444 |             self.tap(battle_pass)
+    |                      ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+445 |             sleep(self.FAST_TIMEOUT)
+446 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:455:22
+    |
+453 |         )
+454 |         for bp_reward in available_rewards:
+455 |             self.tap(bp_reward)
+    |                      ^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+456 |             sleep(self.FAST_TIMEOUT)
+457 |             self._quick_claim()
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:462:18
+    |
+460 |         logging.debug("Back.")
+461 |         back = self.game_find_template_match("back.png")
+462 |         self.tap(back) if back else self.press_back_button()
+    |                  ^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+463 |
+464 |     def _claim_quests(self) -> None:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:474:22
+    |
+472 |                 timeout_message="Failed to find daily Quests.",
+473 |             )
+474 |             self.tap(quests)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+475 |             sleep(self.FAST_TIMEOUT)
+476 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:500:18
+    |
+498 |             return
+499 |
+500 |         self.tap(claim)
+    |                  ^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+501 |         sleep(self.FAST_TIMEOUT)
+502 |         self.tap(Point(540, 1620))  # Close confirmation
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:570:22
+    |
+568 |                 timeout_message="Failed to find New Actions button.",
+569 |             )
+570 |             self.tap(new_actions)
+    |                      ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+571 |             sleep(self.FAST_TIMEOUT)
+572 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:597:26
+    |
+595 |                     raise GameTimeoutError(f"Failed to find action template #{i}.")
+596 |
+597 |                 self.tap(action)
+    |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+598 |                 sleep(self.FAST_TIMEOUT)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:606:22
+    |
+604 |                 timeout_message="Failed to find Confirm button.",
+605 |             )
+606 |             self.tap(confirm)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+607 |             sleep(self.FAST_TIMEOUT)
+608 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\dailies.py:620:26
+    |
+618 |             back = self.game_find_template_match("back.png")
+619 |             if back:
+620 |                 self.tap(back)
+    |                          ^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+621 |             else:
+622 |                 self.press_back_button()
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 43 diagnostics
+All checks passed!
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\equip_new_equipment.py:92:26
+   |
+90 |                 crop_regions=CropRegions(top="80%", right="80%"),
+91 |             ):
+92 |                 self.tap(btn)
+   |                          ^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+93 |                 sleep(3)
+94 |         if not equipment_found:
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\equip_new_equipment.py:151:26
+    |
+149 |                 threshold=self._EQUIPMENT_TEMPLATE_THRESHOLD,
+150 |             ):
+151 |                 self.tap(class_icon)
+    |                          ^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+152 |             try:
+153 |                 quick_equip = self.wait_for_template(
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\equip_new_equipment.py:159:26
+    |
+157 |                     timeout=self.MIN_TIMEOUT,
+158 |                 )
+159 |                 self.tap(quick_equip)
+    |                          ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+160 |                 self.wait_until_template_disappears(
+161 |                     template="equipment/quick_equip.png",
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\equip_new_equipment.py:211:30
+    |
+209 |                     count += 1
+210 |                     logging.info("Opening Equipment Chests.")
+211 |                     self.tap(result)
+    |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+212 |                     # Close the next Popup showing the Equipment
+213 |                     sleep(2)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\custom_routine\equip_new_equipment.py:214:30
+    |
+212 |                     # Close the next Popup showing the Equipment
+213 |                     sleep(2)
+214 |                     self.tap(result)
+    |                              ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+215 |                     result = self.wait_for_any_template(
+216 |                         templates=templates,
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\fishing.py:246:22
+    |
+244 |         else:
+245 |             # TODO make it always hit the middle of the size slider
+246 |             self.tap(btn)
+    |                      ^^^ Expected `Point`, found `Coordinates`
+247 |             sleep(1)
+248 |         self.wait_for_fish_hooked()
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\fishing.py:250:18
+    |
+248 |         self.wait_for_fish_hooked()
+249 |         sleep(0.6)
+250 |         self.tap(btn, blocking=False)
+    |                  ^^^ Expected `Point`, found `Coordinates`
+251 |
+252 |         # TODO This part is a bit sus. Needs to be double checked.
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `blocking` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\fishing.py:250:23
+    |
+248 |         self.wait_for_fish_hooked()
+249 |         sleep(0.6)
+250 |         self.tap(btn, blocking=False)
+    |                       ^^^^^^^^^^^^^^
+251 |
+252 |         # TODO This part is a bit sus. Needs to be double checked.
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `blocking` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\fishing.py:288:29
+    |
+286 |                         self.tap(
+287 |                             STRONG_PULL,
+288 |                             blocking=False,
+    |                             ^^^^^^^^^^^^^^
+289 |                             log=False,
+290 |                         )
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\fishing.py:289:29
+    |
+287 |                             STRONG_PULL,
+288 |                             blocking=False,
+289 |                             log=False,
+    |                             ^^^^^^^^^
+290 |                         )
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\legend_trial.py:81:22
+   |
+80 |             logging.info(f"Starting {faction} Tower")
+81 |             self.tap(result)
+   |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+82 |             try:
+83 |                 self._select_legend_trials_floor()
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\legend_trial.py:126:34
+    |
+124 |                 match match.template:
+125 |                     case "next.png":
+126 |                         self.tap(match)
+    |                                  ^^^^^ Expected `Point`, found `TemplateMatchResult`
+127 |                         continue
+128 |                     case _:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\legend_trial.py:155:18
+    |
+153 |             "assuming Trial is already cleared",
+154 |         )
+155 |         self.tap(challenge_btn)
+    |                  ^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+156 |
+157 |     def _is_on_season_legend_trial_select(self) -> bool:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 13 diagnostics
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\matching_cards.py:75:13
+   |
+73 |         self.tap(
+74 |             Point(int(1080 / 2), int(1920 / 2)),
+75 |             log=False,
+   |             ^^^^^^^^^
+76 |         )
+77 |         sleep(3)
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\matching_cards.py:96:30
+   |
+94 |                     threshold=ConfidenceValue("60%"),
+95 |                 ):
+96 |                     self.tap(result.with_offset(cropped.offset), log=False)
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Expected `Point`, found `MatchResult`
+97 |                     last_match_time = time.monotonic()
+98 |                     targets = [target]
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `log` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\minigames\matching_cards.py:96:66
+   |
+94 |                     threshold=ConfidenceValue("60%"),
+95 |                 ):
+96 |                     self.tap(result.with_offset(cropped.offset), log=False)
+   |                                                                  ^^^^^^^^^
+97 |                     last_match_time = time.monotonic()
+98 |                     targets = [target]
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+Found 3 diagnostics
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:64:22
+   |
+62 |                 timeout=self.MIN_TIMEOUT,
+63 |             )
+64 |             self.tap(arena_mode)
+   |                      ^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+65 |             sleep(2)
+66 |         except GameTimeoutError as fail:
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:105:22
+    |
+103 |             )
+104 |             sleep(2)
+105 |             self.tap(btn)
+    |                      ^^^ Expected `Point`, found `TemplateMatchResult`
+106 |
+107 |             logging.debug("Choosing opponent.")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:114:22
+    |
+112 |                 timeout_message="Failed to find Arena opponent.",
+113 |             )
+114 |             self.tap(opponent)
+    |                      ^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+115 |         except GameTimeoutError as fail:
+116 |             logging.error(fail)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:128:22
+    |
+126 |             )
+127 |             sleep(2)
+128 |             self.tap(start)
+    |                      ^^^^^ Expected `Point`, found `TemplateMatchResult`
+129 |
+130 |             logging.debug("Skip battle.")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:136:22
+    |
+134 |                 timeout_message="Failed to skip Arena battle.",
+135 |             )
+136 |             self.tap(skip)
+    |                      ^^^^ Expected `Point`, found `TemplateMatchResult`
+137 |
+138 |             logging.debug("Battle complete.")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:145:22
+    |
+143 |             )
+144 |             sleep(4)
+145 |             self.tap(confirm)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+146 |             sleep(2)
+147 |         except GameTimeoutError as fail:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:163:22
+    |
+161 |                 timeout_message="Failed looking for free attempts.",
+162 |             )
+163 |             self.tap(buy)
+    |                      ^^^ Expected `Point`, found `TemplateMatchResult`
+164 |         except GameTimeoutError:
+165 |             return True  # Not breaking, but would be interested in why it failed.
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\arena.py:178:26
+    |
+176 |             cancel = self.game_find_template_match("arena/cancel_purchase.png")
+177 |             (
+178 |                 self.tap(cancel)
+    |                          ^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+179 |                 if cancel
+180 |                 else self.tap(Point(550, 1790))  # Cancel fallback
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\duras_trials.py:80:30
+   |
+78 |                     return False
+79 |                 case "duras_trials/battle.png":
+80 |                     self.tap(dura_state_result)
+   |                              ^^^^^^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+81 |                     sleep(2)
+82 |                 case "battle/records.png":
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\duras_trials.py:108:26
+    |
+106 |             SummaryGenerator.increment("Dura's Trials", "Cleared")
+107 |             if next_button is not None:
+108 |                 self.tap(next_button)
+    |                          ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+109 |                 self.tap(next_button)
+110 |                 sleep(3)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\duras_trials.py:109:26
+    |
+107 |             if next_button is not None:
+108 |                 self.tap(next_button)
+109 |                 self.tap(next_button)
+    |                          ^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+110 |                 sleep(3)
+111 |                 return False  # Continue battle loop
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[empty-body]: Function always implicitly returns `None`, which is not assignable to return type `ndarray[tuple[Any, ...], dtype[Any]]`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:80:33
+   |
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+80 |     def get_screenshot(self) -> np.ndarray: ...
+   |                                 ^^^^^^^^^^
+81 |     def press_back_button(self): ...
+82 |     def navigate_toresonating_hall(self): ...
+   |
+info: Consider changing the return annotation to `-> None` or adding a `return` statement
+info: Functions with empty bodies and non-`None` return types are only permitted:
+info:  - in stub files
+info:  - in `if TYPE_CHECKING` blocks
+info:  - as methods on protocol classes
+info:  - or as `@abstractmethod`-decorated methods on abstract classes
+info: rule `empty-body` is enabled by default
+
+error[unresolved-reference]: Name `Settings` used when not defined
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:85:27
+   |
+84 |     @property
+85 |     def settings(self) -> Settings: ...
+   |                           ^^^^^^^^
+86 |
+87 |     # ----------------------------------------------
+   |
+info: rule `unresolved-reference` is enabled by default
+
+error[no-matching-overload]: No overload of bound method `join` matches arguments
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:145:24
+    |
+143 |             # New RapidOCROutput format (v1.3.0+)
+144 |             if hasattr(result, "txts") and result.txts:
+145 |                 return " ".join(result.txts).strip()
+    |                        ^^^^^^^^^^^^^^^^^^^^^
+146 |
+147 |             # Handle list/tuple format
+    |
+info: First overload defined here
+    --> stdlib\builtins.pyi:1109:9
+     |
+1108 |     @overload
+1109 |     def join(self: LiteralString, iterable: Iterable[LiteralString], /) -> LiteralString:
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1110 |         """Concatenate any number of strings.
+     |
+info: Possible overloads for bound method `join`:
+info:   (self: LiteralString, iterable: Iterable[LiteralString], /) -> LiteralString
+info:   (self, iterable: Iterable[str], /) -> str
+info: rule `no-matching-overload` is enabled by default
+
+error[call-top-callable]: Object of type `Top[(...) -> object]` is not safe to call; its signature is not known
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:646:53
+    |
+644 |                         (
+645 |                             match.start(),
+646 |                             (callable(rank_val) and rank_val(match)) or rank_val,
+    |                                                     ^^^^^^^^^^^^^^^
+647 |                         )
+648 |                     )
+    |
+info: This type includes all possible callables, so it cannot safely be called because there is no valid set of arguments for it
+info: Intersection element `Top[(...) -> object]` is incompatible with this call site
+info: Attempted to call intersection type `str & Top[(...) -> object]`
+info: Attempted to call union type `((m) -> str) | (str & Top[(...) -> object])`
+info: rule `call-top-callable` is enabled by default
+
+error[unresolved-reference]: Name `MASTER_GOAL_MAP` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:707:35
+    |
+705 |                 }
+706 |
+707 |                 if target_goal in MASTER_GOAL_MAP:
+    |                                   ^^^^^^^^^^^^^^^
+708 |                     # This is the gold standard. We trust the numbers above all else.
+709 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |
+info: rule `unresolved-reference` is enabled by default
+
+error[unresolved-reference]: Name `MASTER_GOAL_MAP` used when not defined
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:709:36
+    |
+707 |                 if target_goal in MASTER_GOAL_MAP:
+708 |                     # This is the gold standard. We trust the numbers above all else.
+709 |                     current_rank = MASTER_GOAL_MAP[target_goal]
+    |                                    ^^^^^^^^^^^^^^^
+710 |                     logger.debug(
+711 |                         f"Gold Standard for {hero_name}: Milestone "
+    |
+info: rule `unresolved-reference` is enabled by default
+
+Found 17 diagnostics
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\titan_reaver_proxy_battle.py:232:22
+    |
+230 |             )
+231 |
+232 |             self.tap(result)
+    |                      ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+233 |
+234 |             if template == "battle/skip.png":
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 1 diagnostic
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\assist.py:78:18
+   |
+76 |             return False
+77 |
+78 |         self.tap(profile_icon)
+   |                  ^^^^^^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+79 |         try:
+80 |             result = self.wait_for_any_template(
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\assist.py:103:18
+    |
+101 |                 sleep(1)
+102 |             return False
+103 |         self.tap(result)
+    |                  ^^^^^^ Expected `Point`, found `TemplateMatchResult`
+104 |         match result.template:
+105 |             case "assist/join_now.png":
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\assist.py:131:22
+    |
+129 |             crop_regions=CropRegions(left=0.2, right=0.1, top=0.8),
+130 |         ):
+131 |             self.tap(ready)
+    |                      ^^^^^ Expected `Point`, found `TemplateMatchResult`
+132 |             sleep(0.5)
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\assist.py:165:26
+    |
+163 |             )
+164 |             if cc_ready:
+165 |                 self.tap(cc_ready)
+    |                          ^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+166 |                 sleep(1)
+167 |             else:
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\assist.py:185:18
+    |
+183 |             logging.info("Clicked Synergy button too late")
+184 |             return False
+185 |         self.tap(go)
+    |                  ^^ Expected `Point`, found `TemplateMatchResult`
+186 |         sleep(3)
+187 |         self.tap(Point(130, 900))
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\quests.py:72:30
+   |
+70 |                 if farewell:
+71 |                     logging.warning("Non-quest dialogue found, clearing")
+72 |                     self.tap(farewell, scale=True)
+   |                              ^^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+73 |                     sleep(2)
+74 |                     # Manually path away from the dialogue
+   |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `scale` does not match any known parameter of bound method `tap`
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\quests.py:72:40
+   |
+70 |                 if farewell:
+71 |                     logging.warning("Non-quest dialogue found, clearing")
+72 |                     self.tap(farewell, scale=True)
+   |                                        ^^^^^^^^^^
+73 |                     sleep(2)
+74 |                     # Manually path away from the dialogue
+   |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\quests.py:162:22
+    |
+160 |                 + result2.template.split("/")[-1].replace("_", " ").capitalize()
+161 |             )
+162 |             self.tap(result2, scale=True)
+    |                      ^^^^^^^ Expected `Point`, found `TemplateMatchResult`
+163 |             if result2.template == "quests/start_battle":
+164 |                 logging.info("Waiting for battle to finish")
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+error[unknown-argument]: Argument `scale` does not match any known parameter of bound method `tap`
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\quests.py:162:31
+    |
+160 |                 + result2.template.split("/")[-1].replace("_", " ").capitalize()
+161 |             )
+162 |             self.tap(result2, scale=True)
+    |                               ^^^^^^^^^^
+163 |             if result2.template == "quests/start_battle":
+164 |                 logging.info("Waiting for battle to finish")
+    |
+info: Method signature here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `unknown-argument` is enabled by default
+
+error[invalid-argument-type]: Argument to bound method `tap` is incorrect
+   --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\quests.py:187:26
+    |
+185 |             confirm = self.game_find_template_match(template="navigation/confirm")
+186 |             if confirm:
+187 |                 self.tap(confirm)
+    |                          ^^^^^^^ Expected `Point`, found `TemplateMatchResult & ~AlwaysFalsy`
+188 |                 sleep(2)
+189 |                 self.tap(Point(100, 1800))
+    |
+info: Method defined here
+  --> src-tauri\src-python\adb_auto_player\games\afk_journey\mixins\hero_scanner.py:79:9
+   |
+77 |     # --- Type Hinting placeholders for ty-check ---
+78 |     # These are provided at runtime by the mixed-in AFKJourneyBase class.
+79 |     def tap(self, point: Point): ...
+   |         ^^^       ------------ Parameter declared here
+80 |     def get_screenshot(self) -> np.ndarray: ...
+81 |     def press_back_button(self): ...
+   |
+info: rule `invalid-argument-type` is enabled by default
+
+Found 10 diagnostics
+
+uv-lock..................................................................Passed
+fmt......................................................................Passed
+clippy...................................................................Passed
+cargo check..............................................................Passed
+prettier.................................................................Passed
+svelte-check.............................................................Passed
+Ensure only PNG images...............................(no files to check)Skipped

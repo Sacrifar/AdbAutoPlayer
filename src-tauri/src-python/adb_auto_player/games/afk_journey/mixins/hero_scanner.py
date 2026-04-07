@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
@@ -5,6 +7,7 @@ import re
 import shutil
 import time
 import urllib.request
+from difflib import SequenceMatcher, get_close_matches
 from pathlib import Path
 
 import cv2
@@ -18,6 +21,9 @@ from adb_auto_player.games.afk_journey.heroes import HeroesEnum
 from adb_auto_player.models.decorators import GUIMetadata
 from adb_auto_player.models.geometry import Point
 from rapidocr import RapidOCR
+
+# ty: ignore[unresolved-reference]
+from ..settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +73,11 @@ REGION_ASCEND_LINE = (50, 800, 980, 550)
 
 
 class HeroScannerMixin:
-    """Mixin for scanning hero roster and extracting data using OCR."""
+    """Mixin for AFK Journey Hero Scanning.
+
+    This mixin provides methods for automated roster scanning.
+    Expects to be mixed into a class that provides Game and Navigation methods.
+    """
 
     def _get_project_root(self) -> Path:
         """Determines the project root directory.
@@ -76,9 +86,10 @@ class HeroScannerMixin:
             The Path to the project root directory.
         """
         try:
-            # SettingsLoader.getresource_dir() returns '.../src-tauri/src-python/adb_auto_player'
+            # SettingsLoader.get_resource_dir() returns
+            # '.../src-tauri/src-python/adb_auto_player'
             # The root is 3 levels up.
-            return SettingsLoader.getresource_dir().parents[2]
+            return SettingsLoader.get_resource_dir().parents[2]
         except Exception:
             # Fallback for standalone scripts if SettingsLoader isn't fully initialized
             # Relative to this file: games/afk_journey/mixins/hero_scanner.py
@@ -96,7 +107,8 @@ class HeroScannerMixin:
                 with open(synonym_path, encoding="utf-8") as f:
                     self.hero_synonyms = json.load(f)
                 logger.debug(
-                    f"Loaded {len(self.hero_synonyms)} hero name synonyms from {synonym_path}."
+                    f"Loaded {len(self.hero_synonyms)} hero name synonyms"
+                    f" from {synonym_path}."
                 )
             except Exception as e:
                 logger.error(f"Failed to load synonyms: {e}")
@@ -143,16 +155,39 @@ class HeroScannerMixin:
             category=AFKJCategory.EVENTS_AND_OTHER,
         ),
     )
-    def scan_roster(self, total_heroes: int | None = None):
+    def scan_roster(self, total_heroes: Optional[int] = None):  # noqa: PLR0912, PLR0915
         """Scans the entire hero roster and updates the backup tracker.
 
         Args:
             total_heroes: Optional limit on the number of heroes to scan.
                 If None, the scan continues until Hammie or Chippy is found.
         """
-        logger.info("Starting dynamic roster scan... will stop at Hammie or Chippy.")
+        if total_heroes is None:
+            # We determine the limit by hero count in settings if possible
+            try:
+                # ty: ignore[unresolved-attribute]
+                total_heroes = len(self.settings.general.excluded_heroes) + 100
+            except Exception:
+                total_heroes = 120
 
-        # 1. Download Template
+        limit: int = total_heroes
+        heroes_scanned = 0
+
+        # Create/Load scan result
+        full_data = self._load_tracker()
+
+        # 3. Navigation to Hall
+        # ty: ignore[unresolved-attribute]
+        self.navigate_toresonating_hall()
+        time.sleep(3)
+
+        # 4. Iteration
+        # Navigate to the first hero once (Antandra or Top-Left)
+        first_hero_point = Point(130, 1050)
+        # ty: ignore[unresolved-attribute]
+        self.tap(first_hero_point)
+        time.sleep(4)
+
         root = self._get_project_root()
         template_url = "https://afkj-tracker.vercel.app/data/heroes-template.json"
         template_file = root / "data" / "heroes-template.json"
@@ -178,6 +213,7 @@ class HeroScannerMixin:
         self.tracker_file = str(template_file)
 
         # 3. Navigation to Hall
+        # ty: ignore[unresolved-attribute]
         self.navigate_toresonating_hall()
         time.sleep(3)
 
@@ -189,15 +225,17 @@ class HeroScannerMixin:
             )
             return
 
+        limit = total_heroes
         heroes_scanned = 0
         # Navigate to the first hero once (Antandra or Top-Left)
         first_hero_point = Point(130, 1050)
+        # ty: ignore[unresolved-attribute]
         self.tap(first_hero_point)
         time.sleep(4)
 
-        limit = total_heroes if total_heroes is not None else 500
         while heroes_scanned < limit:  # Safety cap, stop on Hammie/Chippy
             try:
+                # ty: ignore[unresolved-attribute]
                 screenshot = self.get_screenshot()
                 hero_data = self._process_hero_screen(screenshot)
 
@@ -211,36 +249,39 @@ class HeroScannerMixin:
                 # 3. Update JSON
                 if hero_data["name"] != "Unknown":
                     # Deep Scan for Ascension via Ascend Panel
-                    is_potentially_locked = "lock" in hero_data[
-                        "raw_name"
-                    ].lower() or hero_data["ascension"] in ["Unknown", "Epic", "Elite"]
-
-                    # Logic Fix: Detect if the hero is maxed (Paragon 4) or needs a deep scan
+                    is_lo_tier = hero_data["name"] in ["Hammie", "Chippy"] or hero_data[
+                        "ascension"
+                    ] in ["Unknown", "Epic", "Elite"]
+                    # Logic Fix: Detect if the hero is maxed or needs deep scan
                     button_status = self._ascend_button_is_present()
 
                     if button_status == "MAXED":
                         hero_data["ascension"] = "Paragon 4"
                         logger.debug(
-                            f"Detected Level Cap for {hero_data['name']} -> Forced Paragon 4"
+                            f"Detected Level Cap for {hero_data['name']}"
+                            " -> Forced Paragon 4"
                         )
                     elif button_status is True:
                         logger.debug(
-                            f"Ascend button found for {hero_data['name']} - Triggering Deep Scan"
+                            f"Ascend button found for {hero_data['name']}"
+                            " - Triggering Deep Scan"
                         )
                         deep_asc = self._scan_ascension_from_panel(
                             hero_data["name"], hero_data["ascension"]
                         )
                         if deep_asc != "Unknown":
                             hero_data["ascension"] = deep_asc
-                    elif not is_potentially_locked:
-                        # Fallback for high tiers if button is completely missing
+                    elif not is_lo_tier:
+                        # Fallback for high tiers if button is missing
                         hero_data["ascension"] = "Paragon 4"
                         logger.debug(
-                            f"No button found for high-tier {hero_data['name']} -> Defaulting to Paragon 4"
+                            f"No button found for high-tier {hero_data['name']}"
+                            " -> Defaulting to Paragon 4"
                         )
 
-                    # RE-PARSE EX WEAPON now that we have the final, corrected ascension rank
-                    # This fixes cases where EX was 0 because the vertical badge lead to "Unknown" ascension.
+                    # RE-PARSE EX WEAPON now that we have the corrected rank
+                    # This fixes cases where EX was 0 because vertical badge
+                    # led to "Unknown" ascension.
                     hero_data["ex_weapon"] = self._parse_ex_level(
                         hero_data["raw_ex"], hero_data["ascension"], hero_data["name"]
                     )
@@ -254,9 +295,10 @@ class HeroScannerMixin:
                         f"{hero_data['ascension']} | EX {hero_data['ex_weapon']}"
                     )
                 else:
+                    logger.warning("!!! IDENTIFICATION FAILED !!! ")
                     logger.warning(
-                        "!!! IDENTIFICATION FAILED !!! "
-                        f"Hero #{heroes_scanned + 1} - Raw OCR: '{hero_data['raw_name']}'"
+                        f"Hero #{heroes_scanned + 1} - Raw OCR: "
+                        f"'{hero_data['raw_name']}'"
                     )
                     logger.warning(
                         "Please report the OCR text above to the scanner developer "
@@ -267,17 +309,20 @@ class HeroScannerMixin:
 
                 # 5. Navigate Next
                 next_arrow = Point(1045, 1080)
+                # ty: ignore[unresolved-attribute]
                 self.tap(next_arrow)
                 time.sleep(3.5)
             except Exception as e:
-                logger.error(f"Error scanning hero at index {heroes_scanned}: {e}")
+                logger.error(f"Error during scan at hero #{heroes_scanned + 1}: {e}")
                 # Try to recover by skipping to next hero
                 next_arrow = Point(1045, 1080)
+                # ty: ignore[unresolved-attribute]
                 self.tap(next_arrow)
                 time.sleep(4)
                 heroes_scanned += 1
 
         # Go back to main hall
+        # ty: ignore[unresolved-attribute]
         self.press_back_button()
 
         # Post-process any heroes that were locked out of the Ascend panel
@@ -294,13 +339,15 @@ class HeroScannerMixin:
         except Exception as e:
             logger.error(f"Failed to rename scan result to backup: {e}")
 
-        logger.info(f"Diagnostic scan completed! {heroes_scanned} heroes processed.")
+        logger.info(f"Diagnostic scan completed! {heroes_scanned} processed.")
         logger.info(
-            f"PER L'UTENTE: Puoi trovare il file finale da importare su afkj-tracker.vercel.app qui: {backup_file}"
+            "PER L'UTENTE: Puoi trovare il file finale da importare su "
+            f"afkj-tracker.vercel.app qui: {backup_file}"
         )
 
     def resolve_locked_paragons(self, full_data: dict):
-        """Resolves any heroes marked as 'Paragon Locked' based on roster unlock thresholds.
+        """Resolves any heroes marked as 'Paragon Locked'
+        based on roster unlock thresholds.
 
         Args:
             full_data: The full tracker JSON data to be updated.
@@ -315,11 +362,16 @@ class HeroScannerMixin:
         p1_count = sum(1 for h in heroes if h.get("currentAscension") in p1_list)
         p2_count = sum(1 for h in heroes if h.get("currentAscension") in p2_list)
 
-        if sup_count < 25:
+        # Paragon Roster Thresholds (AFKJ-Tracker Standard)
+        sup_threshold = 25
+        p1_threshold = 15
+        p2_threshold = 15
+
+        if sup_count < sup_threshold:
             resolved_rank = "Supreme+"
-        elif p1_count < 15:
+        elif p1_count < p1_threshold:
             resolved_rank = "Paragon 1"
-        elif p2_count < 15:
+        elif p2_count < p2_threshold:
             resolved_rank = "Paragon 2"
         else:
             resolved_rank = "Paragon 3"
@@ -329,7 +381,8 @@ class HeroScannerMixin:
         ]
         if locked_heroes:
             logger.info(
-                f"Resolving {len(locked_heroes)} 'Paragon Locked' heroes to '{resolved_rank}' "
+                f"Resolving {len(locked_heroes)} 'Paragon Locked' heroes"
+                f" to '{resolved_rank}' "
                 f"(Counts - S+: {sup_count}, P1: {p1_count}, P2: {p2_count})"
             )
             for h in locked_heroes:
@@ -351,7 +404,7 @@ class HeroScannerMixin:
             if hero["name"].lower() == target_name.lower():
                 hero["currentAscension"] = hero_data["ascension"]
                 hero["currentExWeaponLevel"] = hero_data["ex_weapon"]
-                hero["last_scanned"] = time.time()
+                hero["last_scanned"] = time.perf_counter()
                 break
 
         # Atomic-ish save
@@ -381,10 +434,9 @@ class HeroScannerMixin:
         Returns:
             True if Ascend found, 'MAXED' if Level Cap found, False otherwise.
         """
-        from difflib import SequenceMatcher
-
-        REGION_BTN_CHECK = (170, 1760, 560, 110)
-        x1, y1, w, h = REGION_BTN_CHECK
+        region_btn_check = (170, 1760, 560, 110)
+        x1, y1, w, h = region_btn_check
+        # ty: ignore[unresolved-attribute]
         full_ss = self.get_screenshot()
         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
         btn_img_scaled = cv2.resize(
@@ -403,7 +455,7 @@ class HeroScannerMixin:
             return True
 
         for word in btn_text.split():
-            if SequenceMatcher(None, word, "ascend").ratio() >= 0.75:
+            if SequenceMatcher(None, word, "ascend").ratio() >= 0.75:  # noqa: PLR2004
                 logger.debug(
                     f"Button area check: '{btn_text}' -> ascend word found (fuzzy)"
                 )
@@ -419,7 +471,7 @@ class HeroScannerMixin:
         logger.debug(f"Button area check: '{btn_text}' -> nothing found")
         return False
 
-    def _scan_ascension_from_panel(
+    def _scan_ascension_from_panel(  # noqa: PLR0912, PLR0915
         self, hero_name: str, initial_rank: str = "Unknown"
     ) -> str:
         """Opens the Ascension Panel and uses OCR to confirm the current rank.
@@ -432,22 +484,26 @@ class HeroScannerMixin:
             The detected ascension rank string or 'Paragon Locked'.
         """
         # 1. Click the Ascend button
+        # ty: ignore[unresolved-attribute]
         self.tap(Point(COORD_BTN_ASCEND[0], COORD_BTN_ASCEND[1]))
         time.sleep(0.8)  # Wait for panel animation or tooltip
 
+        # ty: ignore[unresolved-attribute]
         full_ss = self.get_screenshot()
 
         # 2. Check if a tooltip popped up instead of the full panel
-        # When a hero's ascension is locked by Resonance (e.g., Lily May P2->P3),
-        # clicking the padlocked Ascend button shows a tooltip instead of the Ascension Panel.
+        # When a hero's ascension is locked by Resonance (e.g., Lily May),
+        # clicking the padlocked Ascend button shows a tooltip.
         tooltip_crop = full_ss[1300:1700, 50:1030]
         tooltip_text = self._ocr_text_rapid(tooltip_crop, None).lower()
         if "requirements" in tooltip_text or "unlock" in tooltip_text:
-            logger.debug("Detected Ascend lock tooltip! Hero is locked from ascending.")
-            # 1. Tap the hero portrait to dismiss the tooltip (this enters hero zoom mode)
+            logger.debug("Detected Ascend lock tooltip!")
+            # 1. Tap portrait to dismiss tooltip (enters zoom mode)
+            # ty: ignore[unresolved-attribute]
             self.tap(Point(540, 400))
             time.sleep(1.0)
-            # 2. Tap the back button to exit zoom mode and return to the interactive hero screen
+            # 2. Tap back to exit zoom mode and return to hero screen
+            # ty: ignore[unresolved-attribute]
             self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
             time.sleep(1.0)
             # Return our special temporary placeholder
@@ -476,6 +532,7 @@ class HeroScannerMixin:
         # 5. Determine if we are in Rivalry (Paragon) stats or Basic stats
 
         # 6. Close the panel (Back button)
+        # ty: ignore[unresolved-attribute]
         self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
         time.sleep(0.5)
 
@@ -543,8 +600,8 @@ class HeroScannerMixin:
         if found_header_ranks:
             logger.debug(f"Header Scan for {hero_name} found: {found_header_ranks}")
 
-            # CONSENSUS LOGIC: Try to find the rank that confirms our side-badge guess
-            # This prevents stray noise (like 'TltdraT') from being picked over the real rank.
+            # CONSENSUS LOGIC: Try to find rank that confirms our guess.
+            # This prevents stray noise (like 'TltdraT') from being picked.
             match_found = False
             for i, (idx, rank) in enumerate(found_header_ranks):
                 if rank.lower() == initial_rank.lower():
@@ -561,7 +618,7 @@ class HeroScannerMixin:
                 current_rank = found_header_ranks[0][1]
                 current_rank_idx = 0
                 logger.debug(
-                    f"No consensus for {hero_name}: falling back to leftmost rank {current_rank}."
+                    f"No consensus for {hero_name}: fallback to {current_rank}."
                 )
 
             # Identify the future rank (the one to the right of current)
@@ -581,13 +638,14 @@ class HeroScannerMixin:
                 elif "supreme" in current_rank.lower() or current_rank == "Unknown":
                     current_rank = "Supreme+"
                     logger.debug(
-                        f"Future Deduction for {hero_name}: {future_rank} Goal -> Current Supreme+"
+                        f"Future Deduction for {hero_name}: {future_rank} Goal"
+                        " -> Current Supreme+"
                     )
 
         # 7. Statistics Fallback & Keyword Correction
-        # To avoid over-correction (like Legendary -> Legendary+), we ONLY run the keyword fallback
-        # if the header scan was inconclusive (Unknown) or for high-tier ranks where
-        # side-badge misreads (like Supreme for Mythic) are common.
+        # To avoid over-correction (like L -> L+), we ONLY run this if the
+        # header scan was Unknown or for high-tier ranks where misreads
+        # are common.
         do_fallback = current_rank == "Unknown" or any(
             kw in current_rank.lower() for kw in ["supreme", "mythic", "paragon"]
         )
@@ -619,30 +677,31 @@ class HeroScannerMixin:
                     )
 
             if found_ranks:
-                # Sort by start position ASCENDING to find the current rank (left/header first)
+                # Sort by start position ASCENDING to find the current rank
                 found_ranks.sort(key=lambda x: (x[0], -len(x[1])))
 
-                # Only override if the found rank is more precise (has a plus or is paragon)
-                # OR if the current detection was Unknown.
+                # Only override if the found rank is more precise
+                # (has a plus or is paragon) OR if current detection was Unknown.
                 if (
                     current_rank == "Unknown"
                     or "paragon" in found_ranks[0][1].lower()
                     or ("+" in found_ranks[0][1] and "+" not in current_rank)
                 ):
                     logger.debug(
-                        f"Fallback Correction for {hero_name}: {current_rank} -> {found_ranks[0][1]}"
+                        f"Fallback Correction for {hero_name}: "
+                        f"{current_rank} -> {found_ranks[0][1]}"
                     )
                     current_rank = found_ranks[0][1]
 
         # 8. Unified Numeric Milestone Logic - ABSOLUTE FINAL PRIORITY
-        # This is the "Gold Standard": if we see a milestone number, it defines the rank.
+        # This is the "Gold Standard": if we see a milestone, it defines rank.
 
-        # KEY PROTECTION: Numeric milestones are only valid in "Rivalry Stats" (Supreme+).
-        # Basic Stats (ATK, HP) are full of noise (15%, 25,000) that looks like milestones.
+        # KEY PROTECTION: Milestones are only valid in "Rivalry Stats" (S+).
+        # Basic Stats (ATK, HP) are full of noise (15%, 25,000).
         has_rivalry = "RIVALRY" in stats_text.upper()
 
         if has_rivalry:
-            # Clean the text: ignore skill descriptions (which have noisy numbers like "25 Life Drain")
+            # Clean text: ignore skills (which have noise like "25 Life Drain")
             clean_stats = stats_text
             for stop_word in [
                 "Skill Unlocked",
@@ -655,15 +714,15 @@ class HeroScannerMixin:
                     clean_stats = clean_stats[:idx]
                     break
 
-            # IMPROVED REGEX: Ignore numbers followed by '%' (e.g. 15% is noise, not a milestone)
-            ALL_MILESTONESreGEX = r"(?<!\d)(0|1|2|3|14|15|25|30|37|45|48|60)(?!\d|%)"
-            nums = re.findall(ALL_MILESTONESreGEX, clean_stats)
+            # IMPROVED REGEX: Ignore numbers followed by '%'
+            all_milestones_regex = r"(?<!\d)(0|1|2|3|14|15|25|30|37|45|48|60)(?!\d|%)"
+            nums = re.findall(all_milestones_regex, clean_stats)
 
             if nums:
                 num_ints = [int(n) for n in nums]
                 target_goal = max(num_ints)
 
-                MASTER_GOAL_MAP = {
+                master_goal_map = {
                     14: "Supreme",
                     25: "Supreme+",
                     37: "Paragon 1",
@@ -674,16 +733,15 @@ class HeroScannerMixin:
                     60: "Paragon 3",
                 }
 
-                if target_goal in MASTER_GOAL_MAP:
-                    # This is the gold standard. We trust the numbers above all else.
-                    current_rank = MASTER_GOAL_MAP[target_goal]
-                    logger.debug(
-                        f"Gold Standard Correction for {hero_name}: Milestone {target_goal} -> {current_rank}"
-                    )
+            if target_goal in master_goal_map:
+                # This is the gold standard. We trust numbers above all else.
+                current_rank = master_goal_map[target_goal]
+                logger.debug(
+                    f"Gold Standard for {hero_name}: Milestone "
+                    f"{target_goal} -> {current_rank}"
+                )
         else:
-            logger.debug(
-                f"Rivalry Shield active for {hero_name}: skipping numeric milestones (Basic Stats only)"
-            )
+            logger.debug(f"Rivalry Shield for {hero_name}: skipping numeric milestones")
 
         logger.debug(
             f"Deep Scan for {hero_name}: '{full_line_text}' -> Final: {current_rank}"
@@ -691,8 +749,10 @@ class HeroScannerMixin:
         return current_rank
 
     def _get_precise_name_crop(self, screenshot: np.ndarray) -> np.ndarray:
-        """Dynamically detect the text block for the hero name, avoiding titles and orbs.
-        Verified coordinates for 1080p: Avoids titles like 'Wasteland Apothecary' and 'Corpsemaker'.
+        """Dynamically detect the text block for the hero name.
+
+        Avoids titles and orbs. Verified coordinates for 1080p:
+        Avoids titles like 'Wasteland Apothecary' and 'Corpsemaker'.
         """
         # 1. Targeted ROI (centered on the expected name area)
         # Narrowed Y to frame the name: Expanded to 60-200 to ensure no cutting
@@ -713,8 +773,8 @@ class HeroScannerMixin:
         candidates = []
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
-            # Filter for hero name letters: lower height threshold (40) to be more inclusive
-            if h > 40 and w > 10:
+            # Filter for hero letters: lower height (40) to be inclusive
+            if h > 40 and w > 10:  # noqa: PLR2004
                 candidates.append((x, y, x + w, y + h))
 
         if not candidates:
@@ -818,7 +878,7 @@ class HeroScannerMixin:
             "raw_ex": raw_ex_combined,
         }
 
-    def _match_hero_name(self, raw_text: str) -> str:
+    def _match_hero_name(self, raw_text: str) -> str:  # noqa: PLR0912, PLR0911
         """Matches a raw OCR string to a canonical hero name using multiple strategies.
 
         Args:
@@ -835,8 +895,8 @@ class HeroScannerMixin:
             return "Unknown"
 
         # 1. Reverse Roster Search (STRONGEST STRATEGY)
-        # Check if any original hero name exists within the OCR text
-        # This bypasses titles like 'Dungeon Adventurer' or 'Arctic Revenant' automatically.
+        # Check if any original hero name exists within the OCR text.
+        # Bypasses titles like 'Dungeon Adventurer' etc.
         clean_name = text_clean.replace("and", "")
         for h in HeroesEnum:
             # We check both the key (Smokey, Meerky) and value (Smokey & Meerky)
@@ -848,11 +908,12 @@ class HeroScannerMixin:
                 re.sub(r"[^a-zA-Z0-9]", "", str(h.value)).lower().replace("and", "")
             )
 
-            if len(norm_hero_val) >= 4 and (
+            if len(norm_hero_val) >= 4 and (  # noqa: PLR2004
                 norm_hero_val in clean_name or norm_hero_key in clean_name
             ):
                 logger.debug(
-                    f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h.value}' (Match against {norm_hero_val}/{norm_hero_key})"
+                    f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h.value}' "
+                    f"(Match against {norm_hero_val}/{norm_hero_key})"
                 )
                 return str(h.value)
 
@@ -860,9 +921,10 @@ class HeroScannerMixin:
         norm_to_canonical = {
             re.sub(r"[^a-zA-Z0-9]", "", h.name).lower(): h.name for h in HeroesEnum
         }
-        if text_clean in norm_to_canonical and len(text_clean) >= 3:
+        if text_clean in norm_to_canonical and len(text_clean) >= 3:  # noqa: PLR2004
             logger.debug(
-                f"MATCH STRATEGY: [EXACT] '{raw_text}' -> '{norm_to_canonical[text_clean]}'"
+                f"MATCH STRATEGY: [EXACT] '{raw_text}' -> "
+                f"'{norm_to_canonical[text_clean]}'"
             )
             return norm_to_canonical[text_clean]
 
@@ -876,21 +938,21 @@ class HeroScannerMixin:
         # Pass 3.1: Token-Based (Checks individual words)
         tokens = [re.sub(r"[^a-zA-Z0-9]", "", t).lower() for t in raw_text.split()]
         for token in tokens:
-            if len(token) < 2:
+            if len(token) < 2:  # noqa: PLR2004
                 continue
             for pattern_raw, canonical in self.hero_synonyms.items():
                 pattern = re.sub(r"[^a-zA-Z0-9]", "", pattern_raw).lower()
                 if not pattern:
                     continue
-                if (len(pattern) < 5 and token == pattern) or (
-                    len(pattern) >= 5 and pattern in token
+                if (len(pattern) < 5 and token == pattern) or (  # noqa: PLR2004
+                    len(pattern) >= 5 and pattern in token  # noqa: PLR2004
                 ):
                     synonym_matches.append((len(pattern), canonical))
 
         # Pass 3.2: Joined-Context (Checks split names like 'Va en al')
         for pattern_raw, canonical in self.hero_synonyms.items():
             pattern = re.sub(r"[^a-zA-Z0-9]", "", pattern_raw).lower()
-            if len(pattern) >= 4 and pattern in text_clean:
+            if len(pattern) >= 4 and pattern in text_clean:  # noqa: PLR2004
                 synonym_matches.append((len(pattern), canonical))
 
         if synonym_matches:
@@ -898,12 +960,13 @@ class HeroScannerMixin:
             synonym_matches.sort(key=lambda x: x[0], reverse=True)
             best_len, best_name = synonym_matches[0]
             logger.debug(
-                f"MATCH STRATEGY: [SYNONYM-BEST] '{best_name}' (Match length: {best_len})"
+                f"MATCH STRATEGY: [SYNONYM-BEST] '{best_name}' "
+                f"(Match length: {best_len})"
             )
             return best_name
 
         # 4. Long substring match fallback
-        if len(text_clean) >= 6:  # Require significant length for substring matching
+        if len(text_clean) >= 6:  # noqa: PLR2004
             for norm, canonical in norm_to_canonical.items():
                 if text_clean in norm or norm in text_clean:
                     logger.debug(
@@ -912,8 +975,6 @@ class HeroScannerMixin:
                     return canonical
 
         # 5. Final Fallback: Fuzzy matching (Very Strict)
-        from difflib import get_close_matches
-
         possible_norms = list(norm_to_canonical.keys())
 
         # Increase global cutoff from 0.7 -> 0.85
@@ -922,8 +983,8 @@ class HeroScannerMixin:
             canonical = norm_to_canonical[matches[0]]
             norm_match = matches[0]
 
-            # EXTREMELY STRICT for short names (e.g. Vala, Odie) to avoid false positives
-            if len(norm_match) < 6:
+            # EXTREMELY STRICT for short names to avoid false positives
+            if len(norm_match) < 6:  # noqa: PLR2004
                 strict_matches = get_close_matches(
                     text_clean, [norm_match], n=1, cutoff=0.95
                 )
@@ -948,8 +1009,8 @@ class HeroScannerMixin:
             return "Unknown"
         text = raw_text.strip()
 
-        # 1. Direct pattern match - we take the match that appears EARLIEST in the string
-        # This is critical for "Current Â» Future" lines where "Paragon" might appear as a goal.
+        # 1. Direct pattern match - we take match that appears EARLIEST.
+        # This is critical for lines where 'Paragon' might appear as a goal.
         best_match = None
         earliest_index = 999
 
@@ -981,7 +1042,7 @@ class HeroScannerMixin:
             base_rank = found_matches[0][1]
 
             # Check for "+" suffix logic
-            # Tightened search area for "+" to avoid matching the *next* word in the string
+            # Tightened search area for "+" to avoid matching next word
             search_start = text.lower().find(base_rank.lower()) + len(base_rank) - 1
             # We only look 2 characters ahead now for greater precision
             search_area = text[max(0, search_start) : search_start + 2]
@@ -1054,7 +1115,11 @@ class HeroScannerMixin:
         )
         plus_matches = re.findall(r"\+\s*([0-9]{1,2})", text_for_plus)
         if plus_matches:
-            valid_vals = [int(m) for m in plus_matches if 0 <= int(m) <= 40]
+            valid_vals = [
+                int(m)
+                for m in plus_matches
+                if 0 <= int(m) <= 40  # noqa: PLR2004
+            ]
             if valid_vals:
                 return max(valid_vals)
 
@@ -1081,7 +1146,11 @@ class HeroScannerMixin:
             # Look for lone numbers (not parts of other words)
             lone_nums = re.findall(r"(?<![A-Z0-9])(\d{1,2})(?![A-Z0-9])", cleaned)
             if lone_nums:
-                valid_vals = [int(m) for m in lone_nums if 0 <= int(m) <= 40]
+                valid_vals = [
+                    int(m)
+                    for m in lone_nums
+                    if 0 <= int(m) <= 40  # noqa: PLR2004
+                ]
                 if valid_vals:
                     return max(valid_vals)
 
