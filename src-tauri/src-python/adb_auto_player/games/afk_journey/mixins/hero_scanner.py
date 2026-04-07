@@ -484,12 +484,10 @@ class HeroScannerMixin:
             The detected ascension rank string or 'Paragon Locked'.
         """
         # 1. Click the Ascend button
-        # ty: ignore[unresolved-attribute]
-        self.tap(Point(COORD_BTN_ASCEND[0], COORD_BTN_ASCEND[1]))
+        self.tap(Point(COORD_BTN_ASCEND[0], COORD_BTN_ASCEND[1]))  # ty: ignore[unresolved-attribute]
         time.sleep(0.8)  # Wait for panel animation or tooltip
 
-        # ty: ignore[unresolved-attribute]
-        full_ss = self.get_screenshot()
+        full_ss = self.get_screenshot()  # ty: ignore[unresolved-attribute]
 
         # 2. Check if a tooltip popped up instead of the full panel
         # When a hero's ascension is locked by Resonance (e.g., Lily May),
@@ -499,12 +497,10 @@ class HeroScannerMixin:
         if "requirements" in tooltip_text or "unlock" in tooltip_text:
             logger.debug("Detected Ascend lock tooltip!")
             # 1. Tap portrait to dismiss tooltip (enters zoom mode)
-            # ty: ignore[unresolved-attribute]
-            self.tap(Point(540, 400))
+            self.tap(Point(540, 400))  # ty: ignore[unresolved-attribute]
             time.sleep(1.0)
             # 2. Tap back to exit zoom mode and return to hero screen
-            # ty: ignore[unresolved-attribute]
-            self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
+            self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))  # ty: ignore[unresolved-attribute]
             time.sleep(1.0)
             # Return our special temporary placeholder
             return "Paragon Locked"
@@ -532,8 +528,7 @@ class HeroScannerMixin:
         # 5. Determine if we are in Rivalry (Paragon) stats or Basic stats
 
         # 6. Close the panel (Back button)
-        # ty: ignore[unresolved-attribute]
-        self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))
+        self.tap(Point(COORD_BTN_BACK_PANEL[0], COORD_BTN_BACK_PANEL[1]))  # ty: ignore[unresolved-attribute]
         time.sleep(0.5)
 
         # 6. Parse the "Current Â» Future" logic (Main detection)
@@ -672,7 +667,7 @@ class HeroScannerMixin:
                     found_ranks.append(
                         (
                             match.start(),
-                            (callable(rank_val) and rank_val(match)) or rank_val,
+                            (callable(rank_val) and rank_val(match)) or rank_val,  # ty: ignore[call-top-callable]
                         )
                     )
 
@@ -721,7 +716,6 @@ class HeroScannerMixin:
             if nums:
                 num_ints = [int(n) for n in nums]
                 target_goal = max(num_ints)
-
                 master_goal_map = {
                     14: "Supreme",
                     25: "Supreme+",
@@ -732,14 +726,13 @@ class HeroScannerMixin:
                     45: "Paragon 2",
                     60: "Paragon 3",
                 }
-
-            if target_goal in master_goal_map:
-                # This is the gold standard. We trust numbers above all else.
-                current_rank = master_goal_map[target_goal]
-                logger.debug(
-                    f"Gold Standard for {hero_name}: Milestone "
-                    f"{target_goal} -> {current_rank}"
-                )
+                if target_goal in master_goal_map:
+                    # This is the gold standard. We trust numbers above all else.
+                    current_rank = master_goal_map[target_goal]
+                    logger.debug(
+                        f"Gold Standard for {hero_name}: Milestone "
+                        f"{target_goal} -> {current_rank}"
+                    )
         else:
             logger.debug(f"Rivalry Shield for {hero_name}: skipping numeric milestones")
 
