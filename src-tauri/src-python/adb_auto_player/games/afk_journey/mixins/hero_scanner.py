@@ -172,7 +172,7 @@ class HeroScannerMixin:
         heroes_scanned = 0
 
         # 3. Navigation to Hall
-        self.navigate_toresonating_hall()  # ty: ignore[unresolved-attribute]
+        self.navigate_to_resonating_hall()  # ty: ignore[unresolved-attribute]
         time.sleep(3)
 
         # Navigate to the first hero once (Antandra or Top-Left)
