@@ -337,9 +337,11 @@ class HeroScannerMixin:
 
         logger.info(f"Diagnostic scan completed! {heroes_scanned} processed.")
         logger.info(
-            "PER L'UTENTE: Puoi trovare il file finale da importare su "
-            f"afkj-tracker.vercel.app qui: {backup_file}"
+            "SCAN COMPLETED: You can now import the results into "
+            "https://afkj-tracker.vercel.app/ using the file at this path "
+            "(copy and paste it into File Explorer):"
         )
+        logger.info(f">>> {backup_file} <<<")
 
     def resolve_locked_paragons(self, full_data: dict):
         """Resolves any heroes marked as 'Paragon Locked'.
