@@ -79,10 +79,12 @@ class Execute:
                 cls_name: str = qual_name.split(".")[0]
                 mod = sys.modules[callable_function.__module__]
 
+                orig_cls = getattr(mod, cls_name)
                 cls = None
-                # If the method belongs to a Mixin, we need to instantiate the
-                # host Game class instead. Mixins are just pieces of logic and
-                # don't have all attributes (like device or navigation).
+
+                # If the method belongs to a Mixin, we might need to instantiate the
+                # host Game class instead. True Mixins are just pieces of logic and
+                # don't inherit from Game Base, lacking attributes like device.
                 if "Mixin" in cls_name:
                     try:
                         # e.g. adb_auto_player.games.afk_journey.mixins.hero_scanner
@@ -103,13 +105,14 @@ class Execute:
                                     and "Base" in attr_name
                                     and attr.__module__ == base_mod_name
                                 ):
-                                    cls = attr
+                                    if not issubclass(orig_cls, attr):
+                                        cls = attr
                                     break
                     except Exception:
                         pass
 
                 if cls is None:
-                    cls = getattr(mod, cls_name)
+                    cls = orig_cls
 
                 instance = cls()
 
