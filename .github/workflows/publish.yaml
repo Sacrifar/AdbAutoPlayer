@@ -162,10 +162,10 @@ jobs:
             echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=$SIGNING_PASS" >> $GITHUB_ENV
             echo "Signing keys configured."
           else
-            echo "Signing keys missing, skipping signing and disabling updater plugin."
-            # Disable updater plugin in tauri.conf.json to prevent Tauri from requiring a signature
-            # On forks, we don't have the private key, so we must remove the updater configuration.
-            python3 -c "import json; f='src-tauri/tauri.conf.json'; d=json.load(open(f)); d.get('plugins', {}).pop('updater', None); json.dump(d, open(f, 'w'), indent=2)"
+            echo "Signing keys missing, skipping signing and disabling updater artifacts."
+            # Disable updater plugin and updater artifacts in tauri.conf.json to prevent Tauri from requiring a signature
+            # On forks, we don't have the private key, so we must remove all updater references.
+            python3 -c "import json; f='src-tauri/tauri.conf.json'; d=json.load(open(f)); d.get('plugins', {}).pop('updater', None); d.get('bundle', {}).update({'createUpdaterArtifacts': False}); json.dump(d, open(f, 'w'), indent=2)"
           fi
 
       - name: Build and bundle the app
