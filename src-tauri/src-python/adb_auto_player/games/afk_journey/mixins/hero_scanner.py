@@ -183,10 +183,16 @@ class HeroScannerMixin:
         self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
         time.sleep(4)
 
-        root = self._get_project_root()
         template_url = "https://afkj-tracker.vercel.app/data/heroes-template.json"
-        template_file = root / "data" / "heroes-template.json"
-        backup_file = root / "data" / "afkj_tracker_backup.json"
+
+        # Resources (Read-Only)
+        resource_root = self._get_project_root()
+        self.synonym_file = resource_root / "data" / "hero_synonyms.json"
+
+        # User Data (Writable)
+        data_root = SettingsLoader.get_app_config_dir()
+        template_file = data_root / "data" / "heroes-template.json"
+        backup_file = data_root / "data" / "afkj_tracker_backup.json"
 
         try:
             logger.info(f"Downloading template from: {template_url}")

@@ -24,9 +24,6 @@
   },
   "bundle": {
     "active": true,
-    "resources": [
-      "../data/"
-    ],
     "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
@@ -34,6 +31,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "resources": [
+      "../data/"
     ]
   },
   "identifier": "com.AdbAutoPlayer.AdbAutoPlayer",
