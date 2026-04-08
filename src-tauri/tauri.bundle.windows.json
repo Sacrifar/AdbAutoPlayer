@@ -3,7 +3,8 @@
     "active": true,
     "resources": {
       "pyembed/python": "./",
-      "src-python/adb_auto_player/Binaries/": "./binaries/"
+      "src-python/adb_auto_player/Binaries/": "./binaries/",
+      "../data/": "./data/"
     },
     "targets": [
       "msi"
