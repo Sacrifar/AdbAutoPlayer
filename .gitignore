@@ -45,3 +45,11 @@ vite.config.ts.timestamp-*
 
 /.venv/
 /target/
+
+# AdbAutoPlayer temporary/debug files
+/debug/
+/ocr_debug.txt
+/scan_audit_mismatch.txt
+/data/heroes-template.json
+/data/afkj_tracker_backup.json
+/data/afkj_tracker_corretto.json

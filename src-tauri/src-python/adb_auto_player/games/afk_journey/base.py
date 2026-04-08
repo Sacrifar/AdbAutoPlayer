@@ -27,6 +27,7 @@ from adb_auto_player.util import SummaryGenerator
 
 from .battle_state import BattleState, Mode
 from .gui_category import AFKJCategory
+from .mixins.hero_scanner import HeroScannerMixin
 from .navigation import Navigation
 from .settings import Settings
 
@@ -39,7 +40,7 @@ from .settings import Settings
         categories=list(AFKJCategory),
     ),
 )
-class AFKJourneyBase(Navigation, Game):
+class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
     """AFK Journey Base Class."""
 
     def __init__(self) -> None:
@@ -415,10 +416,12 @@ class AFKJourneyBase(Navigation, Game):
         Returns:
             str | None: Name of excluded hero
         """
-        excluded_heroes_dict: dict[str, str] = {
-            f"heroes/{re.sub(r'[\s&]', '', name.value.lower())}.png": name.value
-            for name in self.settings.general.excluded_heroes
-        }
+        excluded_heroes_dict: dict[str, str] = {}
+        for name in self.settings.general.excluded_heroes:
+            # Python 3.11 doesn't allow backslashes in f-strings,
+            # so handle the name processing first
+            clean_name = re.sub(r"[\s&]", "", name.value.lower())
+            excluded_heroes_dict[f"heroes/{clean_name}.png"] = name.value
 
         if not excluded_heroes_dict:
             return None

@@ -16,7 +16,15 @@ export default defineConfig({
     strictPort: true,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**", "**/.venv/**"],
+      ignored: [
+        "**/src-tauri/**",
+        "**/.venv/**",
+        "**/data/**",
+        "**/debug/**",
+        "**/ocr_debug.txt",
+        "**/full_hero_report.txt",
+        "**/hero_audit_report.txt",
+      ],
     },
   },
 });

@@ -181,23 +181,24 @@ class Navigation(PopupMessageHandler, ABC):
     def navigate_to_resonating_hall(self) -> None:
         def i_am_in_resonating_hall() -> bool:
             try:
+                # Log the search for verification
                 _ = self.wait_for_any_template(
                     templates=[
                         "resonating_hall/artifacts.png",
                         "resonating_hall/collections.png",
                         "resonating_hall/equipment.png",
                     ],
-                    timeout=1,
+                    timeout=2,  # Increased timeout slightly
                 )
                 return True
             except GameTimeoutError:
                 return False
 
         if i_am_in_resonating_hall():
-            logging.info("Already in Resonating Hall.")
+            logging.debug("Already in Resonating Hall.")
             return
 
-        logging.info("Navigating to the Resonating Hall.")
+        logging.debug("Navigating to the Resonating Hall.")
         if shortcut := self.game_find_template_match(
             template="navigation/resonating_hall_shortcut",
             crop_regions=CropRegions(top="80%", left="30%", right="30%"),
@@ -238,6 +239,7 @@ class Navigation(PopupMessageHandler, ABC):
                     ],
                     timeout=self.NAVIGATION_TIMEOUT,
                 )
+                logging.debug("Successfully entered Resonating Hall.")
                 break
             except AutoPlayerError as e:
                 logging.warning(e)

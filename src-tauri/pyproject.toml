@@ -1,13 +1,13 @@
 [project]
 name = "adb-auto-player"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 readme = "README.md"
 authors = [
     { name = "yulesxoxo <https://github.com/yulesxoxo/yulesxoxo>" },
     { name = "Vale <https://github.com/Valextr/Valextr>" },
 ]
-requires-python = ">=3.13.9"
+requires-python = ">=3.11"
 dependencies = [
     "pytauri == 0.8.*",
     "pydantic>=2.12.5,<3",
@@ -18,7 +18,9 @@ dependencies = [
     "pillow>=12.1.1,<13",
     "pytesseract>=0.3.13,<0.4",
     "psutil>=7.2.2,<8",
-    "numpy>=2.4.3,<2.5"
+    "numpy>=2.4.3,<2.5",
+    "rapidocr>=3.7.0",
+    "onnxruntime>=1.24.4"
 ]
 
 [project.scripts]
