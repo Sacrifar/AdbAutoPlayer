@@ -186,7 +186,8 @@ class HeroScannerMixin:
         backup_file = root / "data" / "afkj_tracker_backup.json"
 
         try:
-            logger.info(f"Downloading template from {template_url}...")
+            logger.info(f"Downloading template from: {template_url}")
+            os.makedirs(template_file.parent, exist_ok=True)
             with (
                 urllib.request.urlopen(template_url) as response,
                 open(template_file, "wb") as out_file,
