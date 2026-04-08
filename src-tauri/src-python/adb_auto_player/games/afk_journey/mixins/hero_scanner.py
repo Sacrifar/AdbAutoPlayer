@@ -79,18 +79,19 @@ class HeroScannerMixin:
     def _get_project_root(self) -> Path:
         """Determines the project root directory.
 
-        Returns:
-            The Path to the project root directory.
+        Handles both development (source) and production (installed) environments.
         """
         try:
-            # SettingsLoader.get_resource_dir() returns
-            # '.../src-tauri/src-python/adb_auto_player'
-            # The root is 3 levels up.
-            return SettingsLoader.get_resource_dir().parents[2]
+            resource_dir = SettingsLoader.get_resource_dir()
+            # In Dev mode, resource_dir is typically nested inside src-tauri/src-python/adb_auto_player
+            if "src-python" in str(resource_dir):
+                return resource_dir.parents[2]
+            # In Production mode, resource_dir is the installation root or resources folder
+            return resource_dir
         except Exception:
             # Fallback for standalone scripts if SettingsLoader isn't fully initialized
             # Relative to this file: games/afk_journey/mixins/hero_scanner.py
-            # 6 levels up should hit the root.
+            # 6 levels up should hit the root in source.
             return Path(__file__).parents[6]
 
     def _load_synonyms(self):
