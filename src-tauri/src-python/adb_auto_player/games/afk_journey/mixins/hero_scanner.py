@@ -83,10 +83,12 @@ class HeroScannerMixin:
         """
         try:
             resource_dir = SettingsLoader.get_resource_dir()
-            # In Dev mode, resource_dir is typically nested inside src-tauri/src-python/adb_auto_player
+            # In Dev mode, resource_dir is typically nested inside
+            # src-tauri/src-python/adb_auto_player
             if "src-python" in str(resource_dir):
                 return resource_dir.parents[2]
-            # In Production mode, resource_dir is the installation root or resources folder
+            # In Production mode, resource_dir is the installation root
+            # or resources folder
             return resource_dir
         except Exception:
             # Fallback for standalone scripts if SettingsLoader isn't fully initialized

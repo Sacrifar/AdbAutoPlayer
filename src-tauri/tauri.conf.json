@@ -23,7 +23,10 @@
     "frontendDist": "../dist"
   },
   "bundle": {
-    "active": false,
+    "active": true,
+    "resources": [
+      "../data/"
+    ],
     "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
