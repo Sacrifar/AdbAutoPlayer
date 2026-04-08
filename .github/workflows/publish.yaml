@@ -162,7 +162,10 @@ jobs:
             echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=$SIGNING_PASS" >> $GITHUB_ENV
             echo "Signing keys configured."
           else
-            echo "Signing keys missing, skipping signing."
+            echo "Signing keys missing, skipping signing and removing pubkey from config."
+            # Remove pubkey from tauri.conf.json to prevent Tauri from requiring a private key
+            # In Tauri v2, if a pubkey is present, a private key is mandatory for bundling.
+            sed -i '/"pubkey":/d' src-tauri/tauri.conf.json
           fi
 
       - name: Build and bundle the app
