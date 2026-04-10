@@ -17,7 +17,6 @@ import numpy as np
 from adb_auto_player.decorators.register_command import register_command
 from adb_auto_player.file_loader.settings_loader import SettingsLoader
 from adb_auto_player.games.afk_journey.gui_category import AFKJCategory
-from adb_auto_player.games.afk_journey.heroes import HeroesEnum
 from adb_auto_player.models.decorators import GUIMetadata
 from adb_auto_player.models.geometry import Point
 from rapidocr import RapidOCR
@@ -79,38 +78,55 @@ class HeroScannerMixin:
     def _get_project_root(self) -> Path:
         """Determines the project root directory.
 
-        Returns:
-            The Path to the project root directory.
+        Handles both development (source) and production (installed) environments.
         """
         try:
-            # SettingsLoader.get_resource_dir() returns
-            # '.../src-tauri/src-python/adb_auto_player'
-            # The root is 3 levels up.
-            return SettingsLoader.get_resource_dir().parents[2]
+            resource_dir = SettingsLoader.get_resource_dir()
+            # In Dev mode, resource_dir is typically nested inside
+            # src-tauri/src-python/adb_auto_player
+            if "src-python" in str(resource_dir):
+                return resource_dir.parents[2]
+            # In Production mode, resource_dir is the installation root
+            # or resources folder
+            return resource_dir
         except Exception:
             # Fallback for standalone scripts if SettingsLoader isn't fully initialized
             # Relative to this file: games/afk_journey/mixins/hero_scanner.py
-            # 6 levels up should hit the root.
+            # 6 levels up should hit the root in source.
             return Path(__file__).parents[6]
 
     def _load_synonyms(self):
-        """Loads synonyms from data/hero_synonyms.json."""
-        self.hero_synonyms = {}
-        root = self._get_project_root()
-        synonym_path = root / "data" / "hero_synonyms.json"
+        """Loads synonyms from data/hero_synonyms.json.
 
-        if synonym_path.exists():
-            try:
-                with open(synonym_path, encoding="utf-8") as f:
-                    self.hero_synonyms = json.load(f)
-                logger.debug(
-                    f"Loaded {len(self.hero_synonyms)} hero name synonyms"
-                    f" from {synonym_path}."
-                )
-            except Exception as e:
-                logger.error(f"Failed to load synonyms: {e}")
-        else:
-            logger.warning(f"Synonym file not found: {synonym_path}")
+        Prefers the downloaded version in the app config directory.
+        """
+        self.hero_synonyms = {}
+
+        # 1. Check User Data (Downloaded version)
+        data_root = SettingsLoader.get_app_config_dir()
+        user_synonym_path = data_root / "data" / "hero_synonyms.json"
+
+        # 2. Check Project Root (Bundled version)
+        project_root = self._get_project_root()
+        bundled_synonym_path = project_root / "data" / "hero_synonyms.json"
+
+        # Prioritize the user-downloaded file
+        paths_to_check = [user_synonym_path, bundled_synonym_path]
+
+        for synonym_path in paths_to_check:
+            if synonym_path.exists():
+                try:
+                    with open(synonym_path, encoding="utf-8") as f:
+                        self.hero_synonyms = json.load(f)
+                    logger.debug(
+                        f"Loaded {len(self.hero_synonyms)} hero name synonyms"
+                        f" from {synonym_path}."
+                    )
+                    return  # Found and loaded, stop searching
+                except Exception as e:
+                    logger.error(f"Failed to load synonyms from {synonym_path}: {e}")
+
+        logger.warning("No synonym files found.")
 
     def _ocr_text_rapid(self, image: np.ndarray, crop: tuple | None = None) -> str:
         """Helper to get text using RapidOCR.
@@ -180,13 +196,38 @@ class HeroScannerMixin:
         self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
         time.sleep(4)
 
-        root = self._get_project_root()
         template_url = "https://afkj-tracker.vercel.app/data/heroes-template.json"
-        template_file = root / "data" / "heroes-template.json"
-        backup_file = root / "data" / "afkj_tracker_backup.json"
+        synonyms_url = "https://afkj-tracker.vercel.app/hero_synonyms.json"
 
+        # Resources (Read-Only)
+        self._get_project_root()
+
+        # User Data (Writable)
+        data_root = SettingsLoader.get_app_config_dir()
+        template_file = data_root / "data" / "heroes-template.json"
+        synonyms_file = data_root / "data" / "hero_synonyms.json"
+        backup_file = data_root / "data" / "afkj_tracker_backup.json"
+
+        # 1A. Download Synonyms
         try:
-            logger.info(f"Downloading template from {template_url}...")
+            logger.info(f"Downloading synonyms from: {synonyms_url}")
+            os.makedirs(synonyms_file.parent, exist_ok=True)
+            with (
+                urllib.request.urlopen(synonyms_url) as response,
+                open(synonyms_file, "wb") as out_file,
+            ):
+                shutil.copyfileobj(response, out_file)
+            logger.info(f"Synonyms downloaded to {synonyms_file}")
+            # Force reload of synonyms after download
+            self._load_synonyms()
+        except Exception as e:
+            logger.error(f"Failed to download synonyms: {e}")
+            # Fallback happens in _load_synonyms automatically
+
+        # 1B. Download Template
+        try:
+            logger.info(f"Downloading template from: {template_url}")
+            os.makedirs(template_file.parent, exist_ok=True)
             with (
                 urllib.request.urlopen(template_url) as response,
                 open(template_file, "wb") as out_file,
@@ -215,6 +256,12 @@ class HeroScannerMixin:
                 f"Could not load heroes list from template file: {self.tracker_file}"
             )
             return
+
+        # Build dynamic list of hero names for OCR matching
+        self.canonical_hero_names = [h["name"] for h in full_data.get("heroes", [])]
+        logger.info(
+            f"Loaded {len(self.canonical_hero_names)} hero names from template."
+        )
 
         limit = total_heroes
         heroes_scanned = 0
@@ -327,9 +374,11 @@ class HeroScannerMixin:
 
         logger.info(f"Diagnostic scan completed! {heroes_scanned} processed.")
         logger.info(
-            "PER L'UTENTE: Puoi trovare il file finale da importare su "
-            f"afkj-tracker.vercel.app qui: {backup_file}"
+            "SCAN COMPLETED: You can now import the results into "
+            "https://afkj-tracker.vercel.app/ using the file at this path "
+            "(copy and paste it into File Explorer):"
         )
+        logger.info(f">>> {backup_file} <<<")
 
     def resolve_locked_paragons(self, full_data: dict):
         """Resolves any heroes marked as 'Paragon Locked'.
@@ -876,29 +925,31 @@ class HeroScannerMixin:
         # 1. Reverse Roster Search (STRONGEST STRATEGY)
         # Check if any original hero name exists within the OCR text.
         # Bypasses titles like 'Dungeon Adventurer' etc.
-        clean_name = text_clean.replace("and", "")
-        for h in HeroesEnum:
-            # We check both the key (Smokey, Meerky) and value (Smokey & Meerky)
-            # normalizing them to ignore spacing, case, and special chars like &
-            norm_hero_key = (
-                re.sub(r"[^a-zA-Z0-9]", "", str(h.name)).lower().replace("and", "")
-            )
-            norm_hero_val = (
-                re.sub(r"[^a-zA-Z0-9]", "", str(h.value)).lower().replace("and", "")
-            )
+        if not hasattr(self, "canonical_hero_names"):
+            # Fallback for unexpected standalone calls:
+            # names should come from scan_roster
+            self.canonical_hero_names = []
 
-            if len(norm_hero_val) >= 4 and (  # noqa: PLR2004
-                norm_hero_val in clean_name or norm_hero_key in clean_name
-            ):
+        clean_name = text_clean.replace("and", "")
+        for h_canonical in self.canonical_hero_names:
+            # We check both the canonical name (Smokey & Meerky) and a
+            # simplified version normalizing them to ignore spacing, case,
+            # and special chars like &
+            norm_hero_val = (
+                re.sub(r"[^a-zA-Z0-9]", "", h_canonical).lower().replace("and", "")
+            )
+            # Try to handle common short versions or keys if possible, but mainly value
+            if len(norm_hero_val) >= 4 and norm_hero_val in clean_name:  # noqa: PLR2004
                 logger.debug(
-                    f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h.value}' "
-                    f"(Match against {norm_hero_val}/{norm_hero_key})"
+                    f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h_canonical}' "
+                    f"(Match against {norm_hero_val})"
                 )
-                return str(h.value)
+                return h_canonical
 
         # 2. Exact Match Fallback
         norm_to_canonical = {
-            re.sub(r"[^a-zA-Z0-9]", "", h.name).lower(): h.name for h in HeroesEnum
+            re.sub(r"[^a-zA-Z0-9]", "", name).lower(): name
+            for name in self.canonical_hero_names
         }
         if text_clean in norm_to_canonical and len(text_clean) >= 3:  # noqa: PLR2004
             logger.debug(

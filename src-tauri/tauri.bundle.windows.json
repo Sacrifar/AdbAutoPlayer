@@ -2,6 +2,7 @@
   "bundle": {
     "active": true,
     "resources": {
+      "../data/": "./data/",
       "pyembed/python": "./",
       "src-python/adb_auto_player/Binaries/": "./binaries/"
     },
