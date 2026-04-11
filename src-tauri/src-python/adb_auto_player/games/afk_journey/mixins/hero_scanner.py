@@ -284,10 +284,6 @@ class HeroScannerMixin:
 
                 # 3. Update JSON
                 if hero_data["name"] != "Unknown":
-                    # Deep Scan for Ascension via Ascend Panel
-                    is_lo_tier = hero_data["name"] in ["Hammie", "Chippy"] or hero_data[
-                        "ascension"
-                    ] in ["Unknown", "Epic", "Elite"]
                     # Logic Fix: Detect if the hero is maxed or needs deep scan
                     button_status = self._ascend_button_is_present()
 
@@ -307,13 +303,7 @@ class HeroScannerMixin:
                         )
                         if deep_asc != "Unknown":
                             hero_data["ascension"] = deep_asc
-                    elif not is_lo_tier:
-                        # Fallback for high tiers if button is missing
-                        hero_data["ascension"] = "Paragon 4"
-                        logger.debug(
-                            f"No button found for high-tier {hero_data['name']}"
-                            " -> Defaulting to Paragon 4"
-                        )
+                    # Removed aggressive Paragon 4 fallback for missing button cases
 
                     # RE-PARSE EX WEAPON now that we have the corrected rank
                     # This fixes cases where EX was 0 because vertical badge
@@ -483,22 +473,27 @@ class HeroScannerMixin:
             logger.debug("Button area check: empty OCR text")
             return False
 
-        # 1. PRIORITY: Check for 'ascend' FIRST.
-        # If the word 'ascend' is anywhere, it's NOT a maxed out hero.
-        if "ascend" in btn_text:
-            logger.debug(f"Button area check: '{btn_text}' -> ascend word found")
+        # 1. PRIORITY: Check for 'ascend' or 'supplement' FIRST.
+        # If either word is found, it's definitely NOT a maxed out hero.
+        active_keywords = ["ascend", "supplement"]
+        if any(kw in btn_text for kw in active_keywords):
+            logger.debug(f"Button area check: '{btn_text}' -> ascend/supplement found")
             return True
 
         for word in btn_text.split():
-            if SequenceMatcher(None, word, "ascend").ratio() >= 0.75:  # noqa: PLR2004
+            if any(
+                SequenceMatcher(None, word, kw).ratio() >= 0.75  # noqa: PLR2004
+                for kw in active_keywords
+            ):
                 logger.debug(
-                    f"Button area check: '{btn_text}' -> ascend word found (fuzzy)"
+                    f"Button area check: '{btn_text}' -> '{word}' found (fuzzy)"
                 )
                 return True
 
         # 2. FALLBACK: Check for Maxed Keywords (Paragon 4 indicators)
-        # Only check these if 'ascend' was NOT found.
-        maxed_indicators = ["level cap", "phase", "cap", "limit", "max"]
+        # We exclude "phase" and "level cap" from being deterministic MAXED indicators
+        # because they appear for Supreme+ heroes who hit global season level caps.
+        maxed_indicators = ["max rank", "limit", "maxed"]
         if any(kw in btn_text for kw in maxed_indicators):
             logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
             return "MAXED"
