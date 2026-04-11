@@ -16,7 +16,3 @@
     - Without an active Linux maintainer, official support **will never happen**.
 
 **We will not answer questions about Linux builds.** Check back if community contributions change this in the future.
-
-## Contact
-
-[![Discord Presence](https://lanyard.cnrad.dev/api/518169167048998913)](https://discord.com/users/518169167048998913)

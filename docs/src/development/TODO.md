@@ -1,11 +1,5 @@
 # 📝 Contribution Opportunities
 
-Interested in contributing? Below are available tasks across different areas of the project. Feel free to reach out to @yulesxoxo for questions or guidance.
-
-[![Discord Presence](https://lanyard.cnrad.dev/api/518169167048998913)](https://discord.com/users/518169167048998913)
-
----
-
 ## 🔧 Backend Development
 
 ### Android Multi-Touch Gesture Implementation (PoC)

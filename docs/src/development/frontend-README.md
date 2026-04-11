@@ -13,11 +13,3 @@ Follow [Dev & Build](dev-and-build.md)
 ## Contributing
 
 Nothing here yet—PRs are welcome.
-I do insist on using **Svelte**, as this is the only frontend framework that I have even the tiniest amount of success with and feel comfortable maintaining.
-
-At the moment, I (Yules) am the only person maintaining the frontend, so contributions—big or small—are very welcome.
-Other than that, if you are interested in helping out, you can do whatever you want, and you have my full support.
-
-## Contact
-
-[![Discord Presence](https://lanyard.cnrad.dev/api/518169167048998913)](https://discord.com/users/518169167048998913)
