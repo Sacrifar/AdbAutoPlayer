@@ -859,12 +859,12 @@ class HeroScannerMixin:
         raw_name_c = self._ocr_text_rapid(sharpened_name, None)
 
         # Combine all perspectives for a super-robust match
-        raw_name = f"{raw_name_a} {raw_name_b} {raw_name_c}"
-        name = self._match_hero_name(raw_name)
+        raw_names = [raw_name_a, raw_name_b, raw_name_c]
+        name = self._match_hero_name(raw_names)
 
         if name == "Unknown":
             logger.debug(
-                f"Super-Vision identification failed. Combined Raw: {raw_name}"
+                f"Super-Vision identification failed. Combined Raw: {raw_names}"
             )
 
         asc_img = screenshot[crop_asc[1] : crop_asc[3], crop_asc[0] : crop_asc[2]]
@@ -898,6 +898,9 @@ class HeroScannerMixin:
         ascension = self._match_ascension(raw_asc)
         ex = self._parse_ex_level(raw_ex_combined, ascension, name)
 
+        # Combine for dictionary output
+        raw_name = " ".join(raw_names)
+
         return {
             "name": name,
             "raw_name": raw_name,
@@ -907,70 +910,95 @@ class HeroScannerMixin:
             "raw_ex": raw_ex_combined,
         }
 
-    def _match_hero_name(self, raw_text: str) -> str:  # noqa: PLR0912, PLR0911
-        """Matches a raw OCR string to a canonical hero name using multiple strategies.
-
-        Args:
-            raw_text: The combined raw text from multiple OCR passes.
+    def _prepare_hero_matching_data(
+        self, raw_input: str | list[str]
+    ) -> tuple[list[str], str, list[dict], list[str]]:
+        """Prepares metadata and tokens required for hero matching.
 
         Returns:
-            The canonical name of the hero (e.g., 'Cecia') or 'Unknown'.
+            A tuple of (readings, raw_text, hero_meta, all_ocr_tokens).
         """
-        if not raw_text:
-            return "Unknown"
+        if isinstance(raw_input, list):
+            readings = [r for r in raw_input if r.strip()]
+            raw_text = " ".join(readings)
+        else:
+            readings = [raw_input]
+            raw_text = raw_input
 
-        text_clean = re.sub(r"[^a-zA-Z0-9]", "", raw_text).lower()
-        if not text_clean:
-            return "Unknown"
+        # Prepare hero metadata from roster
+        hero_meta = []
+        if hasattr(self, "canonical_hero_names"):
+            for h in self.canonical_hero_names:
+                norm = re.sub(r"[^a-zA-Z0-9]", "", h).lower().replace("and", "")
+                h_tokens = [
+                    re.sub(r"[^a-zA-Z0-9]", "", t).lower()
+                    for t in h.split()
+                    if len(t) > 2  # noqa: PLR2004
+                ]
+                hero_meta.append({"name": h, "norm": norm, "tokens": h_tokens})
 
-        # 1. Reverse Roster Search (STRONGEST STRATEGY)
-        # Check if any original hero name exists within the OCR text.
-        # Bypasses titles like 'Dungeon Adventurer' etc.
-        if not hasattr(self, "canonical_hero_names"):
-            # Fallback for unexpected standalone calls:
-            # names should come from scan_roster
-            self.canonical_hero_names = []
-
-        clean_name = text_clean.replace("and", "")
-        for h_canonical in self.canonical_hero_names:
-            # We check both the canonical name (Smokey & Meerky) and a
-            # simplified version normalizing them to ignore spacing, case,
-            # and special chars like &
-            norm_hero_val = (
-                re.sub(r"[^a-zA-Z0-9]", "", h_canonical).lower().replace("and", "")
+        # Extract OCR tokens from all readings
+        all_ocr_tokens = []
+        for r in readings:
+            all_ocr_tokens.extend(
+                [
+                    re.sub(r"[^a-zA-Z0-9]", "", t).lower()
+                    for t in r.split()
+                    if len(t) >= 2  # noqa: PLR2004
+                ]
             )
-            # Try to handle common short versions or keys if possible, but mainly value
-            if len(norm_hero_val) >= 4 and norm_hero_val in clean_name:  # noqa: PLR2004
-                logger.debug(
-                    f"MATCH STRATEGY: [ROSTER-SUB] '{raw_text}' -> '{h_canonical}' "
-                    f"(Match against {norm_hero_val})"
-                )
-                return h_canonical
 
-        # 2. Exact Match Fallback
-        norm_to_canonical = {
-            re.sub(r"[^a-zA-Z0-9]", "", name).lower(): name
-            for name in self.canonical_hero_names
-        }
-        if text_clean in norm_to_canonical and len(text_clean) >= 3:  # noqa: PLR2004
-            logger.debug(
-                f"MATCH STRATEGY: [EXACT] '{raw_text}' -> "
-                f"'{norm_to_canonical[text_clean]}'"
-            )
-            return norm_to_canonical[text_clean]
+        return readings, raw_text, hero_meta, all_ocr_tokens
 
-        # Check synonyms from loaded JSON
+    def _match_independent_strategies(
+        self, readings: list[str], hero_meta: list[dict], all_ocr_tokens: list[str]
+    ) -> str | None:
+        """Executes token-intersection and independent reading strategies."""
+        # 1.1: Token Intersection (Covers fragments split by noise)
+        for h in hero_meta:
+            if not h["tokens"]:
+                continue
+            matches_count = 0
+            for h_token in h["tokens"]:
+                if any(h_token in ocr_t for ocr_t in all_ocr_tokens):
+                    matches_count += 1
+            if matches_count == len(h["tokens"]):
+                logger.debug(f"MATCH STRATEGY: [TOKEN-INTERSECT] -> '{h['name']}'")
+                return h["name"]
+
+        # 1.2: Reading-Level Substring (Clean hit in one strategy)
+        for reading in readings:
+            reading_clean = re.sub(r"[^a-zA-Z0-9]", "", reading).lower()
+            for h in hero_meta:
+                if len(h["norm"]) >= 4 and h["norm"] in reading_clean:  # noqa: PLR2004
+                    logger.debug(
+                        f"MATCH STRATEGY: [INDEPENDENT-SUB] "
+                        f"'{reading}' -> '{h['name']}'"
+                    )
+                    return h["name"]
+
+        # 1.3: Token-to-Hero Fragment
+        for ocr_t in all_ocr_tokens:
+            if len(ocr_t) < 5:  # noqa: PLR2004
+                continue
+            for h in hero_meta:
+                if ocr_t in h["norm"]:
+                    logger.debug(
+                        f"MATCH STRATEGY: [TOKEN-FRAGMENT] '{ocr_t}' -> '{h['name']}'"
+                    )
+                    return h["name"]
+        return None
+
+    def _match_synonym_strategies(
+        self, raw_text: str, text_clean: str, all_ocr_tokens: list[str]
+    ) -> str | None:
+        """Executes synonym-based matching strategies."""
         if not hasattr(self, "hero_synonyms"):
             self._load_synonyms()
 
-        # 3. Direct Synonyms Match (Dual-Pass Strategy with Longest-Match Priority)
-        synonym_matches = []  # List of (match_length, canonical_name)
-
-        # Pass 3.1: Token-Based (Checks individual words)
-        tokens = [re.sub(r"[^a-zA-Z0-9]", "", t).lower() for t in raw_text.split()]
-        for token in tokens:
-            if len(token) < 2:  # noqa: PLR2004
-                continue
+        synonym_matches = []
+        # Pass 3.1: Token-Based
+        for token in all_ocr_tokens:
             for pattern_raw, canonical in self.hero_synonyms.items():
                 pattern = re.sub(r"[^a-zA-Z0-9]", "", pattern_raw).lower()
                 if not pattern:
@@ -980,52 +1008,81 @@ class HeroScannerMixin:
                 ):
                     synonym_matches.append((len(pattern), canonical))
 
-        # Pass 3.2: Joined-Context (Checks split names like 'Va en al')
+        # Pass 3.2: Joined-Context
         for pattern_raw, canonical in self.hero_synonyms.items():
             pattern = re.sub(r"[^a-zA-Z0-9]", "", pattern_raw).lower()
             if len(pattern) >= 4 and pattern in text_clean:  # noqa: PLR2004
                 synonym_matches.append((len(pattern), canonical))
 
         if synonym_matches:
-            # Sort by length descending to pick the most specific match
             synonym_matches.sort(key=lambda x: x[0], reverse=True)
-            best_len, best_name = synonym_matches[0]
-            logger.debug(
-                f"MATCH STRATEGY: [SYNONYM-BEST] '{best_name}' "
-                f"(Match length: {best_len})"
-            )
+            best_name = synonym_matches[0][1]
+            logger.debug(f"MATCH STRATEGY: [SYNONYM-BEST] '{best_name}'")
             return best_name
+        return None
+
+    def _match_fuzzy_fallback_strategies(self, text_clean: str) -> str | None:
+        """Executes long substring and fuzzy matching strategies."""
+        norm_to_canonical = {
+            re.sub(r"[^a-zA-Z0-9]", "", name).lower(): name
+            for name in self.canonical_hero_names
+        }
 
         # 4. Long substring match fallback
         if len(text_clean) >= 6:  # noqa: PLR2004
             for norm, canonical in norm_to_canonical.items():
                 if text_clean in norm or norm in text_clean:
-                    logger.debug(
-                        f"MATCH STRATEGY: [SUBSTRING] '{raw_text}' -> '{canonical}'"
-                    )
+                    logger.debug(f"MATCH STRATEGY: [SUBSTRING] -> '{canonical}'")
                     return canonical
 
         # 5. Final Fallback: Fuzzy matching (Very Strict)
         possible_norms = list(norm_to_canonical.keys())
-
-        # Increase global cutoff from 0.7 -> 0.85
         matches = get_close_matches(text_clean, possible_norms, n=1, cutoff=0.85)
         if matches:
             canonical = norm_to_canonical[matches[0]]
             norm_match = matches[0]
-
-            # EXTREMELY STRICT for short names to avoid false positives
             if len(norm_match) < 6:  # noqa: PLR2004
-                strict_matches = get_close_matches(
-                    text_clean, [norm_match], n=1, cutoff=0.95
-                )
-                if not strict_matches:
-                    return "Unknown"
-
-            logger.debug(f"MATCH STRATEGY: [FUZZY] '{raw_text}' -> '{canonical}'")
+                if not get_close_matches(text_clean, [norm_match], n=1, cutoff=0.95):
+                    return None
+            logger.debug(f"MATCH STRATEGY: [FUZZY] -> '{canonical}'")
             return canonical
+        return None
 
-        return "Unknown"
+    def _match_hero_name(self, raw_input: str | list[str]) -> str:
+        """Matches raw OCR input to a canonical hero name using multiple strategies."""
+        if not raw_input:
+            return "Unknown"
+
+        readings, raw_text, hero_meta, all_ocr_tokens = (
+            self._prepare_hero_matching_data(raw_input)
+        )
+        text_clean = re.sub(r"[^a-zA-Z0-9]", "", raw_text).lower()
+        if not text_clean:
+            return "Unknown"
+
+        # 1. Independent Reading Search (STRONGEST STRATEGY)
+        match = self._match_independent_strategies(readings, hero_meta, all_ocr_tokens)
+        if not match:
+            # 2. Exact Match Fallback (Joined string)
+            norm_to_canonical = {
+                re.sub(r"[^a-zA-Z0-9]", "", name).lower(): name
+                for name in self.canonical_hero_names
+            }
+            if text_clean in norm_to_canonical and len(text_clean) >= 3:  # noqa: PLR2004
+                logger.debug(
+                    f"MATCH STRATEGY: [EXACT] -> '{norm_to_canonical[text_clean]}'"
+                )
+                match = norm_to_canonical[text_clean]
+
+        if not match:
+            # 3. Synonyms Match
+            match = self._match_synonym_strategies(raw_text, text_clean, all_ocr_tokens)
+
+        if not match:
+            # 4 & 5. Fallback & Fuzzy
+            match = self._match_fuzzy_fallback_strategies(text_clean)
+
+        return match or "Unknown"
 
     def _match_ascension(self, raw_text: str) -> str:
         """Determines the ascension rank from raw OCR text.
