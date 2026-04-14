@@ -87,14 +87,17 @@ def tauri_profile_aware_command(func):
 
         if not _base_resource_dir:
             _base_resource_dir = Manager.path(app_handle).resource_dir()
-            # Tauri Dev
-            if _base_resource_dir.parts[-3:] == ("AdbAutoPlayer", "target", "debug"):
-                _base_resource_dir = (
-                    _base_resource_dir.parent.parent
-                    / "src-tauri"
-                    / "src-python"
-                    / "adb_auto_player"
-                )
+            # Tauri Dev Mode Path Correction
+            # In Dev mode, resource_dir points to the target/debug directory.
+            # We need to find the project root and navigate to the python source.
+            if "target" in _base_resource_dir.parts:
+                # Find index of 'target' and go one level up to get to 'src-tauri'
+                try:
+                    target_idx = _base_resource_dir.parts.index("target")
+                    project_root = Path(*_base_resource_dir.parts[:target_idx])
+                    _base_resource_dir = project_root / "src-python" / "adb_auto_player"
+                except (ValueError, IndexError):
+                    pass
 
         SettingsLoader.set_app_config_dir(
             _base_app_config_dir / f"{body.profile_index}"

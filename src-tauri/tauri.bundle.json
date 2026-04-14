@@ -2,6 +2,7 @@
   "bundle": {
     "active": true,
     "resources": {
+      "../data/": "./data/",
       "pyembed/python": "./"
     },
     "targets": [
