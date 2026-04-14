@@ -296,7 +296,7 @@ class HeroScannerMixin:
                     if button_status == "MAXED":
                         hero_data["ascension"] = "Paragon 4"
                         logger.debug(
-                            f"Detected Level Cap for {hero_data['name']}"
+                            f"Detected Level Cap/Max for {hero_data['name']}"
                             " -> Forced Paragon 4"
                         )
                     elif button_status is True:
@@ -464,9 +464,11 @@ class HeroScannerMixin:
         """Checks if 'Ascend', 'Level Cap', or 'Phase' is present at the bottom.
 
         Returns:
-            True if Ascend found, 'MAXED' if Level Cap found, False otherwise.
+            True if Ascend found, 'MAXED' if Level Cap found,
+            'LEVELING' if Level Up found.
         """
-        region_btn_check = (170, 1760, 560, 110)
+        # Expanded region to better capture 'Level Up' buttons and multiple lines
+        region_btn_check = (100, 1740, 700, 160)
         x1, y1, w, h = region_btn_check
         full_ss = self.get_screenshot()  # ty: ignore[unresolved-attribute]
         btn_img = full_ss[y1 : y1 + h, x1 : x1 + w]
@@ -480,7 +482,6 @@ class HeroScannerMixin:
             return False
 
         # 1. PRIORITY: Check for 'ascend' or 'supplement' FIRST.
-        # If either word is found, it's definitely NOT a maxed out hero.
         active_keywords = ["ascend", "supplement"]
         if any(kw in btn_text for kw in active_keywords):
             logger.debug(f"Button area check: '{btn_text}' -> ascend/supplement found")
@@ -497,9 +498,18 @@ class HeroScannerMixin:
                 return True
 
         # 2. FALLBACK: Check for Maxed Keywords (Paragon 4 indicators)
-        # We exclude "phase" and "level cap" from being deterministic MAXED indicators
-        # because they appear for Supreme+ heroes who hit global season level caps.
-        maxed_indicators = ["max rank", "limit", "maxed"]
+        # Included 'no need', 'level up', 'upgrade' for resonance/max states.
+        maxed_indicators = [
+            "max rank",
+            "limit",
+            "maxed",
+            "no need",
+            "max",
+            "rank",
+            "level up",
+            "upgrade",
+            "batch",
+        ]
         if any(kw in btn_text for kw in maxed_indicators):
             logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
             return "MAXED"
