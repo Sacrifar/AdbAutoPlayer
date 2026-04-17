@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import cast
 from unittest.mock import DEFAULT, MagicMock, patch
 
+import cv2
 from adb_auto_player.exceptions import (
     AutoPlayerError,
     AutoPlayerUnrecoverableError,
@@ -284,3 +285,46 @@ class TestGame(unittest.TestCase):
         error = AutoPlayerUnrecoverableError("test")
         game._handle_task_error("task1", error)
         mock_exit.assert_called_with(1)
+
+    @patch("adb_auto_player.game.game.Execute.function")
+    @patch.object(Game, "restart_game")
+    def test_execute_tasks_some_succeed(self, mock_restart, mock_execute) -> None:
+        """Test _execute_tasks when some tasks succeed."""
+        game = MockGame()
+
+        # Execute.function returns Exception objects instead of raising them.
+        responses = [Exception("test error"), None]
+        mock_execute.side_effect = lambda **kwargs: responses.pop(0)
+
+        tasks = {
+            "task1": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+            "task2": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+        }
+
+        game._execute_tasks(tasks)
+        mock_restart.assert_not_called()
+
+    def test_handle_task_error_none(self) -> None:
+        """Test _handle_task_error with no error."""
+        game = MockGame()
+        # Should return early (cover line 1037)
+        self.assertIsNone(game._handle_task_error("task1", None))
+
+    @patch("adb_auto_player.game.game.IO.cache_clear")
+    def test_handle_task_error_cv2_error_with_stream(self, mock_clear) -> None:
+        """Test _handle_task_error with cv2.error and an active stream."""
+        game = MockGame()
+        game._stream = MagicMock()
+        error = cv2.error("test cv2 error")
+        game._handle_task_error("task1", error)
+        game._stream.stop.assert_called_once()
+        mock_clear.assert_called_once()
+
+    @patch("adb_auto_player.game.game.IO.cache_clear")
+    def test_handle_task_error_cv2_error_no_stream(self, mock_clear) -> None:
+        """Test _handle_task_error with cv2.error and no stream."""
+        game = MockGame()
+        game._stream = None
+        error = cv2.error("test cv2 error")
+        game._handle_task_error("task1", error)
+        mock_clear.assert_called_once()
