@@ -25,6 +25,13 @@ class TestExecute(unittest.TestCase):
         result = Execute.find_command_and_execute("nonexistent", commands)
         self.assertFalse(result)
 
+    def test_find_command_and_execute_mismatch(self) -> None:
+        """Test finding a command when other commands are present but none match."""
+        cmd = Command(name="OtherCommand", action=MagicMock())
+        commands = {"category": [cmd]}
+        result = Execute.find_command_and_execute("nonexistent", commands)
+        self.assertFalse(result)
+
     def test_find_command_and_execute_error(self) -> None:
         """Test finding a command that raises an error when executed."""
         error = Exception("test error")

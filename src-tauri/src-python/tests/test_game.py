@@ -4,9 +4,15 @@ import math
 import time
 import unittest
 from pathlib import Path
+from typing import cast
 from unittest.mock import DEFAULT, MagicMock, patch
 
-from adb_auto_player.exceptions import GameTimeoutError
+from adb_auto_player.exceptions import (
+    AutoPlayerError,
+    AutoPlayerUnrecoverableError,
+    GameNotRunningOrFrozenError,
+    GameTimeoutError,
+)
 from adb_auto_player.game import Game
 from adb_auto_player.image_manipulation import IO
 from adb_auto_player.models.device import DisplayInfo, Orientation, Resolution
@@ -244,3 +250,37 @@ class TestGame(unittest.TestCase):
 
         game._execute_tasks(tasks)
         mock_restart.assert_called_once()
+
+    @patch.object(Game, "restart_game")
+    def test_handle_task_error_game_frozen(self, mock_restart) -> None:
+        """Test _handle_task_error with GameNotRunningOrFrozenError."""
+        game = MockGame()
+        error = GameNotRunningOrFrozenError("test")
+        game._handle_task_error("task1", error)
+        mock_restart.assert_called_once()
+
+    @patch.object(Game, "start_game")
+    @patch.object(Game, "is_game_running", return_value=False)
+    def test_handle_task_error_autoplayer_error_not_running(
+        self, mock_running, mock_start
+    ) -> None:
+        """Test _handle_task_error with AutoPlayerError when game not running."""
+        game = MockGame()
+        error = AutoPlayerError("test")
+        game._handle_task_error("task1", error)
+        mock_start.assert_called_once()
+
+    def test_handle_task_error_keyboard_interrupt(self) -> None:
+        """Test _handle_task_error with KeyboardInterrupt."""
+        game = MockGame()
+
+        with self.assertRaises(KeyboardInterrupt):
+            game._handle_task_error("task1", cast(Exception, KeyboardInterrupt()))
+
+    @patch("sys.exit")
+    def test_handle_task_error_unrecoverable(self, mock_exit) -> None:
+        """Test _handle_task_error with AutoPlayerUnrecoverableError."""
+        game = MockGame()
+        error = AutoPlayerUnrecoverableError("test")
+        game._handle_task_error("task1", error)
+        mock_exit.assert_called_with(1)
