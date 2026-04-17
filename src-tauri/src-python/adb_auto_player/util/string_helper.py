@@ -114,8 +114,8 @@ class StringHelper:
                     )
                 )
             else:  # Unix path (Linux: /home/user, macOS: /Users/user)
-                username = home_dir.rsplit("/", maxsplit=1)[-1]
-                replacements.append((re.escape(home_dir), "/home/$USER"))
+                parent_dir = home_dir.rsplit("/", maxsplit=1)[0]
+                replacements.append((re.escape(home_dir), f"{parent_dir}/$USER"))
 
             StringHelper._sanitize_replacements = replacements
 
