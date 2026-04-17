@@ -9,14 +9,15 @@
         "dragDropEnabled": false,
         "height": 600,
         "title": "AdbAutoPlayer",
-        "visible": false,
+        "visible": true,
         "width": 800
       }
     ]
   },
   "build": {
     "beforeBuildCommand": "pnpm build",
-    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://127.0.0.1:1420",
     "features": [
       "pytauri/standalone"
     ],

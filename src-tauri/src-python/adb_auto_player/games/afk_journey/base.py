@@ -426,12 +426,7 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
         if not excluded_heroes_dict:
             return None
 
-        filtered_dict = {}
-
-        for key, value in excluded_heroes_dict.items():
-            filtered_dict[key] = value
-
-        return self._find_any_excluded_hero(filtered_dict)
+        return self._find_any_excluded_hero(excluded_heroes_dict)
 
     def _find_any_excluded_hero(self, excluded_heroes: dict[str, str]) -> str | None:
         """Find excluded hero templates.
@@ -490,8 +485,7 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
                 self.battle_state.max_attempts_reached = True
                 self.press_back_button()
                 return False
-            else:
-                self._click_confirm_on_popup()
+            self._click_confirm_on_popup()
 
         # Just handle however many popups show up
         # Needs a counter to prevent infinite loop on freeze though

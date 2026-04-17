@@ -208,7 +208,7 @@ class PopupMessageHandler(Game, ABC):
     def _get_popup_message_from_ocr_results(
         self, ocr_results: list[OCRResult]
     ) -> PopupMessage | None:
-        for i, result in enumerate(ocr_results):
+        for result in ocr_results:
             if matching_popup := PopupMessageHandler._find_matching_popup(result.text):
                 return matching_popup
 
@@ -385,10 +385,8 @@ class PopupMessageHandler(Game, ABC):
             text = re.sub(r"\s+", " ", text)
             text = text.strip()
 
-        if StringHelper.fuzzy_substring_match(
+        return StringHelper.fuzzy_substring_match(
             text,
             pattern,
             similarity_threshold,
-        ):
-            return True
-        return False
+        )

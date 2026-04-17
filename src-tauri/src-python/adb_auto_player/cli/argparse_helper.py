@@ -73,14 +73,15 @@ def _build_argparse_formatter(commands_by_category: dict[str, list[Command]]):
                 for action in actions
                 if action.option_strings and action.dest != "help"
             ]
-            optional_str = " ".join(
-                f"[{
+            optional_parts = []
+            for action in optional_actions:
+                opt_str = (
                     action.option_strings[0]
                     if len(action.option_strings) == 1
                     else action.option_strings[-1]
-                }]"
-                for action in optional_actions
-            )
+                )
+                optional_parts.append(f"[{opt_str}]")
+            optional_str = " ".join(optional_parts)
             command_action = next(
                 (
                     action

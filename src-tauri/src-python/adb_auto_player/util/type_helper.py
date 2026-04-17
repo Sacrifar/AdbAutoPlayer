@@ -11,6 +11,6 @@ class TypeHelper:
     @staticmethod
     def to_int_if_needed(value: Any) -> int | np.integer:
         """Convert value to int if needed."""
-        if isinstance(value, (int | np.integer)):
+        if isinstance(value, (int, np.integer)):
             return value
         return int(value)
