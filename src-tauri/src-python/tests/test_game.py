@@ -4,13 +4,14 @@ import math
 import time
 import unittest
 from pathlib import Path
-from unittest.mock import DEFAULT, patch
+from unittest.mock import DEFAULT, MagicMock, patch
 
 from adb_auto_player.exceptions import GameTimeoutError
 from adb_auto_player.game import Game
 from adb_auto_player.image_manipulation import IO
 from adb_auto_player.models.device import DisplayInfo, Orientation, Resolution
 from adb_auto_player.models.image_manipulation import CropRegions
+from adb_auto_player.models.registries import CustomRoutineEntry
 from adb_auto_player.models.template_matching import TemplateMatchResult
 from pydantic import BaseModel
 
@@ -216,3 +217,30 @@ class TestGame(unittest.TestCase):
             f"Cropped Image Matching Results: {cropped_results}\n"
         )
         self.addCleanup(lambda: print(print_output))
+
+    @patch.object(Game, "get_screenshot")
+    def test_find_all_template_matches(self, get_screenshot) -> None:
+        """Test find_all_template_matches."""
+        game = MockGame()
+        base_image: Path = TEST_DATA_DIR / "template_match_base.png"
+        template_image = "template_match_template.png"
+        get_screenshot.return_value = IO.load_image(base_image)
+
+        results = game.find_all_template_matches(template_image)
+        self.assertGreater(len(results), 0)
+        self.assertIsInstance(results[0], TemplateMatchResult)
+
+    @patch("adb_auto_player.game.game.Execute.function")
+    @patch.object(Game, "restart_game")
+    def test_execute_tasks_all_failed(self, mock_restart, mock_execute) -> None:
+        """Test _execute_tasks when all tasks fail."""
+        game = MockGame()
+
+        mock_execute.return_value = Exception("test error")
+        tasks = {
+            "task1": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+            "task2": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+        }
+
+        game._execute_tasks(tasks)
+        mock_restart.assert_called_once()

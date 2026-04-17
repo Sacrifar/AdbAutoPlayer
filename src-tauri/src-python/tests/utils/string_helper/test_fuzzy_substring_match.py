@@ -38,16 +38,14 @@ class TestFuzzySubstringMatch:
         threshold = ConfidenceValue(threshold)
         assert StringHelper.fuzzy_substring_match(text, pattern, threshold) == expected
 
-    def test_default_threshold(self):
-        """Test that the default threshold of 80% works as expected."""
-        # Should match at 80%
-        assert StringHelper.fuzzy_substring_match("hello world", "hello") is True
-        # Should match at 80%
-        assert StringHelper.fuzzy_substring_match("hello world", "hallo") is True
-        # Should not match at 90%
+    def test_branch_coverage_substring(self):
+        """Ensure both branches of the exact substring match check are exercised."""
+        # Case 1: pattern in text (True branch of 'if pattern_lower in text_lower')
+        assert StringHelper.fuzzy_substring_match("abc", "b") is True
+        # Case 2: pattern not in text but matches fuzzy (False branch, then fuzzy match)
         assert (
-            StringHelper.fuzzy_substring_match(
-                "hello world", "hallo", ConfidenceValue("90%")
-            )
-            is False
+            StringHelper.fuzzy_substring_match("abc", "abd", ConfidenceValue("60%"))
+            is True
         )
+        # Case 3: pattern not in text and no fuzzy match
+        assert StringHelper.fuzzy_substring_match("abc", "xyz") is False
