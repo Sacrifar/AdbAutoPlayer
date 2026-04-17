@@ -61,3 +61,17 @@ class TestSanitizePath(unittest.TestCase):
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
         )
+
+    @patch("os.path.expanduser", return_value="/home/mockuser")
+    def test_cache_hit(self, mock_expanduser: MagicMock) -> None:
+        """Test that calling sanitize_path twice hits the cache."""
+        log = "/home/mockuser/.config/file.txt"
+        expected = "/home/$USER/.config/file.txt"
+        # First call initializes the cache (hits the 'is None' branch)
+        self.assertEqual(
+            expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
+        )
+        # Second call should hit the cache (hits the 'is not None' branch)
+        self.assertEqual(
+            expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
+        )
