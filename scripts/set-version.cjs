@@ -33,7 +33,10 @@ const cargoPath = path.join(rootDir, "src-tauri", "Cargo.toml");
 if (fs.existsSync(cargoPath)) {
   let cargoContent = fs.readFileSync(cargoPath, "utf8");
   // Simple regex for version = "x.y.z" under [package]
-  cargoContent = cargoContent.replace(/^version\s*=\s*"[^"]*"/m, `version = "${newVersion}"`);
+  cargoContent = cargoContent.replace(
+    /^version\s*=\s*"[^"]*"/m,
+    `version = "${newVersion}"`,
+  );
   fs.writeFileSync(cargoPath, cargoContent);
   console.log(`✅ Updated Cargo.toml to ${newVersion}`);
 }
