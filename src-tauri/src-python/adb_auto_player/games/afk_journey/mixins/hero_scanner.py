@@ -268,6 +268,7 @@ class HeroScannerMixin:
 
         heroes_scanned = 0
         global_ascend_available = False
+        paragons_unlocked_confirmed = False
 
         # Navigate to the first hero once (Antandra or Top-Left)
         first_hero_point = Point(130, 1050)
@@ -291,13 +292,7 @@ class HeroScannerMixin:
                     # Logic Fix: Detect if the hero is maxed or needs deep scan
                     button_status = self._ascend_button_is_present()
 
-                    if button_status == "MAXED":
-                        hero_data["ascension"] = "Paragon 4"
-                        logger.debug(
-                            f"Detected Level Cap/Max for {hero_data['name']}"
-                            " -> Forced Paragon 4"
-                        )
-                    elif button_status is True:
+                    if button_status is True:
                         global_ascend_available = True
                         logger.debug(
                             f"Ascend button found for {hero_data['name']}"
@@ -308,23 +303,30 @@ class HeroScannerMixin:
                         )
                         if deep_asc != "Unknown":
                             hero_data["ascension"] = deep_asc
+
+                        # Live Update: If we found a Paragon 1-3, we confirm Paragons
+                        if any(
+                            p in hero_data["ascension"]
+                            for p in ["Paragon 1", "Paragon 2", "Paragon 3"]
+                        ):
+                            paragons_unlocked_confirmed = True
+                            logger.info("Live Update: Paragon rank detected.")
+                    # Logic: Missing 'Ascend' button means CAPPED (S+ or P4)
+                    # Use Live Tracking to disambiguate immediately
+                    elif paragons_unlocked_confirmed:
+                        hero_data["ascension"] = "Paragon 4"
+                        logger.debug(
+                            f"Missing buttons for {hero_data['name']} "
+                            "(Paragons Unlocked) -> Forced Paragon 4"
+                        )
                     else:
-                        # According to the game's UI rules:
-                        # ANY hero missing the 'Ascend' or 'Supplement' button
-                        # is mathematically CAPPED.
-                        # The ONLY capped ranks are Supreme+ (before Paragon
-                        # unlocks) and Paragon 4.
-                        # Therefore, we can safely bypass reading the vertical
-                        # badge and lock them as Pending S+/P4.
                         hero_data["ascension"] = "Pending S+/P4"
                         logger.debug(
-                            f"Ascension buttons missing for {hero_data['name']}"
-                            " -> Forced Pending S+/P4"
+                            f"Missing buttons for {hero_data['name']} "
+                            "-> Forced Pending S+/P4"
                         )
 
                     # RE-PARSE EX WEAPON now that we have the corrected rank
-                    # This fixes cases where EX was 0 because vertical badge
-                    # led to "Unknown" ascension.
                     hero_data["ex_weapon"] = self._parse_ex_level(
                         hero_data["raw_ex"], hero_data["ascension"], hero_data["name"]
                     )
@@ -342,10 +344,6 @@ class HeroScannerMixin:
                     logger.warning(
                         f"Hero #{heroes_scanned + 1} - Raw OCR: "
                         f"'{hero_data['raw_name']}'"
-                    )
-                    logger.warning(
-                        "Please report the OCR text above to the scanner developer "
-                        "to help improve identification."
                     )
 
                 heroes_scanned += 1
@@ -382,8 +380,7 @@ class HeroScannerMixin:
         logger.info(f"Diagnostic scan completed! {heroes_scanned} processed.")
         logger.info(
             "SCAN COMPLETED: You can now import the results into "
-            "https://afkj-tracker.vercel.app/ using the file at this path "
-            "(copy and paste it into File Explorer):"
+            "https://afkj-tracker.vercel.app/ using the file at this path:"
         )
         logger.info(
             f">>> {backup_file} <<<",
@@ -435,8 +432,10 @@ class HeroScannerMixin:
             has_p123 or not global_ascend_available
         )
 
-        # 2. Resolve 'Pending' cases based on global context
-        self._resolve_pending_heroes(heroes, paragon_possible, global_ascend_available)
+        # 2. Resolve 'Pending' cases based on global context (Retroactive fix)
+        self._resolve_pending_heroes(
+            heroes, is_paragon_unlocked, global_ascend_available
+        )
 
         # 3. Safety Check: If Paragon is locked/impossible.
         # This securely catches F2P accounts with >25 S+ where the server
@@ -452,7 +451,7 @@ class HeroScannerMixin:
             json.dump(full_data, f, indent=4, ensure_ascii=False)
 
     def _resolve_pending_heroes(
-        self, heroes: list, paragon_possible: bool, global_ascend_available: bool
+        self, heroes: list, is_paragon_unlocked: bool, global_ascend_available: bool
     ):
         """Resolves 'Pending S+/P4' heroes."""
         pending_heroes = [
@@ -461,25 +460,21 @@ class HeroScannerMixin:
         if not pending_heroes:
             return
 
-        # WHALE LOGIC: If Paragons are possible AND there are ZERO ascend buttons
-        # anywhere, they must be Paragon 4 (Mega Whale account where everyone is maxed).
-        is_mega_whale = paragon_possible and not global_ascend_available
-
-        if is_mega_whale:
+        # NEW LOGIC: If Paragons are unlocked (seen P1/2/3 OR mega whale),
+        # then heroes without buttons ARE Paragon 4 as S+ would show 'Ascend'.
+        if is_paragon_unlocked:
             resolved_pending = "Paragon 4"
             logger.info(
-                f"Found {len(pending_heroes)} heroes without buttons. "
-                "Threshold met: assuming Paragon 4 (Mega Whale Account)."
+                f"Resolving {len(pending_heroes)} 'Pending S+/P4' heroes to "
+                "'Paragon 4' (Paragons Unlocked on account)."
             )
         else:
             resolved_pending = "Supreme+"
+            logger.info(
+                f"Resolving {len(pending_heroes)} 'Pending S+/P4' heroes to "
+                "'Supreme+' (Paragons likely locked)."
+            )
 
-        logger.info(
-            f"Resolving {len(pending_heroes)} 'Pending S+/P4' heroes "
-            f"to '{resolved_pending}' "
-            f"(Paragon Possible: {paragon_possible}, "
-            f"Global Ascend: {global_ascend_available})"
-        )
         for h in pending_heroes:
             h["currentAscension"] = resolved_pending
 
@@ -605,19 +600,6 @@ class HeroScannerMixin:
                     f"Button area check: '{btn_text}' -> '{word}' found (fuzzy)"
                 )
                 return True
-
-        # 2. FALLBACK: Check for Maxed Keywords (Paragon 4 indicators)
-        maxed_indicators = [
-            "no need",
-            "upgrade",
-            "max rank",
-            "limit",
-            "maxed",
-            "max",
-        ]
-        if any(kw in btn_text for kw in maxed_indicators):
-            logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
-            return "MAXED"
 
         logger.debug(f"Button area check: '{btn_text}' -> nothing found")
         return False
