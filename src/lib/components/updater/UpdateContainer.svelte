@@ -16,8 +16,8 @@
   let isDialogOpen: boolean = $state(true);
 
   // Download
-  let totalSize = 0;
-  let downloaded = 0;
+  let totalSize: number = $state(0);
+  let downloaded: number = $state(0);
   let downloadProgress: number = $state(0);
 
   async function checkUpdate() {
@@ -75,7 +75,10 @@
   }
 
   onMount(() => {
-    checkUpdateTimeout = setTimeout(checkUpdate, 500);
+    // Only check for updates if we are running in a Tauri environment
+    if ((window as any).__TAURI_INTERNALS__) {
+      checkUpdateTimeout = setTimeout(checkUpdate, 500);
+    }
   });
 
   onDestroy(() => {

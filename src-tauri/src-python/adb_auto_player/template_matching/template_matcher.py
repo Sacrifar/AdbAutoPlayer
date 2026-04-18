@@ -253,17 +253,15 @@ def _suppress_close_matches(
     if not matches:
         return []
 
-    matches_array = np.array(matches)
+    min_dist_sq = min_distance * min_distance
     suppressed: list[tuple[int, int]] = []
-    dimension = 2
 
-    for match in matches_array:
-        match_tuple = tuple(match)
-        if len(match_tuple) == dimension and all(
-            np.linalg.norm(match_tuple - np.array(s)) >= min_distance
+    for match in matches:
+        if all(
+            (match[0] - s[0]) ** 2 + (match[1] - s[1]) ** 2 >= min_dist_sq
             for s in suppressed
         ):
-            suppressed.append(match_tuple)
+            suppressed.append(match)
     return suppressed
 
 

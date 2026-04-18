@@ -565,14 +565,12 @@ class Game(ABC):
             min_distance=min_distance,
         )
 
-        results: list[TemplateMatchResult] = []
-        for match in result:
-            results.append(
-                match.with_offset(crop_result.offset).to_template_match_result(
-                    template=str(template)
-                )
+        return [
+            match.with_offset(crop_result.offset).to_template_match_result(
+                template=str(template)
             )
-        return results
+            for match in result
+        ]
 
     def wait_for_template(
         self,
@@ -1017,12 +1015,7 @@ class Game(ABC):
     def _get_custom_routine_for_task(
         self, task: str, game_commands: dict[str, CustomRoutineEntry]
     ) -> CustomRoutineEntry | None:
-        custom_routine: CustomRoutineEntry | None = None
-        for label, custom_routine_entry in game_commands.items():
-            if task == label:
-                custom_routine = custom_routine_entry
-                break
-        return custom_routine
+        return game_commands.get(task)
 
     def _execute_tasks(self, tasks: dict[str, CustomRoutineEntry]) -> None:
         all_tasks_failed = True

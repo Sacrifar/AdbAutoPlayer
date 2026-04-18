@@ -95,7 +95,9 @@ def tauri_profile_aware_command(func):
                 try:
                     target_idx = _base_resource_dir.parts.index("target")
                     project_root = Path(*_base_resource_dir.parts[:target_idx])
-                    _base_resource_dir = project_root / "src-python" / "adb_auto_player"
+                    _base_resource_dir = (
+                        project_root / "src-tauri" / "src-python" / "adb_auto_player"
+                    )
                 except (ValueError, IndexError):
                     pass
 

@@ -2,17 +2,12 @@
 
 import logging
 import subprocess
-import sys
+
+from .runtime import RuntimeInfo
 
 
 def _is_dev():
-    if hasattr(sys, "frozen"):
-        return False
-
-    if "__compiled__" in globals():
-        return False
-
-    return True
+    return not RuntimeInfo.is_frozen()
 
 
 class DevHelper:

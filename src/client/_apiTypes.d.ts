@@ -165,6 +165,9 @@ device_id: DeviceId
 active_task: ActiveTask
 [k: string]: unknown
 }
+/**
+ * Game GUI Options.
+ */
 export interface GameGUIOptions {
 game_title: GameTitle
 menu_options: MenuOptions
@@ -172,6 +175,9 @@ categories: Categories
 settings_file?: SettingsFile
 [k: string]: unknown
 }
+/**
+ * Menu Option used by the GUI.
+ */
 export interface MenuOption {
 label: Label1
 args: Args1

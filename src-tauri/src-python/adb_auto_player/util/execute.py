@@ -145,9 +145,10 @@ class Execute:
         command_name: str, commands: dict[str, list[Command]]
     ) -> bool | Exception:
         """Helper that iterates through the command list to execute the correct one."""
+        command_name_lower = command_name.lower()
         for category_commands in commands.values():
             for cmd in category_commands:
-                if str.lower(cmd.name) == str.lower(command_name):
+                if cmd.name.lower() == command_name_lower:
                     result = Execute.command(cmd)
                     return True if result is None else result
         return False

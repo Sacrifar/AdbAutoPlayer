@@ -4,13 +4,21 @@ import math
 import time
 import unittest
 from pathlib import Path
-from unittest.mock import DEFAULT, patch
+from typing import cast
+from unittest.mock import DEFAULT, MagicMock, patch
 
-from adb_auto_player.exceptions import GameTimeoutError
+import cv2
+from adb_auto_player.exceptions import (
+    AutoPlayerError,
+    AutoPlayerUnrecoverableError,
+    GameNotRunningOrFrozenError,
+    GameTimeoutError,
+)
 from adb_auto_player.game import Game
 from adb_auto_player.image_manipulation import IO
 from adb_auto_player.models.device import DisplayInfo, Orientation, Resolution
 from adb_auto_player.models.image_manipulation import CropRegions
+from adb_auto_player.models.registries import CustomRoutineEntry
 from adb_auto_player.models.template_matching import TemplateMatchResult
 from pydantic import BaseModel
 
@@ -216,3 +224,118 @@ class TestGame(unittest.TestCase):
             f"Cropped Image Matching Results: {cropped_results}\n"
         )
         self.addCleanup(lambda: print(print_output))
+
+    @patch.object(Game, "get_screenshot")
+    def test_find_all_template_matches(self, get_screenshot) -> None:
+        """Test find_all_template_matches."""
+        game = MockGame()
+        base_image: Path = TEST_DATA_DIR / "template_match_base.png"
+        template_image = "template_match_template.png"
+        get_screenshot.return_value = IO.load_image(base_image)
+
+        results = game.find_all_template_matches(template_image)
+        self.assertGreater(len(results), 0)
+        self.assertIsInstance(results[0], TemplateMatchResult)
+
+    @patch("adb_auto_player.game.game.Execute.function")
+    @patch.object(Game, "restart_game")
+    def test_execute_tasks_all_failed(self, mock_restart, mock_execute) -> None:
+        """Test _execute_tasks when all tasks fail."""
+        game = MockGame()
+
+        mock_execute.return_value = Exception("test error")
+        tasks = {
+            "task1": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+            "task2": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+        }
+
+        game._execute_tasks(tasks)
+        mock_restart.assert_called_once()
+
+    @patch.object(Game, "restart_game")
+    def test_handle_task_error_game_frozen(self, mock_restart) -> None:
+        """Test _handle_task_error with GameNotRunningOrFrozenError."""
+        game = MockGame()
+        error = GameNotRunningOrFrozenError("test")
+        game._handle_task_error("task1", error)
+        mock_restart.assert_called_once()
+
+    @patch.object(Game, "start_game")
+    @patch.object(Game, "is_game_running", return_value=False)
+    def test_handle_task_error_autoplayer_error_not_running(
+        self, mock_running, mock_start
+    ) -> None:
+        """Test _handle_task_error with AutoPlayerError when game not running."""
+        game = MockGame()
+        error = AutoPlayerError("test")
+        game._handle_task_error("task1", error)
+        mock_start.assert_called_once()
+
+    def test_handle_task_error_keyboard_interrupt(self) -> None:
+        """Test _handle_task_error with KeyboardInterrupt."""
+        game = MockGame()
+
+        with self.assertRaises(KeyboardInterrupt):
+            game._handle_task_error("task1", cast(Exception, KeyboardInterrupt()))
+
+    @patch("sys.exit")
+    def test_handle_task_error_unrecoverable(self, mock_exit) -> None:
+        """Test _handle_task_error with AutoPlayerUnrecoverableError."""
+        game = MockGame()
+        error = AutoPlayerUnrecoverableError("test")
+        game._handle_task_error("task1", error)
+        mock_exit.assert_called_with(1)
+
+    @patch("adb_auto_player.game.game.Execute.function")
+    @patch.object(Game, "restart_game")
+    def test_execute_tasks_some_succeed(self, mock_restart, mock_execute) -> None:
+        """Test _execute_tasks when some tasks succeed."""
+        game = MockGame()
+
+        # Execute.function returns Exception objects instead of raising them.
+        responses = [Exception("test error"), None]
+        mock_execute.side_effect = lambda **kwargs: responses.pop(0)
+
+        tasks = {
+            "task1": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+            "task2": CustomRoutineEntry(func=MagicMock(), kwargs={}),
+        }
+
+        game._execute_tasks(tasks)
+        mock_restart.assert_not_called()
+
+    def test_handle_task_error_none(self) -> None:
+        """Test _handle_task_error with no error."""
+        game = MockGame()
+        # Should return early (cover line 1037)
+        self.assertIsNone(game._handle_task_error("task1", None))
+
+    @patch("adb_auto_player.game.game.IO.cache_clear")
+    def test_handle_task_error_cv2_error_with_stream(self, mock_clear) -> None:
+        """Test _handle_task_error with cv2.error and an active stream."""
+        game = MockGame()
+        game._stream = MagicMock()
+        error = cv2.error("test cv2 error")
+        game._handle_task_error("task1", error)
+        game._stream.stop.assert_called_once()
+        mock_clear.assert_called_once()
+
+    @patch("adb_auto_player.game.game.IO.cache_clear")
+    def test_handle_task_error_cv2_error_no_stream(self, mock_clear) -> None:
+        """Test _handle_task_error with cv2.error and no stream."""
+        game = MockGame()
+        game._stream = None
+        error = cv2.error("test cv2 error")
+        game._handle_task_error("task1", error)
+        mock_clear.assert_called_once()
+
+    @patch.object(Game, "start_game")
+    @patch.object(Game, "is_game_running", return_value=True)
+    def test_handle_task_error_autoplayer_error_game_running(
+        self, mock_running, mock_start
+    ) -> None:
+        """Test _handle_task_error with AutoPlayerError when game is running."""
+        game = MockGame()
+        error = AutoPlayerError("test")
+        game._handle_task_error("task1", error)
+        mock_start.assert_not_called()

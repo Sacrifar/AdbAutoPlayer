@@ -23,6 +23,10 @@ from rapidocr import RapidOCR
 
 logger = logging.getLogger(__name__)
 
+WHALE_THRESHOLD = 25
+PARAGON_LOCK_THRESHOLD = 15
+
+
 # OCR Synonyms are now loaded from data/hero_synonyms.json
 
 
@@ -36,6 +40,8 @@ ASCENSION_OCR_MAP = {
     "Paragon 2": "Paragon 2",
     "Paragon 3": "Paragon 3",
     "Paragon 4": "Paragon 4",
+    "Crown": "Paragon 4",
+    "Crowns": "Paragon 4",
     # Specific misreads
     # Common Misreads
     "Subreme": "Supreme",
@@ -85,9 +91,13 @@ class HeroScannerMixin:
             # In Dev mode, resource_dir is typically nested inside
             # src-tauri/src-python/adb_auto_player
             if "src-python" in resource_dir.parts:
-                # Find the index of 'src-python' and return the parent project root
+                # Find the index of 'src-python'
                 try:
                     p_idx = resource_dir.parts.index("src-python")
+                    # If the parent is 'src-tauri', go one level higher to
+                    # find the true project root
+                    if p_idx > 0 and resource_dir.parts[p_idx - 1] == "src-tauri":
+                        return Path(*resource_dir.parts[: p_idx - 1])
                     return Path(*resource_dir.parts[:p_idx])
                 except (ValueError, IndexError):
                     pass
@@ -191,22 +201,9 @@ class HeroScannerMixin:
                 total_heroes = 120
 
         limit: int = total_heroes
-        heroes_scanned = 0
 
-        # 3. Navigation to Hall
-        self.navigate_to_resonating_hall()  # ty: ignore[unresolved-attribute]
-        time.sleep(3)
-
-        # Navigate to the first hero once (Antandra or Top-Left)
-        first_hero_point = Point(130, 1050)
-        self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
-        time.sleep(4)
-
-        template_url = "https://afkj-tracker.vercel.app/data/heroes-template.json"
-        synonyms_url = "https://afkj-tracker.vercel.app/hero_synonyms.json"
-
-        # Resources (Read-Only)
-        self._get_project_root()
+        template_url = f"https://afkj-tracker.vercel.app/data/heroes-template.json?v={int(time.perf_counter())}"
+        synonyms_url = f"https://afkj-tracker.vercel.app/data/hero_synonyms.json?v={int(time.perf_counter())}"
 
         # User Data (Writable)
         data_root = SettingsLoader.get_app_config_dir()
@@ -269,8 +266,9 @@ class HeroScannerMixin:
             f"Loaded {len(self.canonical_hero_names)} hero names from template."
         )
 
-        limit = total_heroes
         heroes_scanned = 0
+        global_ascend_available = False
+
         # Navigate to the first hero once (Antandra or Top-Left)
         first_hero_point = Point(130, 1050)
         self.tap(first_hero_point)  # ty: ignore[unresolved-attribute]
@@ -300,6 +298,7 @@ class HeroScannerMixin:
                             " -> Forced Paragon 4"
                         )
                     elif button_status is True:
+                        global_ascend_available = True
                         logger.debug(
                             f"Ascend button found for {hero_data['name']}"
                             " - Triggering Deep Scan"
@@ -309,7 +308,19 @@ class HeroScannerMixin:
                         )
                         if deep_asc != "Unknown":
                             hero_data["ascension"] = deep_asc
-                    # Removed aggressive Paragon 4 fallback for missing button cases
+                    else:
+                        # According to the game's UI rules:
+                        # ANY hero missing the 'Ascend' or 'Supplement' button
+                        # is mathematically CAPPED.
+                        # The ONLY capped ranks are Supreme+ (before Paragon
+                        # unlocks) and Paragon 4.
+                        # Therefore, we can safely bypass reading the vertical
+                        # badge and lock them as Pending S+/P4.
+                        hero_data["ascension"] = "Pending S+/P4"
+                        logger.debug(
+                            f"Ascension buttons missing for {hero_data['name']}"
+                            " -> Forced Pending S+/P4"
+                        )
 
                     # RE-PARSE EX WEAPON now that we have the corrected rank
                     # This fixes cases where EX was 0 because vertical badge
@@ -355,7 +366,7 @@ class HeroScannerMixin:
         self.press_back_button()  # ty: ignore[unresolved-attribute]
 
         # Post-process any heroes that were locked out of the Ascend panel
-        self.resolve_locked_paragons(full_data)
+        self.resolve_locked_paragons(full_data, global_ascend_available)
 
         # Rename template to backup
         try:
@@ -374,18 +385,124 @@ class HeroScannerMixin:
             "https://afkj-tracker.vercel.app/ using the file at this path "
             "(copy and paste it into File Explorer):"
         )
-        logger.info(f">>> {backup_file} <<<")
+        logger.info(
+            f">>> {backup_file} <<<",
+            extra={"no_sanitize": True},
+        )
 
-    def resolve_locked_paragons(self, full_data: dict):
-        """Resolves any heroes marked as 'Paragon Locked'.
+    def resolve_locked_paragons(
+        self, full_data: dict, global_ascend_available: bool = False
+    ):
+        """Resolves any heroes marked as 'Paragon Locked' or 'Pending S+/P4'.
 
-        Uses roster unlock thresholds to determine the actual rank.
+        Uses roster unlock thresholds and global button availability to
+        determine the actual rank.
 
         Args:
             full_data: The full tracker JSON data to be updated.
+            global_ascend_available: Whether any 'Ascend' button was seen.
         """
         heroes = full_data.get("heroes", [])
 
+        # 1. Determine if Paragons are unlocked and possible
+        # (need >= 25 Supreme+ equivalents)
+        sup_and_p_count = sum(
+            1
+            for h in heroes
+            if h.get("currentAscension")
+            in [
+                "Supreme+",
+                "Paragon 1",
+                "Paragon 2",
+                "Paragon 3",
+                "Paragon 4",
+                "Pending S+/P4",
+                "Paragon Locked",
+            ]
+        )
+
+        has_p123 = any(
+            h.get("currentAscension") in ["Paragon 1", "Paragon 2", "Paragon 3"]
+            for h in heroes
+        )
+
+        paragon_possible = sup_and_p_count >= WHALE_THRESHOLD
+
+        # Paragon is only truly unlocked if they have met the threshold AND
+        # either have > P1 heroes or NO buttons across the entire account
+        # (mega whale).
+        is_paragon_unlocked = paragon_possible and (
+            has_p123 or not global_ascend_available
+        )
+
+        # 2. Resolve 'Pending' cases based on global context
+        self._resolve_pending_heroes(heroes, paragon_possible, global_ascend_available)
+
+        # 3. Safety Check: If Paragon is locked/impossible.
+        # This securely catches F2P accounts with >25 S+ where the server
+        # hasn't unlocked Paragons yet, and downgrades their 'no need' heroes.
+        if not is_paragon_unlocked:
+            self._downgrade_misread_paragons(heroes)
+
+        # 4. Handle 'Paragon Locked' (the tooltip case)
+        self._resolve_locked_heroes(heroes)
+
+        # Save final state to file
+        with open(self.tracker_file, "w", encoding="utf-8") as f:
+            json.dump(full_data, f, indent=4, ensure_ascii=False)
+
+    def _resolve_pending_heroes(
+        self, heroes: list, paragon_possible: bool, global_ascend_available: bool
+    ):
+        """Resolves 'Pending S+/P4' heroes."""
+        pending_heroes = [
+            h for h in heroes if h.get("currentAscension") == "Pending S+/P4"
+        ]
+        if not pending_heroes:
+            return
+
+        # WHALE LOGIC: If Paragons are possible AND there are ZERO ascend buttons
+        # anywhere, they must be Paragon 4 (Mega Whale account where everyone is maxed).
+        is_mega_whale = paragon_possible and not global_ascend_available
+
+        if is_mega_whale:
+            resolved_pending = "Paragon 4"
+            logger.info(
+                f"Found {len(pending_heroes)} heroes without buttons. "
+                "Threshold met: assuming Paragon 4 (Mega Whale Account)."
+            )
+        else:
+            resolved_pending = "Supreme+"
+
+        logger.info(
+            f"Resolving {len(pending_heroes)} 'Pending S+/P4' heroes "
+            f"to '{resolved_pending}' "
+            f"(Paragon Possible: {paragon_possible}, "
+            f"Global Ascend: {global_ascend_available})"
+        )
+        for h in pending_heroes:
+            h["currentAscension"] = resolved_pending
+
+    def _downgrade_misread_paragons(self, heroes: list):
+        """Downgrades misidentified Paragon ranks to Supreme+."""
+        misread_paragons = [
+            h
+            for h in heroes
+            if h.get("currentAscension") is not None
+            and "Paragon" in h.get("currentAscension", "")
+            and h.get("currentAscension") != "Paragon Locked"
+        ]
+        if misread_paragons:
+            logger.info(
+                f"Paragon tier locked (< {WHALE_THRESHOLD} S+). Downgrading "
+                f"{len(misread_paragons)} misidentified Paragon ranks "
+                "to 'Supreme+'."
+            )
+            for h in misread_paragons:
+                h["currentAscension"] = "Supreme+"
+
+    def _resolve_locked_heroes(self, heroes: list):
+        """Resolves 'Paragon Locked' heroes based on roster counts."""
         p1_list = ["Paragon 1", "Paragon 2", "Paragon 3", "Paragon 4", "Paragon Locked"]
         p2_list = ["Paragon 2", "Paragon 3", "Paragon 4", "Paragon Locked"]
         sup_list = ["Supreme+", *p1_list]
@@ -394,19 +511,15 @@ class HeroScannerMixin:
         p1_count = sum(1 for h in heroes if h.get("currentAscension") in p1_list)
         p2_count = sum(1 for h in heroes if h.get("currentAscension") in p2_list)
 
-        # Paragon Roster Thresholds (AFKJ-Tracker Standard)
-        sup_threshold = 25
-        p1_threshold = 15
-        p2_threshold = 15
-
-        if sup_count < sup_threshold:
-            resolved_rank = "Supreme+"
-        elif p1_count < p1_threshold:
-            resolved_rank = "Paragon 1"
-        elif p2_count < p2_threshold:
-            resolved_rank = "Paragon 2"
+        # Count-based fallback for 'Paragon Locked' only
+        if sup_count < WHALE_THRESHOLD:
+            resolved_locked = "Supreme+"
+        elif p1_count < PARAGON_LOCK_THRESHOLD:
+            resolved_locked = "Paragon 1"
+        elif p2_count < PARAGON_LOCK_THRESHOLD:
+            resolved_locked = "Paragon 2"
         else:
-            resolved_rank = "Paragon 3"
+            resolved_locked = "Paragon 3"
 
         locked_heroes = [
             h for h in heroes if h.get("currentAscension") == "Paragon Locked"
@@ -414,15 +527,11 @@ class HeroScannerMixin:
         if locked_heroes:
             logger.info(
                 f"Resolving {len(locked_heroes)} 'Paragon Locked' heroes"
-                f" to '{resolved_rank}' "
+                f" to '{resolved_locked}' "
                 f"(Counts - S+: {sup_count}, P1: {p1_count}, P2: {p2_count})"
             )
             for h in locked_heroes:
-                h["currentAscension"] = resolved_rank
-
-        # Save final state to file
-        with open(self.tracker_file, "w", encoding="utf-8") as f:
-            json.dump(full_data, f, indent=4, ensure_ascii=False)
+                h["currentAscension"] = resolved_locked
 
     def _update_hero_in_json(self, full_data: dict, hero_data: dict):
         """Finds hero by name in the 'heroes' list and updates fields.
@@ -498,17 +607,13 @@ class HeroScannerMixin:
                 return True
 
         # 2. FALLBACK: Check for Maxed Keywords (Paragon 4 indicators)
-        # Included 'no need', 'level up', 'upgrade' for resonance/max states.
         maxed_indicators = [
+            "no need",
+            "upgrade",
             "max rank",
             "limit",
             "maxed",
-            "no need",
             "max",
-            "rank",
-            "level up",
-            "upgrade",
-            "batch",
         ]
         if any(kw in btn_text for kw in maxed_indicators):
             logger.debug(f"Button area check: '{btn_text}' -> MAXED keywords found")
@@ -599,7 +704,7 @@ class HeroScannerMixin:
 
         # 6. Sequential Header Scan (First rank is current, second is target)
         all_header_matches = []
-        possible_bases = ["Supreme", "Mythic", "Legendary", "Elite", "Epic", "Elite+"]
+        possible_bases = ["Supreme", "Mythic", "Legendary", "Elite", "Epic"]
 
         # 1. Exact/Synonym matches from map
         for pattern, canonical in ASCENSION_OCR_MAP.items():
@@ -608,14 +713,14 @@ class HeroScannerMixin:
 
         # 2. Fuzzy base matches
         for base in possible_bases:
-            for m in re.finditer(base.lower(), full_line_text.lower()):
+            for m in re.finditer(re.escape(base.lower()), full_line_text.lower()):
                 idx = m.start()
                 # Check for plus-suffix in the header
                 search_area = full_line_text[idx + len(base) : idx + len(base) + 2]
-                is_plus = any(
-                    c in search_area
-                    for c in ["+", "t", "k", "*", "f", "v", "å", "i", "l", "1"]
-                )
+                plus_chars = ["+", "å  "]
+                if base.lower() in ["supreme", "mythic"]:
+                    plus_chars.extend(["t", "k", "*", "f", "v", "i", "l", "1"])
+                is_plus = any(c in search_area for c in plus_chars)
                 rank_name = f"{base}+" if is_plus and not base.endswith("+") else base
                 all_header_matches.append((idx, rank_name))
 
@@ -1125,7 +1230,7 @@ class HeroScannerMixin:
         text = text.lower()
 
         # 3. Base ranks fuzzy matching
-        possible_bases = ["Supreme", "Mythic", "Legendary", "Elite", "Epic", "Elite+"]
+        possible_bases = ["Supreme", "Mythic", "Legendary", "Elite", "Epic"]
 
         # Check for multiple base ranks and pick the earliest
         found_matches = []
@@ -1139,17 +1244,20 @@ class HeroScannerMixin:
             found_matches.sort(key=lambda x: x[0])
             base_rank = found_matches[0][1]
 
-            # Check for "+" suffix logic
             # Tightened search area for "+" to avoid matching next word
-            search_start = text.lower().find(base_rank.lower()) + len(base_rank) - 1
+            search_start = text.lower().find(base_rank.lower()) + len(base_rank)
             # We only look 2 characters ahead now for greater precision
             search_area = text[max(0, search_start) : search_start + 2]
 
             # Check for '+' or common OCR noise that looks like a '+'
-            is_plus = any(
-                c in search_area
-                for c in ["+", "t", "k", "*", "f", "v", "å", "i", "l", "1"]
-            )
+            # Elite/Epic/Legendary have huge '+' signs that don't get misread as text.
+            plus_chars = ["+", "å  "]
+            # 'i', 'l', '1', 't', 'k', 'f', 'v', '*' are common border artifacts.
+            # We only accept them as '+' for high ranks where '+' is tiny.
+            if base_rank.lower() in ["supreme", "mythic"]:
+                plus_chars.extend(["t", "k", "*", "f", "v", "i", "l", "1"])
+
+            is_plus = any(c in search_area for c in plus_chars)
 
             if is_plus and not base_rank.endswith("+"):
                 return f"{base_rank}+"
@@ -1170,10 +1278,22 @@ class HeroScannerMixin:
         Returns:
             The parsed EX weapon level (0-40).
         """
-        if not raw_text:
+        # 1. Eligibility Check: EX Weapons strictly unlock at Mythic+
+        eligible_ranks = [
+            "Mythic+",
+            "Supreme",
+            "Supreme+",
+            "Pending S+/P4",
+            "Paragon Locked",
+            "Paragon 1",
+            "Paragon 2",
+            "Paragon 3",
+            "Paragon 4",
+        ]
+        if not any(r in current_ascension for r in eligible_ranks):
             return 0
 
-        # 1. Clean seasonal & UI lock noise labels first
+        # 2. Clean seasonal & UI lock noise labels first
         cleaned = raw_text.upper()
         # Remove "LVL. 9", "RESONANCE 240", or "REACH SUPREME+" (UI Noise)
         cleaned = re.sub(r"LVL\.?\s*\d+", " ", cleaned)
@@ -1230,26 +1350,15 @@ class HeroScannerMixin:
             # then any numbers found are 100% false positive noise.
             return 0
 
-        # Only allow lone numbers for heroes at Mythic+ or above
-        eligible_ranks = [
-            "Mythic+",
-            "Supreme",
-            "Supreme+",
-            "Paragon 1",
-            "Paragon 2",
-            "Paragon 3",
-            "Paragon 4",
-        ]
-        if any(r in current_ascension for r in eligible_ranks):
-            # Look for lone numbers (not parts of other words)
-            lone_nums = re.findall(r"(?<![A-Z0-9])(\d{1,2})(?![A-Z0-9])", cleaned)
-            if lone_nums:
-                valid_vals = [
-                    int(m)
-                    for m in lone_nums
-                    if 0 <= int(m) <= 40  # noqa: PLR2004
-                ]
-                if valid_vals:
-                    return max(valid_vals)
+        # Look for lone numbers (not parts of other words)
+        lone_nums = re.findall(r"(?<![A-Z0-9])(\d{1,2})(?![A-Z0-9])", cleaned)
+        if lone_nums:
+            valid_vals = [
+                int(m)
+                for m in lone_nums
+                if 0 <= int(m) <= 40  # noqa: PLR2004
+            ]
+            if valid_vals:
+                return max(valid_vals)
 
         return 0
