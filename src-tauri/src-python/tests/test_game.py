@@ -328,3 +328,14 @@ class TestGame(unittest.TestCase):
         error = cv2.error("test cv2 error")
         game._handle_task_error("task1", error)
         mock_clear.assert_called_once()
+
+    @patch.object(Game, "start_game")
+    @patch.object(Game, "is_game_running", return_value=True)
+    def test_handle_task_error_autoplayer_error_game_running(
+        self, mock_running, mock_start
+    ) -> None:
+        """Test _handle_task_error with AutoPlayerError when game is running."""
+        game = MockGame()
+        error = AutoPlayerError("test")
+        game._handle_task_error("task1", error)
+        mock_start.assert_not_called()
