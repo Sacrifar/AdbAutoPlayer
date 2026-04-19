@@ -28,15 +28,38 @@ if (fs.existsSync(packagePath)) {
   console.log(`✅ Updated package.json to ${newVersion}`);
 }
 
-// 3. Update src-tauri/Cargo.toml
-const cargoPath = path.join(rootDir, "src-tauri", "Cargo.toml");
-if (fs.existsSync(cargoPath)) {
-  let cargoContent = fs.readFileSync(cargoPath, "utf8");
-  // Simple regex for version = "x.y.z" under [package]
-  cargoContent = cargoContent.replace(
-    /^version\s*=\s*"[^"]*"/m,
-    `version = "${newVersion}"`,
-  );
-  fs.writeFileSync(cargoPath, cargoContent);
-  console.log(`✅ Updated Cargo.toml to ${newVersion}`);
-}
+// 3. Update Cargo.toml files
+const cargoPaths = [
+  path.join(rootDir, "Cargo.toml"),
+  path.join(rootDir, "src-tauri", "Cargo.toml"),
+];
+
+cargoPaths.forEach((cPath) => {
+  if (fs.existsSync(cPath)) {
+    let content = fs.readFileSync(cPath, "utf8");
+    // Update version = "x.y.z" at the start of a line (for [package] or [workspace.package])
+    content = content.replace(/^(version\s*=\s*)"[^"]*"/m, `$1"${newVersion}"`);
+    fs.writeFileSync(cPath, content);
+    console.log(`✅ Updated ${path.relative(rootDir, cPath)} to ${newVersion}`);
+  }
+});
+
+// 4. Update pyproject.toml (root and src-tauri)
+const pyprojectPaths = [
+  path.join(rootDir, "pyproject.toml"),
+  path.join(rootDir, "src-tauri", "pyproject.toml"),
+];
+
+pyprojectPaths.forEach((pyPath) => {
+  if (fs.existsSync(pyPath)) {
+    let pyContent = fs.readFileSync(pyPath, "utf8");
+    pyContent = pyContent.replace(
+      /^(version\s*=\s*)"[^"]*"/m,
+      `$1"${newVersion}"`,
+    );
+    fs.writeFileSync(pyPath, pyContent);
+    console.log(
+      `✅ Updated ${path.relative(rootDir, pyPath)} to ${newVersion}`,
+    );
+  }
+});
