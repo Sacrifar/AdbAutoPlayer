@@ -36,15 +36,19 @@ class ArenaMixin(AFKJourneyBase):
                 logging.debug("Free attempts exhausted before 5 attempts.")
                 break
 
-            self._choose_opponent()
-            self._battle()
+            if not self._choose_opponent():
+                break
+            if not self._battle():
+                break
 
         for _ in range(2):
             if not self._claim_free_attempt():
                 break
 
-            self._choose_opponent()
-            self._battle()
+            if not self._choose_opponent():
+                break
+            if not self._battle():
+                break
 
         logging.info("Arena finished.")
 
@@ -92,8 +96,12 @@ class ArenaMixin(AFKJourneyBase):
 
         return False
 
-    def _choose_opponent(self) -> None:
-        """Choose Arena opponent."""
+    def _choose_opponent(self) -> bool:
+        """Choose Arena opponent.
+
+        Returns:
+            bool: True if opponent chosen, False otherwise.
+        """
         try:
             logging.debug("Start arena challenge.")
             btn = self.wait_for_any_template(
@@ -112,11 +120,17 @@ class ArenaMixin(AFKJourneyBase):
                 timeout_message="Failed to find Arena opponent.",
             )
             self.tap(opponent)
+            return True
         except GameTimeoutError as fail:
             logging.error(fail)
+            return False
 
-    def _battle(self) -> None:
-        """Battle Arena opponent."""
+    def _battle(self) -> bool:
+        """Battle Arena opponent.
+
+        Returns:
+            bool: True if battle completed, False otherwise.
+        """
         try:
             logging.debug("Initiate battle.")
             start = self.wait_for_template(
@@ -144,8 +158,10 @@ class ArenaMixin(AFKJourneyBase):
             sleep(4)
             self.tap(confirm)
             sleep(2)
+            return True
         except GameTimeoutError as fail:
             logging.error(fail)
+            return False
 
     def _claim_free_attempt(self) -> bool:
         """Claim free Arena attempts.

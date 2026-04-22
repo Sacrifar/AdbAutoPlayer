@@ -122,6 +122,11 @@ misc_messages = [
         ignore=True,
     ),
     PopupMessage(
+        # Use a free Instant AFK attempt to get 120 minutes worth of AFK Rewards.
+        # Remaining attempts: 3
+        text="Use a free Instant AFK attempt to get",
+    ),
+    PopupMessage(
         # Are you sure you want to exit the game?
         text="Are you sure you want to exit the",
         confirm_button_template="navigation/x.png",

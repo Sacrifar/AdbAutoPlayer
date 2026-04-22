@@ -122,6 +122,7 @@ class DailiesMixin(AFKJourneyBase, ABC):
         logging.info("Entering Mystical House...")
         self.navigate_to_world()
         self.tap(Point(310, 1840))
+        sleep(2)
 
         try:
             logging.debug("Opening Emporium.")
