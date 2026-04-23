@@ -100,12 +100,12 @@
       <Download size={24} strokeWidth={2} />
     </Dialog.Trigger>
     <Portal>
-      <Dialog.Backdrop class="fixed inset-0 z-50 bg-surface-50-950/50" />
+      <Dialog.Backdrop class="bg-surface-50-950/50 fixed inset-0 z-50" />
       <Dialog.Positioner
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <Dialog.Content
-          class="w-full max-w-xl translate-y-[100px] space-y-4 card bg-surface-100-900 p-4 opacity-0 shadow-xl transition transition-discrete data-[state=open]:translate-y-0 data-[state=open]:opacity-100 starting:data-[state=open]:translate-y-[100px] starting:data-[state=open]:opacity-0"
+          class="card bg-surface-100-900 w-full max-w-xl translate-y-[100px] space-y-4 p-4 opacity-0 shadow-xl transition transition-discrete data-[state=open]:translate-y-0 data-[state=open]:opacity-100 starting:data-[state=open]:translate-y-[100px] starting:data-[state=open]:opacity-0"
         >
           <header class="mb-4 flex items-center justify-between">
             {#if !isUpdating}
@@ -123,9 +123,9 @@
           </header>
 
           {#if !isUpdating}
-            <footer class="sticky bottom-0 mt-4 bg-surface-100-900 py-2">
+            <footer class="bg-surface-100-900 sticky bottom-0 mt-4 py-2">
               <button
-                class="btn-primary btn w-full preset-filled-primary-100-900 p-2 hover:preset-filled-primary-500"
+                class="btn-primary btn preset-filled-primary-100-900 hover:preset-filled-primary-500 w-full p-2"
                 onclick={startUpdate}
               >
                 {$t("Download and Install")}

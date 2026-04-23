@@ -25,6 +25,7 @@ class DreamRealmMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Dream Realm",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Challenge the Dream Realm bosses automatically",
         ),
     )
     def run_dream_realm(self, daily: bool = False) -> None:

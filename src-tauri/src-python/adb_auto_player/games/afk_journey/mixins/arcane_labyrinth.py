@@ -117,6 +117,7 @@ class ArcaneLabyrinthMixin(AFKJourneyBase, ABC):
         gui=GUIMetadata(
             label="Arcane Labyrinth",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Complete the Arcane Labyrinth trial automatically",
         ),
     )
     @register_custom_routine_choice(

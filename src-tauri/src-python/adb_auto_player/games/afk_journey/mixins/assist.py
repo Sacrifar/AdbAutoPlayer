@@ -21,6 +21,7 @@ class AssistMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Synergy & CC",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Assist friends with Synergy and Corrupt Creature battles",
         ),
     )
     def assist_synergy_corrupt_creature(self) -> None:

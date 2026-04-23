@@ -20,6 +20,7 @@ class ArenaMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Arena",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Participate in daily Arena battles automatically",
         ),
     )
     def run_arena(self) -> None:
@@ -113,6 +114,7 @@ class ArenaMixin(AFKJourneyBase):
             self.tap(btn)
 
             logging.debug("Choosing opponent.")
+            self.handle_popup_messages()  # Clear any potential popups
             opponent = self.wait_for_template(
                 template="arena/opponent.png",
                 crop_regions=CropRegions(right=0.6),  # Target weakest opponent.
@@ -150,8 +152,9 @@ class ArenaMixin(AFKJourneyBase):
             self.tap(skip)
 
             logging.debug("Battle complete.")
-            confirm = self.wait_for_template(
-                template="arena/done.png",
+            self.handle_popup_messages()  # Clear any potential popups
+            confirm = self.wait_for_any_template(
+                templates=["arena/done.png", "next.png", "navigation/confirm.png"],
                 timeout=self.MIN_TIMEOUT,
                 timeout_message="Failed to confirm Arena battle completion.",
             )

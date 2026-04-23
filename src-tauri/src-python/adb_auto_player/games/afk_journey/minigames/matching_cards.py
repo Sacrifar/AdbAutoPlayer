@@ -36,6 +36,7 @@ class MatchingCards(AFKJourneyBase):
         gui=GUIMetadata(
             label="Matching Cards",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Automatically complete the Matching Cards minigame",
         ),
     )
     def matching_cards(self) -> None:

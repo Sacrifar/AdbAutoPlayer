@@ -13,6 +13,7 @@ class AFKJCustomRoutine(AFKJourneyBase):
         gui=GUIMetadata(
             label="Custom Routine 3",
             label_from_settings="custom_routine_three.display_name",
+            tooltip="Execute the sequence of tasks configured for Custom Routine 3",
         ),
         name="AFKJCustomRoutine3",
         kwargs={"custom_routine": "custom_routine_three"},
@@ -21,6 +22,7 @@ class AFKJCustomRoutine(AFKJourneyBase):
         gui=GUIMetadata(
             label="Custom Routine 2",
             label_from_settings="custom_routine_two.display_name",
+            tooltip="Execute the sequence of tasks configured for Custom Routine 2",
         ),
         name="AFKJCustomRoutine2",
         kwargs={"custom_routine": "custom_routine_two"},
@@ -29,6 +31,7 @@ class AFKJCustomRoutine(AFKJourneyBase):
         gui=GUIMetadata(
             label="Custom Routine 1",
             label_from_settings="custom_routine_one.display_name",
+            tooltip="Execute the sequence of tasks configured for Custom Routine 1",
         ),
         name="AFKJCustomRoutine",
         kwargs={"custom_routine": "custom_routine_one"},

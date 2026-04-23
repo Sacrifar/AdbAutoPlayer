@@ -44,7 +44,7 @@
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-6">
   <div class="space-y-6">
     <div
-      class="flex items-center justify-between rounded-xl bg-gradient-to-r from-primary-50 to-secondary-50 p-4 shadow-lg dark:from-primary-900/20 dark:to-secondary-900/20"
+      class="from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 flex items-center justify-between rounded-xl bg-gradient-to-r p-4 shadow-lg"
     >
       <SettingsSectionHeader text={$t(title)} />
     </div>
@@ -62,7 +62,7 @@
                 <label class="m-1 flex items-center text-left">
                   <input
                     type="checkbox"
-                    class="mr-1.5 ml-0.25 checkbox"
+                    class="checkbox mr-1.5 ml-0.25"
                     value={option.original}
                     checked={value.includes(option.original)}
                     onchange={(e) =>

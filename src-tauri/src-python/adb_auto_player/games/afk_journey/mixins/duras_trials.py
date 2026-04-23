@@ -26,6 +26,7 @@ class DurasTrialsMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Dura's Trials",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Complete Dura's Trials to earn artifacts and materials",
         ),
     )
     @register_custom_routine_choice(label="Dura's Trials")

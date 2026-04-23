@@ -68,6 +68,7 @@ class HomesteadHelperMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Homestead Orders Helper",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Assist with production and orders in the Homestead automatically",
         ),
     )
     def navigate_production_buildings_for_crafting(self) -> None:

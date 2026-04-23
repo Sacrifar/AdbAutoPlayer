@@ -20,6 +20,7 @@ class QuestMixin(AFKJourneyBase, ABC):
         gui=GUIMetadata(
             label="Run Available Quests",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Automatically complete available side quests",
         ),
     )
     def attempt_quests(self) -> None:

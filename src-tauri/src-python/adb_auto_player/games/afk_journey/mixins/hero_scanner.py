@@ -182,6 +182,7 @@ class HeroScannerMixin:
         gui=GUIMetadata(
             label="AFKJ Tracker Scan",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Scan your hero roster for the AFKJ Tracker website",
         ),
     )
     def scan_roster(self, total_heroes: int | None = None):  # noqa: PLR0912, PLR0915
@@ -310,7 +311,6 @@ class HeroScannerMixin:
                             for p in ["Paragon 1", "Paragon 2", "Paragon 3"]
                         ):
                             paragons_unlocked_confirmed = True
-                            logger.info("Live Update: Paragon rank detected.")
                     # Logic: Missing 'Ascend' button means CAPPED (S+ or P4)
                     # Use Live Tracking to disambiguate immediately
                     elif paragons_unlocked_confirmed:

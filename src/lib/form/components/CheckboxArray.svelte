@@ -15,7 +15,7 @@
     <label class="m-0.5 flex items-center">
       <input
         type="checkbox"
-        class="mr-0.5 ml-0.25 checkbox"
+        class="checkbox mr-0.5 ml-0.25"
         value={choice}
         checked={value.includes(choice)}
         onchange={(e) => handleCheckboxChange(choice, e.currentTarget.checked)}

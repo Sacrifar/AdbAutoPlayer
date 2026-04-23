@@ -213,7 +213,7 @@
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-6">
   <div class="space-y-6">
     <div
-      class="flex items-center justify-between rounded-xl bg-gradient-to-r from-primary-50 to-secondary-50 p-4 shadow-lg dark:from-primary-900/20 dark:to-secondary-900/20"
+      class="from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 flex items-center justify-between rounded-xl bg-gradient-to-r p-4 shadow-lg"
     >
       <SettingsSectionHeader text={$t("Tasks")} />
       {#if choices.length > 0}
@@ -234,7 +234,7 @@
           <div class="space-y-2">
             <div class="flex items-center gap-3">
               <div
-                class="h-1 w-8 rounded-full bg-gradient-to-r from-tertiary-500 to-tertiary-600"
+                class="from-tertiary-500 to-tertiary-600 h-1 w-8 rounded-full bg-gradient-to-r"
               ></div>
               <h3 class="text-surface-700-200 h4">
                 {$t("Available Tasks")}
@@ -248,7 +248,7 @@
           <div class="space-y-2">
             <div class="flex items-center gap-3">
               <div
-                class="h-1 w-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600"
+                class="from-primary-500 to-primary-600 h-1 w-8 rounded-full bg-gradient-to-r"
               ></div>
               <h3 class="text-surface-700-200 h4">
                 {$t("Selected Tasks")}
@@ -262,7 +262,7 @@
 
         <div class="contents md:contents">
           <div
-            class="min-h-[300px] space-y-3 rounded-lg border border-surface-200 bg-surface-50 p-4 transition-all duration-200 dark:border-surface-700 dark:bg-surface-900/50"
+            class="border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-900/50 min-h-[300px] space-y-3 rounded-lg border p-4 transition-all duration-200"
           >
             {#if choices.length === 0}
               <div class="flex h-full items-center justify-center">
@@ -273,7 +273,7 @@
             {:else}
               {#each choices as task}
                 <div
-                  class="group cursor-grab rounded-lg bg-surface-200 p-2 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-surface-300 hover:shadow-md active:scale-95 active:cursor-grabbing dark:bg-surface-800 dark:hover:bg-surface-700"
+                  class="group bg-surface-200 hover:bg-surface-300 dark:bg-surface-800 dark:hover:bg-surface-700 cursor-grab rounded-lg p-2 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-95 active:cursor-grabbing"
                   draggable="true"
                   ondragstart={(e) => handleDragStart(e, task, false)}
                   ondblclick={() => addTask(task)}
@@ -283,10 +283,10 @@
                 >
                   <div class="flex items-center gap-3">
                     <div
-                      class="ml-3 h-2 w-2 rounded-full bg-tertiary-500 transition-all duration-200 group-hover:bg-tertiary-600"
+                      class="bg-tertiary-500 group-hover:bg-tertiary-600 ml-3 h-2 w-2 rounded-full transition-all duration-200"
                     ></div>
                     <p
-                      class="text-s font-medium text-surface-700 dark:text-surface-200"
+                      class="text-s text-surface-700 dark:text-surface-200 font-medium"
                     >
                       {$t(task)}
                     </p>
@@ -298,7 +298,7 @@
 
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
-            class="min-h-[300px] space-y-3 rounded-lg border border-primary-200 bg-primary-50 p-4 transition-all duration-200 dark:border-primary-700 dark:bg-primary-900/20"
+            class="border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-900/20 min-h-[300px] space-y-3 rounded-lg border p-4 transition-all duration-200"
             ondragover={handleDragOver}
             ondrop={(e) => handleDrop(e)}
             ondragleave={handleDragLeave}
@@ -308,10 +308,10 @@
               <div class="flex h-full items-center justify-center">
                 <div class="space-y-2 text-center">
                   <div
-                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-200 dark:bg-primary-800/50"
+                    class="bg-primary-200 dark:bg-primary-800/50 mx-auto flex h-12 w-12 items-center justify-center rounded-full"
                   >
                     <div
-                      class="h-6 w-6 rounded-full border border-primary-400"
+                      class="border-primary-400 h-6 w-6 rounded-full border"
                     ></div>
                   </div>
                   <p class="text-surface-400-500 text-sm">
@@ -322,18 +322,18 @@
             {:else}
               <!-- Above first item indicator -->
               {#if currentDragPosition === "above-first"}
-                <div class="my-1 h-1 w-full rounded-full bg-primary-500"></div>
+                <div class="bg-primary-500 my-1 h-1 w-full rounded-full"></div>
               {/if}
 
               {#each value as task, index}
                 {#if dropIndicatorPos?.index === index && dropIndicatorPos?.position === "before" && currentDragPosition === "between"}
                   <div
-                    class="my-1 h-1 w-full rounded-full bg-primary-500"
+                    class="bg-primary-500 my-1 h-1 w-full rounded-full"
                   ></div>
                 {/if}
 
                 <div
-                  class="group relative cursor-grab rounded-lg bg-primary-100 p-2 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-primary-200 hover:shadow-md active:scale-95 active:cursor-grabbing dark:bg-primary-800/50 dark:hover:bg-primary-700/50"
+                  class="group bg-primary-100 hover:bg-primary-200 dark:bg-primary-800/50 dark:hover:bg-primary-700/50 relative cursor-grab rounded-lg p-2 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-95 active:cursor-grabbing"
                   draggable="true"
                   ondragstart={(e) => handleDragStart(e, task, true, index)}
                   ondragover={(e) => handleContainerDragOver(e, index)}
@@ -343,18 +343,18 @@
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex flex-1 items-center gap-3">
                       <div
-                        class="ml-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary-500 font-mono text-xs font-bold text-white"
+                        class="bg-primary-500 ml-3 flex h-5 w-5 items-center justify-center rounded-full font-mono text-xs font-bold text-white"
                       >
                         {index + 1}
                       </div>
                       <p
-                        class="text-s font-medium text-surface-700 dark:text-surface-200"
+                        class="text-s text-surface-700 dark:text-surface-200 font-medium"
                       >
                         {$t(task)}
                       </p>
                     </div>
                     <button
-                      class="variant-filled-error absolute top-1/2 right-2 btn-icon -translate-y-1/2 opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                      class="variant-filled-error btn-icon absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110 active:scale-95"
                       type="button"
                       onclick={() => removeTask(index)}
                       title="Remove task"
@@ -367,14 +367,14 @@
 
                 {#if dropIndicatorPos?.index === index && dropIndicatorPos?.position === "after" && currentDragPosition === "between"}
                   <div
-                    class="my-1 h-1 w-full rounded-full bg-primary-500"
+                    class="bg-primary-500 my-1 h-1 w-full rounded-full"
                   ></div>
                 {/if}
               {/each}
 
               <!-- Below last item indicator -->
               {#if currentDragPosition === "below-last"}
-                <div class="my-1 h-1 w-full rounded-full bg-primary-500"></div>
+                <div class="bg-primary-500 my-1 h-1 w-full rounded-full"></div>
               {/if}
             {/if}
           </div>
