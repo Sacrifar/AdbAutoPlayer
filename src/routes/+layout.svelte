@@ -23,9 +23,8 @@
   import type {
     ProfileStateUpdate,
     AppSettings,
-    PydanticSettingsFormResponse,
-    RustSettingsFormResponse,
     Trigger,
+    MenuOption,
   } from "$pytauri/_apiTypes";
   import UpdateContainer from "$lib/components/updater/UpdateContainer.svelte";
   import StatusBar from "$lib/components/modern/StatusBar.svelte";
@@ -33,7 +32,11 @@
   import LogPanel from "$lib/components/modern/LogPanel.svelte";
   import ThemeCustomizer from "$lib/components/modern/ThemeCustomizer.svelte";
   import SchemaForm from "$lib/form/SchemaForm.svelte";
-  import type { SettingsProps } from "$lib/menu/model";
+  import type {
+    SettingsProps,
+    PydanticSettingsFormResponse,
+    RustSettingsFormResponse,
+  } from "$lib/menu/model";
   import {
     getAdbSettingsForm,
     getGameSettingsForm,

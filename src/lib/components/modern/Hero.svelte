@@ -19,7 +19,7 @@
   );
   const deviceId = $derived(profile?.device_id);
   const profileName = $derived(
-    $appSettings?.profiles?.profiles?.[$activeProfile]?.name,
+    $appSettings?.profiles?.profiles?.[$activeProfile],
   );
 
   let startTime = $state<number | null>(null);

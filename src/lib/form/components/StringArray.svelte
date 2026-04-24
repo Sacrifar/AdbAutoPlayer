@@ -61,7 +61,7 @@
 
   {#if minItems && value.length < minItems}
     <p class="error-text">
-      {$t("At least {count} items required.", { count: minItems })}
+      {$t("At least {{count}} items required.", { count: String(minItems) })}
     </p>
   {/if}
 </div>

@@ -81,7 +81,7 @@
           </div>
           <div class="info">
             <div class="name-row">
-              <div class="name">{p.name}</div>
+              <div class="name">{p}</div>
             </div>
             <div class="device">
               {$profileStates[i]?.device_id || $t("no device")}
@@ -119,7 +119,7 @@
         class="rail-btn"
         class:selected
         onclick={() => selectProfile(i)}
-        title={`${p.name} — ${$profileStates[i]?.device_id || $t("offline")}`}
+        title={`${p} — ${$profileStates[i]?.device_id || $t("offline")}`}
       >
         <svg
           viewBox="0 0 24 24"

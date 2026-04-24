@@ -10,6 +10,7 @@
     onDocs: () => void;
     onAppSettings: () => void;
     onDebug: () => void;
+    onCustomizer: () => void;
     sidebarOpen: boolean;
     logOpen: boolean;
   }
@@ -21,6 +22,7 @@
     onToggleLog,
     onDocs,
     onAppSettings,
+    onDebug,
     onCustomizer,
     sidebarOpen,
     logOpen,
@@ -105,8 +107,7 @@
         : 'none'}"
     ></span>
     <span class="profile-name"
-      >{$appSettings?.profiles?.profiles?.[$activeProfile]?.name ??
-        "Profile"}</span
+      >{$appSettings?.profiles?.profiles?.[$activeProfile] ?? "Profile"}</span
     >
     <span class="sep">·</span>
     <span class="device-id">{profile?.device_id || $t("no device")}</span>

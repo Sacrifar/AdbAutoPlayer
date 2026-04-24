@@ -157,13 +157,13 @@
                     {#if prop.formType === "TaskList"}
                       <TaskList
                         {choices}
-                        bind:value={settingsProps.formData[key][propKey]}
+                        bind:value={settingsProps.formData[key][propKey] as any}
                       />
                     {:else if prop.formType === "AlnumGroupedCheckboxArray"}
                       <AlnumGroupedCheckboxArray
                         title={$t(arraySchema.title ?? propKey)}
                         {choices}
-                        bind:value={settingsProps.formData[key][propKey]}
+                        bind:value={settingsProps.formData[key][propKey] as any}
                       />
                     {:else}
                       <label class="field-label"
@@ -174,12 +174,16 @@
                           <ImageCheckboxArray
                             {choices}
                             assetPath={arraySchema.assetPath as string}
-                            bind:value={settingsProps.formData[key][propKey]}
+                            bind:value={
+                              settingsProps.formData[key][propKey] as any
+                            }
                           />
                         {:else}
                           <CheckboxArray
                             {choices}
-                            bind:value={settingsProps.formData[key][propKey]}
+                            bind:value={
+                              settingsProps.formData[key][propKey] as any
+                            }
                           />
                         {/if}
                       </div>
@@ -190,7 +194,7 @@
                         >{$t(arraySchema.title ?? propKey)}</label
                       >
                       <StringArray
-                        bind:value={settingsProps.formData[key][propKey]}
+                        bind:value={settingsProps.formData[key][propKey] as any}
                         minItems={arraySchema.minItems}
                       />
                     </div>
