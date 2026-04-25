@@ -23,12 +23,24 @@ class TowerEnum(StrEnum):
     Mauler = "Mauler"
 
 
+class OCREngine(StrEnum):
+    """OCR engine selection for popup text recognition."""
+
+    Tesseract = "Tesseract"
+    RapidOCR = "RapidOCR"
+
+
 # Models
 class GeneralSettings(BaseModel):
     """General Settings model."""
 
     assist_limit: PositiveInt = Field(
         default=20, alias="Assist Limit", title="Assist Limit"
+    )
+    ocr_engine: OCREngine = Field(
+        default=OCREngine.Tesseract,
+        alias="OCR Engine",
+        title="OCR Engine",
     )
     excluded_heroes: list[HeroesEnum] = Field(
         default_factory=list,

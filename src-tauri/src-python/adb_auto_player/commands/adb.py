@@ -12,6 +12,7 @@ from adb_auto_player.models.decorators import GUIMetadata
     gui=GUIMetadata(
         label="Set Display Size 1080x1920",
         category=CommandGUICategory.SETTINGS_PHONE_DEBUG,
+        tooltip="Set the device display resolution to 1080x1920",
     ),
     name="WMSize1080x1920",
 )
@@ -23,6 +24,7 @@ def _exec_wm_size_1080_1920():
     gui=GUIMetadata(
         label="Reset Display Size",
         category=CommandGUICategory.SETTINGS_PHONE_DEBUG,
+        tooltip="Reset the device display resolution to its default value",
     ),
     name="WMSizeReset",
 )

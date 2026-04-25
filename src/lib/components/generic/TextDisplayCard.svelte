@@ -145,21 +145,21 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="relative h-full flex-grow flex-col card bg-surface-100-900/50 p-4">
+<div class="card bg-surface-100-900/50 relative h-full flex-grow flex-col p-4">
   {#if enableSearch && searchVisible}
     <div
-      class="absolute top-2 right-2 z-10 flex items-center gap-2 rounded-lg border border-surface-300-700 bg-surface-200-800 p-2 shadow-lg"
+      class="border-surface-300-700 bg-surface-200-800 absolute top-2 right-2 z-10 flex items-center gap-2 rounded-lg border p-2 shadow-lg"
     >
       <input
         bind:this={searchInput}
         bind:value={searchTerm}
         placeholder="Search..."
-        class="w-48 border-none bg-transparent text-sm text-surface-900-100 outline-none"
+        class="text-surface-900-100 w-48 border-none bg-transparent text-sm outline-none"
         oninput={() => (currentMatchIndex = searchTerm ? 0 : -1)}
       />
 
       {#if searchTerm}
-        <div class="no-select text-xs whitespace-nowrap text-surface-600-400">
+        <div class="no-select text-surface-600-400 text-xs whitespace-nowrap">
           {totalMatchCount > 0
             ? `${currentMatchIndex + 1}/${totalMatchCount}`
             : "0/0"}

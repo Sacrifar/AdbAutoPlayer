@@ -94,6 +94,7 @@ class FrostfireShowdownMixin(AFKJourneyBase, ABC):
         gui=GUIMetadata(
             label="Run Frostfire Showdown",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Participate in the Frostfire Showdown event automatically",
         ),
     )
     def attempt_frostfire(self) -> None:

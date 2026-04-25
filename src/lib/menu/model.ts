@@ -13,6 +13,7 @@ export interface SettingsProps {
   formData: FormDataGeneric;
   formSchema: JSONSchema;
   fileName: string;
+  type?: "app" | "adb" | "game";
 }
 
 export interface PydanticSettingsFormResponse {

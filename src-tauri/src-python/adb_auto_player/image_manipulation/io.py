@@ -72,11 +72,14 @@ class IO:
             OSError
             ValueError
         """
-        png_start_index = image_data.find(b"\x89PNG\r\n\x1a\n")
-        # Slice the screenshot data to remove the warning
-        # and keep only the PNG image data
-        if png_start_index != -1:
-            image_data = image_data[png_start_index:]
+        # Fast path: data already starts with PNG header (most common case)
+        png_header = b"\x89PNG\r\n\x1a\n"
+        if not image_data[:8] == png_header:
+            png_start_index = image_data.find(png_header)
+            # Slice the screenshot data to remove the warning
+            # and keep only the PNG image data
+            if png_start_index != -1:
+                image_data = image_data[png_start_index:]
 
         np_data = np.frombuffer(image_data, dtype=np.uint8)
         img = cv2.imdecode(np_data, cv2.IMREAD_COLOR)

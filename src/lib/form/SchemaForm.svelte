@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Accordion } from "@skeletonlabs/skeleton-svelte";
   import { t } from "$lib/i18n/i18n";
   import { onMount } from "svelte";
   import { showErrorToast } from "$lib/toast/toast-error";
@@ -21,6 +20,7 @@
   } = $props();
 
   let isSaving = $state(false);
+  let openSections = $state(new Set<string>());
 
   interface Section {
     key: string;
@@ -41,9 +41,12 @@
         const resolvedProps: Record<string, any> = {};
         Object.entries(sectionSchema.properties ?? {}).forEach(
           ([propKey, prop]) => {
+            if (propKey === "theme") return;
             resolvedProps[propKey] = resolveRef(prop, settingsProps.formSchema);
           },
         );
+
+        if (Object.keys(resolvedProps).length === 0) return null;
 
         return {
           key,
@@ -64,7 +67,6 @@
     }
 
     if (prop.type === "array" && prop.items?.$ref) {
-      // console.log($state.snapshot(prop))
       const refName = prop.items.$ref.replace("#/$defs/", "");
       return {
         ...prop,
@@ -75,9 +77,9 @@
     return prop;
   }
 
-  function handleSave(): void {
-    const formElement = document.querySelector(
-      "form.settings-form",
+  async function handleSave(): Promise<void> {
+    const formElement = document.getElementById(
+      "schema-form",
     ) as HTMLFormElement;
 
     if (formElement && !formElement.checkValidity()) {
@@ -86,135 +88,128 @@
     }
 
     isSaving = true;
-    onFormSubmit();
-    isSaving = false;
+    void (async () => {
+      await onFormSubmit();
+      isSaving = false;
+    })();
   }
 
-  function setupRealTimeValidation() {
-    const formElement = document.getElementById(
-      "schema-form",
-    ) as HTMLFormElement;
-
-    if (!formElement) {
-      void showErrorToast("Form not found.");
-      return;
+  function toggleSection(key: string) {
+    if (openSections.has(key)) {
+      openSections.delete(key);
+    } else {
+      openSections.add(key);
     }
-
-    const inputs = formElement.querySelectorAll("input, select");
-    inputs.forEach((input) => {
-      input.addEventListener("input", () => {
-        if (
-          input instanceof HTMLInputElement ||
-          input instanceof HTMLFormElement
-        ) {
-          if (!input.checkValidity()) {
-            input.reportValidity();
-          }
-        }
-      });
-    });
+    openSections = new Set(openSections);
   }
 
   onMount(() => {
-    setupRealTimeValidation();
-
+    // Open the first section by default
+    if (sections.length > 0) {
+      openSections.add(sections[0].key);
+    }
     return () => {
       isSaving = false;
     };
   });
 </script>
 
-<div class="h-full max-h-full">
-  <form id="schema-form" class="settings-form">
-    <Accordion multiple>
+<div class="schema-form-container">
+  <form
+    id="schema-form"
+    class="settings-form"
+    onsubmit={(e) => e.preventDefault()}
+  >
+    <div class="sections-list">
       {#each sections as { key, schema }}
-        <Accordion.Item value={key}>
-          <Accordion.ItemTrigger class="flex items-center justify-between">
-            <span class="px-2 py-1 h5">
-              {$t(schema.title ?? key)}
-            </span>
+        {@const isOpen = openSections.has(key)}
+        <div class="form-section" class:open={isOpen}>
+          <button
+            type="button"
+            class="section-header"
+            onclick={() => toggleSection(key)}
+          >
+            <span class="section-title">{$t(schema.title ?? key)}</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              width="14"
+              height="14"
+              class="chevron"
+              style="transform: {isOpen ? 'rotate(180deg)' : 'rotate(0)'}"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
 
-            <Accordion.ItemIndicator class="group flex items-center">
-              <span class="hidden size-4 group-data-[state=open]:block">
-                -
-              </span>
-              <span class="block size-4 group-data-[state=open]:hidden">
-                +
-              </span>
-            </Accordion.ItemIndicator>
-          </Accordion.ItemTrigger>
-          <Accordion.ItemContent>
-            <div class="p-4">
+          {#if isOpen}
+            <div class="section-content">
               {#each Object.entries(schema.properties ?? {}) as [propKey, prop]}
                 {@const arraySchema = asArraySchema(prop)}
                 {@const choices = asNonEmptyStringArray(prop)}
-                <div class="mb-4 flex items-center justify-between">
-                  {#if arraySchema && arraySchema.items.enum && Array.isArray(settingsProps.formData[key][propKey]) && choices}
+
+                <div class="field-row">
+                  {#if arraySchema && arraySchema.items.enum && Array.isArray(settingsProps.formData[key]?.[propKey]) && choices}
                     {#if prop.formType === "TaskList"}
                       <TaskList
                         {choices}
-                        bind:value={
-                          settingsProps.formData[key][propKey] as string[]
-                        }
+                        bind:value={settingsProps.formData[key][propKey] as any}
                       />
                     {:else if prop.formType === "AlnumGroupedCheckboxArray"}
                       <AlnumGroupedCheckboxArray
                         title={$t(arraySchema.title ?? propKey)}
                         {choices}
-                        bind:value={
-                          settingsProps.formData[key][propKey] as string[]
-                        }
+                        bind:value={settingsProps.formData[key][propKey] as any}
                       />
                     {:else}
-                      <label
-                        for={`${key}-${propKey}`}
-                        class="mr-3 w-40 text-right"
+                      <!-- svelte-ignore a11y_label_has_associated_control -->
+                      <label class="field-label"
+                        >{$t(arraySchema.title ?? propKey)}</label
                       >
-                        {$t(arraySchema.title ?? propKey)}
-                      </label>
-
-                      <div class="flex flex-1 items-center">
+                      <div class="field-control">
                         {#if arraySchema.formType === "ImageCheckboxArray"}
                           <ImageCheckboxArray
                             {choices}
                             assetPath={arraySchema.assetPath as string}
                             bind:value={
-                              settingsProps.formData[key][propKey] as string[]
+                              settingsProps.formData[key][propKey] as any
                             }
                           />
                         {:else}
                           <CheckboxArray
                             {choices}
                             bind:value={
-                              settingsProps.formData[key][propKey] as string[]
+                              settingsProps.formData[key][propKey] as any
                             }
                           />
                         {/if}
                       </div>
                     {/if}
-                  {:else if arraySchema && arraySchema.items.type === "string" && Array.isArray(settingsProps.formData[key][propKey])}
-                    <div class="w-full">
+                  {:else if arraySchema && arraySchema.items.type === "string" && Array.isArray(settingsProps.formData[key]?.[propKey])}
+                    <div class="full-width-field">
+                      <!-- svelte-ignore a11y_label_has_associated_control -->
+                      <label class="field-label-alt"
+                        >{$t(arraySchema.title ?? propKey)}</label
+                      >
                       <StringArray
-                        bind:value={
-                          settingsProps.formData[key][propKey] as string[]
-                        }
+                        bind:value={settingsProps.formData[key][propKey] as any}
                         minItems={arraySchema.minItems}
                       />
                     </div>
                   {:else}
-                    <label
-                      for={`${key}-${propKey}`}
-                      class="mr-3 w-40 text-right"
-                    >
+                    <label for={`${key}-${propKey}`} class="field-label">
                       {$t(prop.title ?? propKey)}
                     </label>
 
-                    <div class="flex flex-1 items-center">
+                    <div class="field-control">
                       {#if prop.enum}
-                        <!-- Dropdown for enum -->
                         <select
                           id={`${key}-${propKey}`}
-                          class="select w-full"
+                          class="form-input"
                           bind:value={settingsProps.formData[key][propKey]}
                         >
                           {#each prop.enum as option}
@@ -222,22 +217,23 @@
                           {/each}
                         </select>
                       {:else if prop.type === "boolean"}
-                        <!-- Checkbox -->
-                        <input
-                          id={`${key}-${propKey}`}
-                          type="checkbox"
-                          class="checkbox"
-                          bind:checked={
-                            () => Boolean(settingsProps.formData[key][propKey]),
-                            (v) => (settingsProps.formData[key][propKey] = v)
-                          }
-                        />
+                        <label class="toggle-switch">
+                          <input
+                            id={`${key}-${propKey}`}
+                            type="checkbox"
+                            bind:checked={
+                              () =>
+                                Boolean(settingsProps.formData[key]?.[propKey]),
+                              (v) => (settingsProps.formData[key][propKey] = v)
+                            }
+                          />
+                          <span class="slider"></span>
+                        </label>
                       {:else if prop.type === "integer" || prop.type === "number"}
-                        <!-- Numeric input -->
                         <input
                           id={`${key}-${propKey}`}
                           type="number"
-                          class="input w-full"
+                          class="form-input"
                           min={prop.minimum}
                           max={prop.maximum}
                           step={prop.step ??
@@ -245,11 +241,10 @@
                           bind:value={settingsProps.formData[key][propKey]}
                         />
                       {:else}
-                        <!-- Default text input -->
                         <input
                           id={`${key}-${propKey}`}
                           type="text"
-                          class="input w-full"
+                          class="form-input"
                           bind:value={settingsProps.formData[key][propKey]}
                           {...prop.regex ? { pattern: prop.regex } : {}}
                           {...prop.htmlTitle ? { title: prop.htmlTitle } : {}}
@@ -260,20 +255,218 @@
                 </div>
               {/each}
             </div>
-          </Accordion.ItemContent>
-        </Accordion.Item>
-        <hr class="hr" />
+          {/if}
+        </div>
       {/each}
-    </Accordion>
-    <div class="m-4">
+    </div>
+
+    <div class="form-footer">
       <button
         type="button"
-        class="btn w-full preset-filled-primary-100-900 hover:preset-filled-primary-500"
+        class="save-btn"
         disabled={isSaving}
         onclick={handleSave}
       >
-        {$t("Save")}
+        {#if isSaving}
+          <span class="spinner"></span>
+        {/if}
+        {$t("Save Settings")}
       </button>
     </div>
   </form>
 </div>
+
+<style>
+  .schema-form-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-1);
+  }
+
+  .settings-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sections-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-section {
+    border-radius: 12px;
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: all var(--dur-1);
+  }
+
+  .form-section.open {
+    border-color: var(--line-hi);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .section-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--bg-2);
+    border-bottom: 1px solid transparent;
+    transition: all var(--dur-1);
+  }
+
+  .form-section.open .section-header {
+    border-bottom-color: var(--line);
+    background: var(--bg-1);
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-2);
+  }
+
+  .chevron {
+    color: var(--text-4);
+    transition: transform var(--dur-1);
+  }
+
+  .section-content {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .field-label {
+    flex: 0 0 140px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-align: right;
+  }
+
+  .field-label-alt {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+
+  .field-control {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .full-width-field {
+    width: 100%;
+  }
+
+  .form-footer {
+    padding: 16px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all var(--dur-1);
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--accent) 25%, transparent);
+  }
+
+  .save-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--bg-3);
+    transition: 0.3s;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--text-4);
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: var(--accent-ghost);
+    border-color: var(--accent);
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(16px);
+    background-color: var(--accent);
+  }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

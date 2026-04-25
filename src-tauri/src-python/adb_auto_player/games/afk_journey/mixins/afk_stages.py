@@ -25,6 +25,7 @@ class AFKStagesMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="AFK Stages",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Progress through the main AFK stages automatically",
         ),
         kwargs={"season": False},
     )
@@ -33,6 +34,7 @@ class AFKStagesMixin(AFKJourneyBase):
         gui=GUIMetadata(
             label="Season AFK Stages",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Progress through the seasonal AFK stages automatically",
         ),
         kwargs={"season": True},
     )

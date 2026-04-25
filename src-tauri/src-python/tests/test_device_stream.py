@@ -100,7 +100,7 @@ class TestDeviceStream(unittest.TestCase):
         mock_connection = Mock()
         large_chunk = b"invalid_data" * 100000  # ~1.3MB of invalid data
         mock_connection.read.return_value = large_chunk
-        self.mock_device.shell.return_value = mock_connection
+        self.mock_device.d.shell.return_value = mock_connection
 
         self.mock_device.is_controlling_emulator = False
 
@@ -114,6 +114,96 @@ class TestDeviceStream(unittest.TestCase):
 
         # Should not crash due to memory issues
         stream.stop()
+
+    def test_buffer_overflow_and_exception(self):
+        """Test buffer cleanup when an exception occurs with a large buffer."""
+        mock_connection = Mock()
+        # Feed > 1MB of data and then cause an exception
+        large_invalid_data = b"\xff" * (1024 * 1024 + 100)
+        mock_connection.read.return_value = large_invalid_data
+        self.mock_device.d.shell.return_value = mock_connection
+        self.mock_device.is_controlling_emulator = False
+
+        stream = DeviceStream(self.mock_device, fps=5)
+        # Mock codec to raise exception during parse
+        stream.codec = Mock()
+        stream.codec.parse.side_effect = Exception("Parse error")
+
+        # Start and run briefly
+        stream.start()
+        time.sleep(0.5)
+
+        # Stop and verify it didn't crash
+        stream.stop()
+
+    def test_stream_process_none_break(self):
+        """Cover line 149: break if self._process is None."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+        # Mock _handle_stream to simulate the loop
+        # We need to mock controller.d.shell
+        with patch.object(mock_device.d, "shell") as mock_shell:
+            mock_shell.return_value = None  # This will set self._process to None
+            stream._running = True
+            stream._handle_stream()
+            # Should break immediately at line 149
+
+    def test_stream_empty_chunk_break(self):
+        """Cover line 152: break if not chunk."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+        mock_connection = Mock()
+        mock_connection.read.return_value = b""  # Empty chunk
+        mock_device.d.shell.return_value = mock_connection
+
+        stream._running = True
+        stream._handle_stream()
+        # Should break at line 152
+
+    def test_device_stream_default_fps(self):
+        """Cover line 94: fps is None -> use settings."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        # Mock SettingsLoader to avoid actual file read or just let it read
+        # Line 94 calls SettingsLoader.adb_settings().device.streaming_fps
+        with patch(
+            "adb_auto_player.device.adb.device_stream.SettingsLoader.adb_settings"
+        ) as mock_settings:
+            mock_settings.return_value.device.streaming_fps = 60
+            stream = DeviceStream(mock_device, fps=None)
+            assert stream.fps == 60
+
+    def test_device_stream_start_twice(self):
+        """Cover line 108: start() called when already running."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=30)
+        stream._running = True
+        stream.start()
+        # Should return at line 108 without starting a new thread
+
+    def test_handle_stream_success_coverage(self):
+        """Cover line 166: buffer.clear() on success."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+
+        # Mock a successful decode
+        mock_connection = Mock()
+        # Return a small "valid-looking" chunk then empty
+        mock_connection.read.side_effect = [b"\x00\x00\x00\x01", b""]
+        mock_device.d.shell.return_value = mock_connection
+
+        # Mock codec methods
+        stream.codec = Mock()
+        stream.codec.parse.return_value = [Mock()]  # One packet
+        stream.codec.decode.return_value = [Mock()]  # One frame
+
+        stream._running = True
+        stream._handle_stream()
+        # Should call buffer.clear() at line 166
 
 
 class TestIntegrationWithRealDecoding(unittest.TestCase):

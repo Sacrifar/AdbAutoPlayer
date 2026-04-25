@@ -47,6 +47,7 @@ class Fishing(AFKJourneyBase):
         gui=GUIMetadata(
             label="Fishing",
             category=AFKJCategory.EVENTS_AND_OTHER,
+            tooltip="Automatically participate in the Fishing minigame",
         ),
         name="afk_journey.fishing",
     )

@@ -18,7 +18,7 @@
 <div class="flex flex-wrap gap-2.5">
   {#if choices.length > 0}
     {#each choices as choice}
-      <label class="badge flex items-center bg-surface-950 p-4">
+      <label class="badge bg-surface-950 flex items-center p-4">
         <input
           class="checkbox"
           type="checkbox"

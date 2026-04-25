@@ -41,7 +41,7 @@
         {#if categorizedButtons[category] && categorizedButtons[category].length > 0}
           <Accordion.Item value={category}>
             <Accordion.ItemTrigger class="flex items-center justify-between">
-              <span class="px-2 py-1 h5">
+              <span class="h5 px-2 py-1">
                 {$t(category)}
               </span>
               <Accordion.ItemIndicator class="group flex items-center">

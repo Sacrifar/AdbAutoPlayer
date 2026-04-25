@@ -43,6 +43,7 @@ class DailiesMixin(AFKJourneyBase, ABC):
         gui=GUIMetadata(
             label="Dailies",
             category=AFKJCategory.GAME_MODES,
+            tooltip="Complete all daily tasks and collect rewards automatically",
         ),
     )
     def run_dailies(self) -> None:

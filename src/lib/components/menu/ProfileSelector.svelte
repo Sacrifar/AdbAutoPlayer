@@ -91,17 +91,17 @@
 
 <Dialog>
   <Dialog.Trigger
-    class="fixed top-0 left-0 z-50 m-2 btn cursor-pointer select-none"
+    class="btn fixed top-0 left-0 z-50 m-2 cursor-pointer select-none"
   >
     <Menu size={24} />
   </Dialog.Trigger>
   <Portal>
     <Dialog.Backdrop
-      class="fixed inset-0 z-50 bg-surface-50-950/50 opacity-0 transition transition-discrete data-[state=open]:opacity-100 starting:data-[state=open]:opacity-0"
+      class="bg-surface-50-950/50 fixed inset-0 z-50 opacity-0 transition transition-discrete data-[state=open]:opacity-100 starting:data-[state=open]:opacity-0"
     />
     <Dialog.Positioner class="fixed inset-0 z-50 flex justify-start">
       <Dialog.Content
-        class="flex h-screen w-sm -translate-x-full flex-col card bg-surface-100-900 p-4 opacity-0 shadow-xl transition transition-discrete data-[state=open]:translate-x-0 data-[state=open]:opacity-100 starting:data-[state=open]:-translate-x-full starting:data-[state=open]:opacity-0"
+        class="card bg-surface-100-900 flex h-screen w-sm -translate-x-full flex-col p-4 opacity-0 shadow-xl transition transition-discrete data-[state=open]:translate-x-0 data-[state=open]:opacity-100 starting:data-[state=open]:-translate-x-full starting:data-[state=open]:opacity-0"
       >
         <!-- Header -->
         <header class="mb-4 flex items-center justify-between">
@@ -117,7 +117,7 @@
         <aside class="flex-1 space-y-2 overflow-y-auto">
           {#each getProfiles() as profile, i}
             <button
-              class="btn flex w-full items-center justify-start rounded preset-tonal {i ===
+              class="btn preset-tonal flex w-full items-center justify-start rounded {i ===
               $activeProfile
                 ? 'preset-outlined'
                 : ''} transition-colors"
@@ -136,9 +136,9 @@
         </aside>
 
         <!-- Sticky footer -->
-        <footer class="sticky bottom-0 mt-4 bg-surface-100-900 py-2">
+        <footer class="bg-surface-100-900 sticky bottom-0 mt-4 py-2">
           <button
-            class="btn-primary btn w-full preset-tonal-primary p-2"
+            class="btn-primary btn preset-tonal-primary w-full p-2"
             onclick={() => openAppSettingsForm()}
           >
             Settings
