@@ -29,6 +29,7 @@ export type Theme = ("catppuccin" | "cerberus" | "crimson" | "fennec" | "modern"
  * Locale Enum.
  */
 export type Locale = ("en" | "jp" | "vn")
+export type LogPanelPosition = ("right" | "bottom")
 export type CloseButtonShouldMinimizeTheWindow = boolean
 export type DesktopNotifications = boolean
 export type DiscordWebhook = string
@@ -128,6 +129,7 @@ profiles?: Profiles1
 export interface UserInterface {
 theme?: Theme
 locale?: Locale
+log_panel_position?: LogPanelPosition
 close_should_minimize?: CloseButtonShouldMinimizeTheWindow
 [k: string]: unknown
 }

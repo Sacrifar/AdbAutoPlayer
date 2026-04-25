@@ -136,6 +136,33 @@
           </header>
 
           {#if !isUpdating}
+            <div class="space-y-4">
+              <p class="text-sm opacity-70">
+                {$t(
+                  "A new version of AdbAutoPlayer is available. Would you like to download and install it now?",
+                )}
+              </p>
+              <div class="flex items-center gap-2 text-sm font-medium">
+                <span class="opacity-50">{$t("Version")}:</span>
+                <span class="text-primary-500">{update?.version}</span>
+              </div>
+
+              {#if update?.body}
+                <div class="rounded-lg bg-black/20 p-4">
+                  <div
+                    class="mb-2 text-xs font-bold tracking-wider uppercase opacity-50"
+                  >
+                    {$t("Changelog")}
+                  </div>
+                  <div
+                    class="max-h-48 overflow-y-auto text-sm leading-relaxed whitespace-pre-wrap"
+                  >
+                    {update.body}
+                  </div>
+                </div>
+              {/if}
+            </div>
+
             <footer class="bg-surface-100-900 sticky bottom-0 mt-4 py-2">
               <button
                 class="btn-primary btn preset-filled-primary-100-900 hover:preset-filled-primary-500 w-full p-2"
