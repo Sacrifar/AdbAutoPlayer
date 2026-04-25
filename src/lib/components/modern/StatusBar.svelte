@@ -1,6 +1,11 @@
 <script lang="ts">
   import { t } from "$lib/i18n/i18n";
-  import { activeProfile, profileStates, appSettings } from "$lib/stores";
+  import {
+    activeProfile,
+    profileStates,
+    appSettings,
+    appVersion,
+  } from "$lib/stores";
 
   interface Props {
     theme: "dark" | "light";
@@ -9,6 +14,8 @@
     onToggleLog: () => void;
     onDocs: () => void;
     onAppSettings: () => void;
+    onGameSettings: () => void;
+    onAdbSettings: () => void;
     onDebug: () => void;
     onCustomizer: () => void;
     sidebarOpen: boolean;
@@ -22,6 +29,8 @@
     onToggleLog,
     onDocs,
     onAppSettings,
+    onGameSettings,
+    onAdbSettings,
     onDebug,
     onCustomizer,
     sidebarOpen,
@@ -91,7 +100,7 @@
       />
     </svg>
     <div class="brand-name">AdbAutoPlayer</div>
-    <div class="version">v7.2.0</div>
+    <div class="version">v{$appVersion}</div>
   </div>
 
   <div class="divider"></div>
@@ -200,6 +209,46 @@
       /><path d="M18 13h4" /><path d="m4.5 18 2.5-2.5" /><path
         d="m17 15.5 2.5 2.5"
       /></svg
+    >
+  </button>
+
+  <button class="icon-btn" title={$t("ADB Settings")} onclick={onAdbSettings}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      ><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><path
+        d="M12 18h.01"
+      /></svg
+    >
+  </button>
+
+  <button class="icon-btn" title={$t("Game Settings")} onclick={onGameSettings}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      width="16"
+      height="16"
+      ><line x1="6" y1="12" x2="10" y2="12"></line><line
+        x1="8"
+        y1="10"
+        x2="8"
+        y2="14"
+      ></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line
+        x1="18"
+        y1="11"
+        x2="18.01"
+        y2="11"
+      ></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg
     >
   </button>
 

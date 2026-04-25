@@ -78,6 +78,7 @@ class ProfileSettings(BaseModel):
     """Profile Settings model."""
 
     profiles: list[str] = Field(default=["Default"], title="Profiles", min_length=1)
+    active_profile: int = Field(default=0, title="Active Profile")
 
 
 class AdvancedSettings(BaseModel):

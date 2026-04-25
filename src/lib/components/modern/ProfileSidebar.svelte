@@ -1,6 +1,9 @@
 <script lang="ts">
   import { t } from "$lib/i18n/i18n";
   import { activeProfile, profileStates, appSettings } from "$lib/stores";
+  import { invoke } from "@tauri-apps/api/core";
+  import { applySettings } from "$lib/utils/settings";
+  import type { AppSettings } from "$pytauri/_apiTypes";
 
   interface Props {
     collapsed: boolean;
@@ -14,8 +17,22 @@
     $profileStates.filter((p) => p?.active_task).length,
   );
 
-  function selectProfile(index: number) {
+  async function selectProfile(index: number) {
+    if (!$appSettings) return;
     $activeProfile = index;
+
+    try {
+      const newSettings = {
+        ...$appSettings,
+        profiles: { ...$appSettings.profiles, active_profile: index },
+      };
+      const savedSettings: AppSettings = await invoke("save_app_settings", {
+        settings: newSettings,
+      });
+      await applySettings(savedSettings);
+    } catch (e) {
+      console.error("Failed to save active profile:", e);
+    }
   }
 
   function getStatus(index: number) {

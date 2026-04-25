@@ -16,6 +16,7 @@
     activeProfile,
     uiState,
     appSettings,
+    appVersion,
     debugLogLevelOverwrite,
   } from "$lib/stores";
   import { listen } from "@tauri-apps/api/event";
@@ -71,6 +72,7 @@
     await invoke("show_window");
 
     const version = await getVersion();
+    appVersion.set(version);
     await logInfo(`App Version: ${version}`);
     initPostHog(version);
   }
@@ -255,6 +257,33 @@
     window.dispatchEvent(new CustomEvent("trigger-state-update"));
   }
 
+  async function handleAddProfile() {
+    if (!$appSettings) return;
+
+    const currentProfiles = $appSettings.profiles?.profiles ?? ["Default"];
+    const newProfileName = `Profile ${currentProfiles.length + 1}`;
+    const newProfiles = [...currentProfiles, newProfileName];
+
+    try {
+      const newSettings = {
+        ...$appSettings,
+        profiles: {
+          ...$appSettings.profiles,
+          profiles: newProfiles,
+          active_profile: newProfiles.length - 1,
+        },
+      };
+
+      const savedSettings: AppSettings = await invoke("save_app_settings", {
+        settings: newSettings,
+      });
+      await applySettings(savedSettings);
+      void logInfo(`Created new profile: ${newProfileName}`);
+    } catch (error) {
+      void logError(`Failed to create profile: ${error}`);
+    }
+  }
+
   $effect(() => {
     if ($uiState.showSettings && !settingsProps.showSettingsForm) {
       if ($uiState.settingsType === "app") {
@@ -295,6 +324,14 @@
     onDocs={handleDocs}
     onAppSettings={() => {
       $uiState.settingsType = "app";
+      $uiState.showSettings = true;
+    }}
+    onGameSettings={() => {
+      $uiState.settingsType = "game";
+      $uiState.showSettings = true;
+    }}
+    onAdbSettings={() => {
+      $uiState.settingsType = "adb";
       $uiState.showSettings = true;
     }}
     onDebug={callDebug}
@@ -369,7 +406,10 @@
 
   <div class="main-layout">
     {#if $uiState.sidebarOpen}
-      <ProfileSidebar collapsed={sidebarCollapsed} onAddProfile={() => {}} />
+      <ProfileSidebar
+        collapsed={sidebarCollapsed}
+        onAddProfile={handleAddProfile}
+      />
     {/if}
 
     <main class="content-area">
