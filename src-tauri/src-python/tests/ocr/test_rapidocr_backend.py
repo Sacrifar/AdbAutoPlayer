@@ -265,9 +265,14 @@ class TestRapidOCRBackend:
         assert "ListFormat" in res
         assert "StringFormat" in res
 
-        # 3. Cover line 96 (hasattr truthy but result.txts is empty or similar)
         # To cover the 'False' branch of line 96, we need hasattr(result, 'txts')
-        # to be false
+        # to be false, AND we also need a case where it's true but txts is empty.
         mock_result = MagicMock(spec=[])  # No txts attribute
         mock_engine.return_value = mock_result
+        assert backend.detect_text_blocks(np.zeros((10, 10, 3))) == []
+
+        # Cover line 96: hasattr true, but txts is falsy (e.g. empty list)
+        mock_result_empty_txts = MagicMock()
+        mock_result_empty_txts.txts = []
+        mock_engine.return_value = mock_result_empty_txts
         assert backend.detect_text_blocks(np.zeros((10, 10, 3))) == []
