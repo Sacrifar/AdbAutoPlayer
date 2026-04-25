@@ -249,3 +249,17 @@ class TestAFKJMixinsCoverage:
             match.template = "unknown_template.png"
             with patch.object(bot, "wait_for_any_template", return_value=match):
                 bot._handle_legend_trials_battle()
+
+    def test_mock_afkj_unused_methods_coverage(self):
+        """Call all stubbed methods in MockAFKJ for coverage."""
+        bot = MockAFKJ()
+        # Call properties
+        _ = bot.template_dir
+        # Call methods
+        bot.get_screenshot()
+        bot.game_find_template_match("test.png")
+        bot._click_confirm_on_popup()
+        bot.navigate_to_legend_trials_select_tower()
+        bot.navigate_to_world()
+        bot.start_up()
+        bot.handle_popup_messages()

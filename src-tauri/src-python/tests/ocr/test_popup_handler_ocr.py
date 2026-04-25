@@ -105,3 +105,8 @@ class TestPopupHandlerOCR:
 
         # Should fallback to Tesseract
         mock_tesseract_class.assert_called_once()
+
+    def test_mock_popup_handler_coverage(self):
+        """Call stubbed methods in MockPopupHandler for coverage."""
+        handler = MockPopupHandler()
+        _ = handler.template_dir

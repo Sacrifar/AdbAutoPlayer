@@ -222,3 +222,27 @@ class TestRapidOCRBackend:
         backend = RapidOCRBackend()
         results = backend.detect_text_blocks(np.zeros((100, 100, 3)))
         assert results == []
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_detect_text_blocks_missing_boxes_scores_coverage(
+        self, mock_rapidocr_class
+    ):
+        """Cover the 'else' branches for boxes and scores (lines 97-98)."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+
+        mock_result = MagicMock()
+        mock_result.txts = ["Test"]
+        # Delete boxes and scores to trigger 'else' branches
+        del mock_result.boxes
+        del mock_result.scores
+        mock_engine.return_value = mock_result
+
+        backend = RapidOCRBackend()
+        # Should fallback to using image dimensions and 1.0 confidence
+        results = backend.detect_text_blocks(np.zeros((100, 100, 3)))
+        assert len(results) == 1
+        assert results[0].text == "Test"
+        assert results[0].confidence.value == 1.0
+        assert results[0].box.width == 100
+        assert results[0].box.height == 100

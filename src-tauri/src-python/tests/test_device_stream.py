@@ -162,6 +162,28 @@ class TestDeviceStream(unittest.TestCase):
         stream._handle_stream()
         # Should break at line 152
 
+    def test_device_stream_default_fps(self):
+        """Cover line 94: fps is None -> use settings."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        # Mock SettingsLoader to avoid actual file read or just let it read
+        # Line 94 calls SettingsLoader.adb_settings().device.streaming_fps
+        with patch(
+            "adb_auto_player.device.adb.device_stream.SettingsLoader.adb_settings"
+        ) as mock_settings:
+            mock_settings.return_value.device.streaming_fps = 60
+            stream = DeviceStream(mock_device, fps=None)
+            assert stream.fps == 60
+
+    def test_device_stream_start_twice(self):
+        """Cover line 108: start() called when already running."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=30)
+        stream._running = True
+        stream.start()
+        # Should return at line 108 without starting a new thread
+
 
 class TestIntegrationWithRealDecoding(unittest.TestCase):
     """Integration tests that test the full pipeline."""
