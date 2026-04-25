@@ -5,6 +5,7 @@ export const debugLogLevelOverwrite = writable<boolean[]>([false]);
 export const activeProfile = writable<number>(0);
 export const profileStates = writable<ProfileState[]>([]);
 export const profileStateTimestamp = writable<number | null>();
+export const appVersion = writable<string>("");
 
 export const uiState = writable({
   showSettings: false,

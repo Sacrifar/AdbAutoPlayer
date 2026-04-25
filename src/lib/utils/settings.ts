@@ -2,7 +2,7 @@ import { appLocale } from "$lib/i18n/i18n";
 import type { AppSettings } from "$pytauri/_apiTypes";
 import { getLocaleOrDefault } from "$lib/i18n/locales";
 import { invoke } from "@tauri-apps/api/core";
-import { appSettings } from "$lib/stores";
+import { appSettings, activeProfile } from "$lib/stores";
 import { showErrorToast } from "$lib/toast/toast-error";
 import type { RustSettingsFormResponse } from "$lib/menu/model";
 
@@ -14,6 +14,9 @@ export async function applySettingsFromFile() {
 
 export async function applySettings(newSettings: AppSettings) {
   appSettings.set(newSettings);
+  if (newSettings.profiles?.active_profile !== undefined) {
+    activeProfile.set(newSettings.profiles.active_profile);
+  }
   try {
     await applyUISettings(newSettings);
   } catch (e) {

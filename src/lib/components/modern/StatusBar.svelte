@@ -1,6 +1,11 @@
 <script lang="ts">
   import { t } from "$lib/i18n/i18n";
-  import { activeProfile, profileStates, appSettings } from "$lib/stores";
+  import {
+    activeProfile,
+    profileStates,
+    appSettings,
+    appVersion,
+  } from "$lib/stores";
 
   interface Props {
     theme: "dark" | "light";
@@ -95,7 +100,7 @@
       />
     </svg>
     <div class="brand-name">AdbAutoPlayer</div>
-    <div class="version">v7.2.0</div>
+    <div class="version">v{$appVersion}</div>
   </div>
 
   <div class="divider"></div>

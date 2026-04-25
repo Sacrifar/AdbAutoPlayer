@@ -10,6 +10,8 @@
     SettingsProps,
   } from "$lib/menu/model";
   import Menu from "$lib/components/icons/lucide/Menu.svelte";
+  import { applySettings } from "$lib/utils/settings";
+  import type { AppSettings } from "$pytauri/_apiTypes";
 
   let {
     settingsProps = $bindable(),
@@ -84,8 +86,22 @@
     return "bg-green-500";
   }
 
-  function selectProfile(index: number) {
+  async function selectProfile(index: number) {
+    if (!$appSettings) return;
     $activeProfile = index;
+
+    try {
+      const newSettings = {
+        ...$appSettings,
+        profiles: { ...$appSettings.profiles, active_profile: index },
+      };
+      const savedSettings: AppSettings = await invoke("save_app_settings", {
+        settings: newSettings,
+      });
+      await applySettings(savedSettings);
+    } catch (e) {
+      console.error("Failed to save active profile:", e);
+    }
   }
 </script>
 
