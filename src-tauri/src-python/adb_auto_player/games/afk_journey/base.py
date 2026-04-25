@@ -492,7 +492,6 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
         max_count = 10
         count = 0
         while self._click_confirm_on_popup() and count < max_count:
-            self._click_confirm_on_popup()
             count += 1
             sleep(0.5)
         return True
@@ -629,6 +628,7 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
                 prev_crop = curr_crop
                 sleep(1)
 
+        # Fallback: non-timer mode uses simple wait_for_any_template
         return self.wait_for_any_template(
             templates=self._get_battle_over_templates(),
             timeout=self.BATTLE_TIMEOUT,

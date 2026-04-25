@@ -166,6 +166,7 @@
                         bind:value={settingsProps.formData[key][propKey] as any}
                       />
                     {:else}
+                      <!-- svelte-ignore a11y_label_has_associated_control -->
                       <label class="field-label"
                         >{$t(arraySchema.title ?? propKey)}</label
                       >
@@ -190,6 +191,7 @@
                     {/if}
                   {:else if arraySchema && arraySchema.items.type === "string" && Array.isArray(settingsProps.formData[key]?.[propKey])}
                     <div class="full-width-field">
+                      <!-- svelte-ignore a11y_label_has_associated_control -->
                       <label class="field-label-alt"
                         >{$t(arraySchema.title ?? propKey)}</label
                       >

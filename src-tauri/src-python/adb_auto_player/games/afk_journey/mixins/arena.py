@@ -181,7 +181,7 @@ class ArenaMixin(AFKJourneyBase):
             )
             self.tap(buy)
         except GameTimeoutError:
-            return True  # Not breaking, but would be interested in why it failed.
+            return False
 
         try:
             _ = self.wait_for_template(

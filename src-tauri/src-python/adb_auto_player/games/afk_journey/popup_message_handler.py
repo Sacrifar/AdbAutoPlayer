@@ -13,8 +13,10 @@ from adb_auto_player.models.geometry import Point
 from adb_auto_player.models.image_manipulation import CropRegions
 from adb_auto_player.models.ocr import OCRResult
 from adb_auto_player.models.template_matching import MatchMode, TemplateMatchResult
-from adb_auto_player.ocr import PSM, TesseractBackend, TesseractConfig
+from adb_auto_player.ocr import PSM, RapidOCRBackend, TesseractBackend, TesseractConfig
 from adb_auto_player.util import StringHelper
+
+from .settings import OCREngine
 
 
 @dataclass(frozen=True)
@@ -236,14 +238,9 @@ class PopupMessageHandler(Game, ABC):
         if not preprocess_result:
             return None
 
-        # PSM 6 - Single Block of Text works best here.
-        ocr = TesseractBackend(config=TesseractConfig(psm=PSM.SINGLE_BLOCK))
-        ocr_results = ocr.detect_text_blocks(
-            image=preprocess_result.cropped_image, min_confidence=ConfidenceValue("80%")
-        )
-        # This is actually not needed in this scenario because we do not need
-        # The coordinates or boundaries of the text
-        # Leaving this for demo though.
+        ocr_results = self._run_popup_ocr(preprocess_result)
+
+        # Apply offset for coordinate mapping back to original image
         ocr_results = [
             result.with_offset(preprocess_result.crop_offset) for result in ocr_results
         ]
@@ -309,6 +306,44 @@ class PopupMessageHandler(Game, ABC):
             self.tap(coordinates=button)
         time.sleep(3)
         return popup
+
+    def _run_popup_ocr(
+        self,
+        preprocess_result: PopupPreprocessResult,
+    ) -> list[OCRResult]:
+        """Run OCR on the preprocessed popup image using the configured engine.
+
+        Args:
+            preprocess_result: The preprocessed popup screenshot data.
+
+        Returns:
+            List of OCRResult objects with detected text blocks.
+        """
+        # self.settings is inherited from Game but at runtime this is AFKJourneyBase
+        # which has the specific AFKJ Settings model.
+        ocr_engine = OCREngine.Tesseract
+        try:
+            # ty: ignore[unresolved-attribute]
+            ocr_engine = self.settings.general.ocr_engine  # type: ignore
+        except Exception:
+            pass
+
+        if ocr_engine == OCREngine.RapidOCR:
+            logging.debug("Using RapidOCR for popup detection.")
+            backend = RapidOCRBackend()
+            return backend.detect_text_blocks(
+                image=preprocess_result.cropped_image,
+                min_confidence=ConfidenceValue("80%"),
+            )
+
+        # Default: Tesseract
+        # PSM 6 - Single Block of Text works best for popup dialogs.
+        logging.debug("Using Tesseract for popup detection.")
+        ocr = TesseractBackend(config=TesseractConfig(psm=PSM.SINGLE_BLOCK))
+        return ocr.detect_text_blocks(
+            image=preprocess_result.cropped_image,
+            min_confidence=ConfidenceValue("80%"),
+        )
 
     def _preprocess_screenshot_for_popup(self) -> PopupPreprocessResult | None:
         screenshot = self.get_screenshot()

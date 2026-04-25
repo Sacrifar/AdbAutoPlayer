@@ -27,7 +27,7 @@
 <div class="customizer-panel" transition:fly={{ x: 300, duration: 300 }}>
   <div class="panel-header">
     <h3>{$t("Customize Theme")}</h3>
-    <button class="close-btn" onclick={onClose}>
+    <button class="close-btn" onclick={onClose} aria-label="Close customizer">
       <svg
         viewBox="0 0 24 24"
         fill="none"

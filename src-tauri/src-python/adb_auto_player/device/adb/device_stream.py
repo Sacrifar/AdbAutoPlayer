@@ -143,7 +143,7 @@ class DeviceStream:
             stream=True,
         )
 
-        buffer = b""
+        buffer = bytearray()
         while self._running:
             if self._process is None:
                 break
@@ -151,7 +151,7 @@ class DeviceStream:
             if not chunk:
                 break
 
-            buffer += chunk
+            buffer.extend(chunk)
 
             # Try to decode frames from the buffer
             try:
@@ -163,11 +163,11 @@ class DeviceStream:
                         with self._frame_lock:
                             self.latest_frame = ndarray
 
-                buffer = b""
+                buffer.clear()
 
             except Exception:
                 if len(buffer) > 1024 * 1024:
-                    buffer = buffer[-1024 * 1024 :]
+                    del buffer[: -1024 * 1024]
                 continue
 
     def _stream_screen(self) -> None:

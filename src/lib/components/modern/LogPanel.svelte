@@ -294,23 +294,6 @@
     min-width: 0;
   }
 
-  .message[data-level="DEBUG"] {
-    color: var(--text-4);
-  }
-  .message[data-level="INFO"] {
-    color: var(--text-2);
-  }
-  .message[data-level="WARNING"] {
-    color: var(--warn);
-  }
-  .message[data-level="ERROR"] {
-    color: var(--err);
-  }
-  .message[data-level="FATAL"] {
-    color: var(--err);
-    font-weight: 700;
-  }
-
   .empty {
     padding: 20px;
     color: var(--text-4);

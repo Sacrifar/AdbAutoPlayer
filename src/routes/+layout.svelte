@@ -309,8 +309,18 @@
 
   <!-- Global Settings Overlay -->
   {#if settingsProps.showSettingsForm}
-    <div class="global-settings-overlay" onclick={closeSettings}>
-      <div class="settings-card" onclick={(e) => e.stopPropagation()}>
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div
+      class="global-settings-overlay"
+      onclick={closeSettings}
+      role="presentation"
+    >
+      <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+      <div
+        class="settings-card"
+        onclick={(e) => e.stopPropagation()}
+        role="presentation"
+      >
         <div class="settings-header">
           {#if settingsProps.type === "adb" && adbQuickActions.length > 0}
             <div class="quick-actions">
@@ -333,7 +343,11 @@
               ? $t("App Settings")
               : $t("Settings")}
           </div>
-          <button class="close-btn" onclick={closeSettings}>
+          <button
+            class="close-btn"
+            onclick={closeSettings}
+            aria-label="Close settings"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
