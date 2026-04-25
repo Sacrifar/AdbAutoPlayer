@@ -297,6 +297,14 @@
       $uiState.settingsType = "app";
       $uiState.showSettings = true;
     }}
+    onGameSettings={() => {
+      $uiState.settingsType = "game";
+      $uiState.showSettings = true;
+    }}
+    onAdbSettings={() => {
+      $uiState.settingsType = "adb";
+      $uiState.showSettings = true;
+    }}
     onDebug={callDebug}
     sidebarOpen={$uiState.sidebarOpen}
     logOpen={$uiState.logOpen}
