@@ -179,3 +179,46 @@ class TestRapidOCRBackend:
         results = backend.detect_text_blocks(np.zeros((100, 100, 3)))
         assert len(results) == 1
         assert results[0].box.width == 10  # max(0, 10) - min(0, 10) = 10
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_extract_text_string_input_format(self, mock_rapidocr_class):
+        """Test extract_text with a single string result."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+        # Mock result as a string
+        mock_engine.return_value = "Single String"
+
+        backend = RapidOCRBackend()
+        assert backend.extract_text(np.zeros((10, 10, 3))) == "Single String"
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_detect_text_blocks_empty_result_none(self, mock_rapidocr_class):
+        """Test detect_text_blocks with None result."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+        mock_engine.return_value = None
+
+        backend = RapidOCRBackend()
+        assert backend.detect_text_blocks(np.zeros((10, 10, 3))) == []
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    @patch("adb_auto_player.ocr.rapidocr_backend.OCRResult")
+    def test_detect_text_blocks_value_error_coverage(
+        self, mock_ocr_result, mock_rapidocr_class
+    ):
+        """Test detect_text_blocks handling ValueError during OCRResult creation."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+
+        mock_result = MagicMock()
+        mock_result.txts = ["Test"]
+        mock_result.boxes = [[[0, 0], [10, 0], [10, 10], [0, 10]]]
+        mock_result.scores = [0.9]
+        mock_engine.return_value = mock_result
+
+        # Mock OCRResult to raise ValueError
+        mock_ocr_result.side_effect = ValueError("test")
+
+        backend = RapidOCRBackend()
+        results = backend.detect_text_blocks(np.zeros((100, 100, 3)))
+        assert results == []

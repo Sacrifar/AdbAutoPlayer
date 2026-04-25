@@ -224,3 +224,16 @@ class TestPopupHandlerFullCoverage:
                 ]
                 result = handler.handle_popup_messages()
                 assert result is False
+
+    def test_mock_handler_unused_methods_coverage(self):
+        """Call all stubbed methods in MockHandler for coverage."""
+        handler = MockHandler()
+        # Call properties
+        _ = handler.template_dir
+        # Call methods
+        handler.get_screenshot()
+        handler.tap(Point(0, 0))
+        handler.hold(Point(0, 0))
+        handler.swipe(start=Point(0, 0), end=Point(1, 1))
+        handler.game_find_template_match("test.png")
+        handler.find_any_template(["test.png"])

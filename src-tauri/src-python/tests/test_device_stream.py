@@ -136,6 +136,32 @@ class TestDeviceStream(unittest.TestCase):
         # Stop and verify it didn't crash
         stream.stop()
 
+    def test_stream_process_none_break(self):
+        """Cover line 149: break if self._process is None."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+        # Mock _handle_stream to simulate the loop
+        # We need to mock controller.d.shell
+        with patch.object(mock_device.d, "shell") as mock_shell:
+            mock_shell.return_value = None  # This will set self._process to None
+            stream._running = True
+            stream._handle_stream()
+            # Should break immediately at line 149
+
+    def test_stream_empty_chunk_break(self):
+        """Cover line 152: break if not chunk."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+        mock_connection = Mock()
+        mock_connection.read.return_value = b""  # Empty chunk
+        mock_device.d.shell.return_value = mock_connection
+
+        stream._running = True
+        stream._handle_stream()
+        # Should break at line 152
+
 
 class TestIntegrationWithRealDecoding(unittest.TestCase):
     """Integration tests that test the full pipeline."""

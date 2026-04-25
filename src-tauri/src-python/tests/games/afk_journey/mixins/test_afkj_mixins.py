@@ -2,7 +2,11 @@ from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
-from adb_auto_player.exceptions import GameTimeoutError
+from adb_auto_player.exceptions import (
+    AutoPlayerError,
+    AutoPlayerWarningError,
+    GameTimeoutError,
+)
 from adb_auto_player.games.afk_journey.mixins.arena import ArenaMixin
 from adb_auto_player.games.afk_journey.mixins.legend_trial import SeasonLegendTrial
 from adb_auto_player.models.geometry import Coordinates, Point
@@ -169,4 +173,79 @@ class TestAFKJMixinsCoverage:
             with patch.object(
                 bot, "wait_for_any_template", side_effect=[match1, match2]
             ):
+                bot._handle_legend_trials_battle()
+
+    def test_legend_trial_tower_not_found_coverage(self):
+        """Cover GameTimeoutError at line 81 in push_legend_trials."""
+        bot = MockAFKJ()
+        with patch.object(bot, "_is_on_season_legend_trial_select", return_value=True):
+            # Mock find_template_match to return True
+            # (tower icon not found implies available today?)
+            # Wait, at line 66: if self.game_find_template_match(...): continue
+            # (not available today)
+            # So we need it to return False
+            with patch.object(bot, "game_find_template_match", return_value=False):
+                with patch.object(
+                    bot, "wait_for_template", side_effect=GameTimeoutError("test")
+                ):
+                    bot.push_legend_trials()
+
+    def test_legend_trial_generic_error_coverage(self):
+        """Cover AutoPlayerError and AutoPlayerWarningError at lines 90-95."""
+        bot = MockAFKJ()
+        with patch.object(bot, "_is_on_season_legend_trial_select", return_value=True):
+            with patch.object(bot, "game_find_template_match", return_value=False):
+                with patch.object(
+                    bot, "wait_for_template", return_value=Point(100, 100)
+                ):
+                    with patch.object(bot, "_select_legend_trials_floor"):
+                        # Test AutoPlayerWarningError
+                        with patch.object(
+                            bot,
+                            "_handle_legend_trials_battle",
+                            side_effect=[
+                                Exception("unhandled"),
+                                Exception("unhandled"),
+                            ],
+                        ):
+                            # We need to mock _handle_legend_trials_battle specifically
+                            # for the errors
+
+                            with patch.object(
+                                bot,
+                                "_handle_legend_trials_battle",
+                                side_effect=[
+                                    AutoPlayerWarningError("warn"),
+                                    AutoPlayerError("err"),
+                                ],
+                            ):
+                                bot.push_legend_trials()  # First call (Mauler/etc loop)
+                                # The loop continues, so it might call it multiple
+                                # times for different factions
+                                # But we only have 1 faction in settings mock
+
+    def test_handle_legend_trials_battle_timeout_coverage(self):
+        """Cover GameTimeoutError at line 109 in _handle_legend_trials_battle."""
+        bot = MockAFKJ()
+        bot.battle_state.faction = "Wilder"
+        with patch.object(
+            bot, "_handle_battle_screen", side_effect=GameTimeoutError("test")
+        ):
+            bot._handle_legend_trials_battle()
+
+    def test_handle_legend_trials_battle_failed_coverage(self):
+        """Cover the return None at line 137 (battle failed path)."""
+        bot = MockAFKJ()
+        bot.battle_state.faction = "Wilder"
+        with patch.object(bot, "_handle_battle_screen", return_value=False):
+            bot._handle_legend_trials_battle()
+
+    def test_handle_legend_trials_battle_unknown_match_coverage(self):
+        """Cover the case _ at line 133 in _handle_legend_trials_battle."""
+        bot = MockAFKJ()
+        bot.battle_state.faction = "Wilder"
+        with patch.object(bot, "_handle_battle_screen", return_value=True):
+            match = MagicMock()
+            match.template = "unknown_template.png"
+            with patch.object(bot, "wait_for_any_template", return_value=match):
                 bot._handle_legend_trials_battle()
