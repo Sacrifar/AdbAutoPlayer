@@ -323,7 +323,6 @@ class PopupMessageHandler(Game, ABC):
         # which has the specific AFKJ Settings model.
         ocr_engine = OCREngine.Tesseract
         try:
-            # ty: ignore[unresolved-attribute]
             ocr_engine = self.settings.general.ocr_engine  # type: ignore
         except Exception:
             pass

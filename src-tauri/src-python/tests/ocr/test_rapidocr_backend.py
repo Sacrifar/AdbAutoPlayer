@@ -131,3 +131,51 @@ class TestRapidOCRBackend:
         """Test the close method (coverage only)."""
         backend = RapidOCRBackend()
         backend.close()
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_extract_text_empty_result(self, mock_rapidocr_class):
+        """Test extract_text with an empty result list."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+        mock_engine.return_value = []
+
+        backend = RapidOCRBackend()
+        assert backend.extract_text(np.zeros((10, 10, 3))) == ""
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_detect_text_blocks_empty_text(self, mock_rapidocr_class):
+        """Test detect_text_blocks filters out empty text."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+
+        mock_result = MagicMock()
+        mock_result.txts = [" ", ""]
+        mock_result.boxes = [
+            [[0, 0], [1, 0], [1, 1], [0, 1]],
+            [[0, 0], [1, 0], [1, 1], [0, 1]],
+        ]
+        mock_result.scores = [0.9, 0.9]
+        mock_engine.return_value = mock_result
+
+        backend = RapidOCRBackend()
+        results = backend.detect_text_blocks(np.zeros((10, 10, 3)))
+        assert len(results) == 0
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_detect_text_blocks_invalid_box_coords(self, mock_rapidocr_class):
+        """Test detect_text_blocks handles invalid box coordinates."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+
+        mock_result = MagicMock()
+        mock_result.txts = ["Test"]
+        # Only 2 points instead of 4
+        mock_result.boxes = [[[0, 0], [10, 10]]]
+        mock_result.scores = [0.9]
+        mock_engine.return_value = mock_result
+
+        backend = RapidOCRBackend()
+        # Should use image dimensions fallback or continue
+        results = backend.detect_text_blocks(np.zeros((100, 100, 3)))
+        assert len(results) == 1
+        assert results[0].box.width == 10  # max(0, 10) - min(0, 10) = 10
