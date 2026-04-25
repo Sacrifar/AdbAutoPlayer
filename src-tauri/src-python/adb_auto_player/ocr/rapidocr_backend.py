@@ -29,6 +29,10 @@ class RapidOCRBackend:
             self._engine = RapidOCR()
         return self._engine
 
+    def close(self) -> None:
+        """Clean up resources."""
+        self._engine = None
+
     def extract_text(
         self,
         image: np.ndarray,
@@ -76,8 +80,12 @@ class RapidOCRBackend:
         Returns:
             List of OCR results with bounding boxes
         """
-        engine = self._get_engine()
-        result = engine(image)
+        try:
+            engine = self._get_engine()
+            result = engine(image)
+        except Exception as e:
+            logger.error(f"RapidOCR detection failed: {e}")
+            return []
 
         ocr_results: list[OCRResult] = []
 

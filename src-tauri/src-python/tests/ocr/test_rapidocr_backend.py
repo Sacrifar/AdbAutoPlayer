@@ -115,3 +115,19 @@ class TestRapidOCRBackend:
         assert len(results) == 1
         assert results[0].box.width == 100
         assert results[0].box.height == 100
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_detect_text_blocks_exception(self, mock_rapidocr_class):
+        """Test detect_text_blocks handling of unexpected exceptions."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+        mock_engine.side_effect = Exception("Unexpected error")
+
+        backend = RapidOCRBackend()
+        results = backend.detect_text_blocks(np.zeros((10, 10, 3)))
+        assert results == []
+
+    def test_close(self):
+        """Test the close method (coverage only)."""
+        backend = RapidOCRBackend()
+        backend.close()

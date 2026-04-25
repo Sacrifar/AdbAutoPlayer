@@ -115,6 +115,27 @@ class TestDeviceStream(unittest.TestCase):
         # Should not crash due to memory issues
         stream.stop()
 
+    def test_buffer_overflow_and_exception(self):
+        """Test buffer cleanup when an exception occurs with a large buffer."""
+        mock_connection = Mock()
+        # Feed > 1MB of data and then cause an exception
+        large_invalid_data = b"\xff" * (1024 * 1024 + 100)
+        mock_connection.read.return_value = large_invalid_data
+        self.mock_device.shell.return_value = mock_connection
+        self.mock_device.is_controlling_emulator = False
+
+        stream = DeviceStream(self.mock_device, fps=5)
+        # Mock codec to raise exception during parse
+        stream.codec = Mock()
+        stream.codec.parse.side_effect = Exception("Parse error")
+
+        # Start and run briefly
+        stream.start()
+        time.sleep(0.5)
+
+        # Stop and verify it didn't crash
+        stream.stop()
+
 
 class TestIntegrationWithRealDecoding(unittest.TestCase):
     """Integration tests that test the full pipeline."""
