@@ -76,27 +76,6 @@ class MockAFKJ(ArenaMixin, SeasonLegendTrial):
     def navigate_to_legend_trials_select_tower(self):
         pass
 
-    def _choose_opponent(self) -> bool:
-        return True
-
-    def _battle(self) -> bool:
-        return True
-
-    def _claim_free_attempt(self) -> bool:
-        return True
-
-    def _is_on_season_legend_trial_select(self) -> bool:
-        return True
-
-    def _select_legend_trials_floor(self) -> None:
-        pass
-
-    def _handle_legend_trials_battle(self) -> None:
-        pass
-
-    def _handle_battle_screen(self, use_suggested_formations: bool = True) -> bool:
-        return True
-
 
 class TestAFKJMixinsCoverage:
     """Tests to increase coverage for AFKJ Mixins."""
@@ -114,6 +93,7 @@ class TestAFKJMixinsCoverage:
     def test_arena_claim_free_attempt_fail_coverage(self):
         """Cover the return False in _claim_free_attempt."""
         bot = MockAFKJ()
+        # Mock wait_for_template to raise GameTimeoutError
         with patch.object(
             bot, "wait_for_template", side_effect=GameTimeoutError("test")
         ):

@@ -17,8 +17,10 @@ from adb_auto_player.models.template_matching import MatchMode, TemplateMatchRes
 
 
 class MockHandler(PopupMessageHandler):
+    # Annotate methods that will be mocked to avoid ty-check shadowing errors
     _preprocess_screenshot_for_popup: MagicMock
     game_find_template_match: MagicMock
+    find_any_template: MagicMock
     tap: MagicMock
     swipe: MagicMock
     hold: MagicMock
@@ -75,6 +77,17 @@ class MockHandler(PopupMessageHandler):
     ) -> TemplateMatchResult | None:
         return None
 
+    def find_any_template(
+        self,
+        templates: list[str],
+        match_mode: MatchMode = MatchMode.BEST,
+        threshold: ConfidenceValue | None = None,
+        grayscale: bool = False,
+        crop_regions: CropRegions = CropRegions(),
+        screenshot: np.ndarray | None = None,
+    ) -> TemplateMatchResult | None:
+        return None
+
     def wait_for_template(self, *args, **kwargs):
         return MagicMock()
 
@@ -83,9 +96,6 @@ class MockHandler(PopupMessageHandler):
 
     def _handle_popup_button(self, result, popup):
         return super()._handle_popup_button(result, popup)
-
-    def _preprocess_screenshot_for_popup(self) -> PopupPreprocessResult | None:
-        return None
 
 
 class TestPopupHandlerFullCoverage:
@@ -137,13 +147,13 @@ class TestPopupHandlerFullCoverage:
             "get_screenshot",
             return_value=np.zeros((2000, 1000, 3), dtype=np.uint8),
         ):
-            # Mock button matching
+            # Mock button matching via find_any_template
             match = TemplateMatchResult(
                 template="navigation/confirm.png",
                 confidence=ConfidenceValue(0.9),
                 box=Box(Point(0, 0), 1, 1),
             )
-            with patch.object(handler, "game_find_template_match", return_value=match):
+            with patch.object(handler, "find_any_template", return_value=match):
                 res = handler._preprocess_screenshot_for_popup()
                 assert res is not None
                 assert res.button == match
@@ -192,7 +202,7 @@ class TestPopupHandlerFullCoverage:
             button=TemplateMatchResult(
                 template="navigation/confirm.png",
                 confidence=ConfidenceValue(0.9),
-                box=Box(Point(0, 0), 1, 1),
+                box=Box(Point(0, 0), 10, 10),
             ),
         )
         with patch.object(
