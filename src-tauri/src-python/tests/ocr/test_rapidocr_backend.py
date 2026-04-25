@@ -246,3 +246,28 @@ class TestRapidOCRBackend:
         assert results[0].confidence.value == 1.0
         assert results[0].box.width == 100
         assert results[0].box.height == 100
+
+    @patch("adb_auto_player.ocr.rapidocr_backend.RapidOCR")
+    def test_rapidocr_backend_partial_coverage_fixes(self, mock_rapidocr_class):
+        """Fix partial coverage in lines 28, 62, and 96."""
+        mock_engine = MagicMock()
+        mock_rapidocr_class.return_value = mock_engine
+        backend = RapidOCRBackend()
+
+        # 1. Cover line 28 (else branch: engine already initialized)
+        _ = backend._get_engine()
+        _ = backend._get_engine()  # Second call should use cached engine
+
+        # 2. Cover line 62 (elif isinstance(line, str) in extract_text)
+        # Mock result as a list containing both format types
+        mock_engine.return_value = [[None, "ListFormat", 0.9], "StringFormat"]
+        res = backend.extract_text(np.zeros((10, 10, 3)))
+        assert "ListFormat" in res
+        assert "StringFormat" in res
+
+        # 3. Cover line 96 (hasattr truthy but result.txts is empty or similar)
+        # To cover the 'False' branch of line 96, we need hasattr(result, 'txts')
+        # to be false
+        mock_result = MagicMock(spec=[])  # No txts attribute
+        mock_engine.return_value = mock_result
+        assert backend.detect_text_blocks(np.zeros((10, 10, 3))) == []

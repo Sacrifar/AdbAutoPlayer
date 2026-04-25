@@ -237,3 +237,5 @@ class TestPopupHandlerFullCoverage:
         handler.swipe(start=Point(0, 0), end=Point(1, 1))
         handler.game_find_template_match("test.png")
         handler.find_any_template(["test.png"])
+        handler.wait_for_template("test.png")
+        handler.wait_for_any_template(["test.png"])

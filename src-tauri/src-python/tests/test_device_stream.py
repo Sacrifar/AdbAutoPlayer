@@ -100,7 +100,7 @@ class TestDeviceStream(unittest.TestCase):
         mock_connection = Mock()
         large_chunk = b"invalid_data" * 100000  # ~1.3MB of invalid data
         mock_connection.read.return_value = large_chunk
-        self.mock_device.shell.return_value = mock_connection
+        self.mock_device.d.shell.return_value = mock_connection
 
         self.mock_device.is_controlling_emulator = False
 
@@ -121,7 +121,7 @@ class TestDeviceStream(unittest.TestCase):
         # Feed > 1MB of data and then cause an exception
         large_invalid_data = b"\xff" * (1024 * 1024 + 100)
         mock_connection.read.return_value = large_invalid_data
-        self.mock_device.shell.return_value = mock_connection
+        self.mock_device.d.shell.return_value = mock_connection
         self.mock_device.is_controlling_emulator = False
 
         stream = DeviceStream(self.mock_device, fps=5)
@@ -183,6 +183,27 @@ class TestDeviceStream(unittest.TestCase):
         stream._running = True
         stream.start()
         # Should return at line 108 without starting a new thread
+
+    def test_handle_stream_success_coverage(self):
+        """Cover line 166: buffer.clear() on success."""
+        mock_device = Mock()
+        mock_device.is_controlling_emulator = False
+        stream = DeviceStream(mock_device, fps=5)
+
+        # Mock a successful decode
+        mock_connection = Mock()
+        # Return a small "valid-looking" chunk then empty
+        mock_connection.read.side_effect = [b"\x00\x00\x00\x01", b""]
+        mock_device.d.shell.return_value = mock_connection
+
+        # Mock codec methods
+        stream.codec = Mock()
+        stream.codec.parse.return_value = [Mock()]  # One packet
+        stream.codec.decode.return_value = [Mock()]  # One frame
+
+        stream._running = True
+        stream._handle_stream()
+        # Should call buffer.clear() at line 166
 
 
 class TestIntegrationWithRealDecoding(unittest.TestCase):
