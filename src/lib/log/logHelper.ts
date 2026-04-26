@@ -1,8 +1,17 @@
 import { Instant } from "@js-joda/core";
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export function formatMessage(message: string): string {
   const urlRegex = /(https?:\/\/[^\s'"]+)/g;
-  return message
+  return escapeHtml(message)
     .replace(urlRegex, '<a class="anchor" href="$1" target="_blank">$1</a>')
     .replace(/\r?\n/g, "<br>");
 }

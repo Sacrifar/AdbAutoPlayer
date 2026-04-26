@@ -2,7 +2,7 @@
   import { t } from "$lib/i18n/i18n";
   import { onMount, tick } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { appSettings, debugLogLevelOverwrite } from "$lib/stores";
+  import { appSettings, debugLogLevelOverwrite, uiState } from "$lib/stores";
   import { EventNames } from "$lib/log/eventNames";
   import {
     formatMessage,
@@ -21,9 +21,15 @@
     profileIndex: number;
     onClear: () => void;
     collapsed: boolean;
+    position?: "right" | "bottom";
   }
 
-  let { profileIndex, onClear, collapsed }: Props = $props();
+  let {
+    profileIndex,
+    onClear,
+    collapsed,
+    position = "right",
+  }: Props = $props();
 
   let profileEntries: Record<number, TextDisplayCardItem[]> = $state({});
   let maxEntries = 1000;
@@ -141,7 +147,12 @@
   }
 </script>
 
-<div class="log-panel" class:collapsed>
+<div
+  class="log-panel"
+  class:collapsed
+  class:compact={$uiState.taskViewVariant === "accordion"}
+  data-position={position}
+>
   <div class="header">
     <span class="status-dot"></span>
     <div class="title">{$t("Live Log")}</div>
@@ -158,7 +169,7 @@
           {(entry as any).level || "INFO"}
         </span>
         <span class="message">
-          {entry.message.replace(/^\[[A-Z]+\]\s*/, "")}
+          {@html entry.message.replace(/^\[[A-Z]+\]\s*/, "")}
         </span>
       </div>
     {/each}
@@ -170,20 +181,38 @@
 
 <style>
   .log-panel {
-    width: 400px;
-    flex: 0 0 400px;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid var(--line);
     background: var(--bg-1);
     min-width: 0;
-    transition: width var(--dur-2) var(--ease);
+    transition: all var(--dur-2) var(--ease);
   }
 
-  .log-panel.collapsed {
+  .log-panel[data-position="right"] {
+    width: 400px;
+    flex: 0 0 400px;
+    border-left: 1px solid var(--line);
+    height: 100%;
+  }
+
+  .log-panel[data-position="right"].collapsed {
     width: 0;
     flex: 0 0 0;
     border-left: none;
+    overflow: hidden;
+  }
+
+  .log-panel[data-position="bottom"] {
+    height: 250px;
+    flex: 0 0 250px;
+    border-top: 1px solid var(--line);
+    width: 100%;
+  }
+
+  .log-panel[data-position="bottom"].collapsed {
+    height: 0;
+    flex: 0 0 0;
+    border-top: none;
     overflow: hidden;
   }
 
@@ -291,6 +320,7 @@
   .message {
     text-wrap: pretty;
     word-break: break-word;
+    white-space: pre-wrap;
     min-width: 0;
   }
 
@@ -299,5 +329,25 @@
     color: var(--text-4);
     text-align: center;
     font-style: italic;
+  }
+
+  /* Compact Mode Styles */
+  .log-panel.compact[data-position="bottom"] {
+    height: 160px;
+    flex: 0 0 160px;
+  }
+
+  .log-panel.compact[data-position="bottom"] .header {
+    padding: 6px 14px;
+  }
+
+  .log-panel.compact[data-position="bottom"] .scroll-area {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .log-panel.compact[data-position="bottom"] .log-line {
+    grid-template-columns: 68px 58px 1fr;
+    padding: 1px 14px;
   }
 </style>

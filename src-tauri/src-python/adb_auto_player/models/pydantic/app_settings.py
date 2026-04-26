@@ -42,6 +42,13 @@ class Locale(StrEnum):
     vn = "vn"
 
 
+class LogPanelPosition(StrEnum):
+    """Log Panel Position Enum."""
+
+    right = "right"
+    bottom = "bottom"
+
+
 class LoggingSettings(BaseModel):
     """Logging settings model."""
 
@@ -55,6 +62,9 @@ class UISettings(BaseModel):
 
     theme: Theme = Field(default=Theme.cerberus, title="Theme")
     locale: Locale = Field(default=Locale.en, title="Locale")
+    log_panel_position: LogPanelPosition = Field(
+        default=LogPanelPosition.right, title="Log Panel Position"
+    )
     close_should_minimize: bool = Field(
         False, title="Close button should minimize the window"
     )

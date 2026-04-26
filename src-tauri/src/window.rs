@@ -68,7 +68,7 @@ pub fn setup_window_close_handler(app: &mut App) -> Result<(), Box<dyn std::erro
 
             let _ = save_window_position(&app_handle);
 
-            let _ = &app_handle.emit("kill-python", ()).unwrap();
+            let _ = app_handle.emit("kill-python", ());
         }
     });
 

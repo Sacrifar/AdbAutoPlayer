@@ -15,4 +15,5 @@ export const uiState = writable({
   theme: "dark" as "dark" | "light",
   accentHue: 272,
   customizerOpen: false,
+  taskViewVariant: "cards" as "cards" | "palette" | "accordion",
 });

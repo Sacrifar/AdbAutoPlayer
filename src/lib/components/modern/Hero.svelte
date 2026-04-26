@@ -1,6 +1,11 @@
 <script lang="ts">
   import { t } from "$lib/i18n/i18n";
-  import { activeProfile, profileStates, appSettings } from "$lib/stores";
+  import {
+    activeProfile,
+    profileStates,
+    appSettings,
+    uiState,
+  } from "$lib/stores";
   import { onMount, onDestroy } from "svelte";
   import type { MenuButton } from "$lib/menu/model";
 
@@ -58,7 +63,10 @@
 
 {#if !activeTask}
   <!-- Calm idle hero -->
-  <div class="hero-idle">
+  <div
+    class="hero-idle"
+    class:compact={$uiState.taskViewVariant === "accordion"}
+  >
     <div class="icon-idle">
       <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"
         ><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></svg
@@ -82,7 +90,10 @@
   </div>
 {:else}
   <!-- Loud running hero -->
-  <div class="hero-running">
+  <div
+    class="hero-running"
+    class:compact={$uiState.taskViewVariant === "accordion"}
+  >
     <!-- moving stripes bg -->
     <div class="stripes" aria-hidden="true"></div>
 
@@ -323,5 +334,61 @@
 
   .stop-btn:hover {
     filter: brightness(1.08);
+  }
+
+  /* Compact Mode Styles */
+  .hero-idle.compact {
+    margin: 12px 20px 0;
+    padding: 12px 18px;
+    gap: 14px;
+  }
+  .hero-idle.compact .icon-idle {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .hero-idle.compact .icon-idle svg {
+    width: 14px;
+    height: 14px;
+  }
+  .hero-idle.compact .title {
+    font-size: 15px;
+  }
+  .hero-idle.compact .meta {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  .hero-idle.compact .status {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .hero-running.compact {
+    margin: 12px 20px 0;
+    padding: 12px 18px;
+  }
+  .hero-running.compact .status-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 10px;
+  }
+  .hero-running.compact .ring {
+    inset: -2px;
+    border-radius: 12px;
+  }
+  .hero-running.compact .task-name {
+    font-size: 16px;
+  }
+  .hero-running.compact .stats {
+    gap: 14px;
+    margin-top: 6px;
+  }
+  .hero-running.compact .stat-value.big {
+    font-size: 14px;
+  }
+  .hero-running.compact .stop-btn {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 </style>

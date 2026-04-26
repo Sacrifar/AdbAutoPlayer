@@ -404,23 +404,29 @@
     </div>
   {/if}
 
-  <div class="main-layout">
-    {#if $uiState.sidebarOpen}
-      <ProfileSidebar
-        collapsed={sidebarCollapsed}
-        onAddProfile={handleAddProfile}
-      />
-    {/if}
+  <div
+    class="main-layout"
+    class:layout-bottom={$appSettings?.ui?.log_panel_position === "bottom"}
+  >
+    <div class="content-wrapper">
+      {#if $uiState.sidebarOpen}
+        <ProfileSidebar
+          collapsed={sidebarCollapsed}
+          onAddProfile={handleAddProfile}
+        />
+      {/if}
 
-    <main class="content-area">
-      <UpdateContainer />
-      {@render children()}
-    </main>
+      <main class="content-area">
+        <UpdateContainer />
+        {@render children()}
+      </main>
+    </div>
 
     <LogPanel
       profileIndex={$activeProfile}
       onClear={() => {}}
       collapsed={!$uiState.logOpen}
+      position={$appSettings?.ui?.log_panel_position}
     />
   </div>
 </div>
@@ -439,6 +445,18 @@
   .main-layout {
     flex: 1;
     display: flex;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  .main-layout.layout-bottom {
+    flex-direction: column;
+  }
+
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
     overflow: hidden;
   }
 
