@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t } from "$lib/i18n/i18n";
   import type { MenuButton } from "$lib/menu/model";
+  import { uiState } from "$lib/stores";
 
   interface Props {
     buttons: MenuButton[];
@@ -11,7 +12,6 @@
   let { buttons, disableActions, categories }: Props = $props();
 
   let query = $state("");
-  let variant = $state<"cards" | "palette" | "accordion">("cards");
 
   const filteredButtons = $derived(
     buttons.filter((b) =>
@@ -93,8 +93,8 @@
       {#each [{ id: "cards", label: $t("Cards"), icon: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" }, { id: "palette", label: $t("Palette"), icon: "M8 6h13M8 12h13M8 18h13M4 6h.01M4 12h.01M4 18h.01" }, { id: "accordion", label: $t("Accordion"), icon: "M3 4h18v6H3zM3 14h18v6H3z" }] as v}
         <button
           class="v-btn"
-          class:active={variant === v.id}
-          onclick={() => (variant = v.id as any)}
+          class:active={$uiState.taskViewVariant === v.id}
+          onclick={() => ($uiState.taskViewVariant = v.id as any)}
           title={v.label}
         >
           <svg
@@ -116,7 +116,7 @@
   </div>
 
   <div class="view-content">
-    {#if variant === "cards"}
+    {#if $uiState.taskViewVariant === "cards"}
       <div class="cards-view">
         {#each activeCategories as cat}
           <section class="section">
@@ -161,7 +161,7 @@
           </section>
         {/each}
       </div>
-    {:else if variant === "palette"}
+    {:else if $uiState.taskViewVariant === "palette"}
       <div class="palette-view">
         {#each activeCategories as cat}
           <div class="palette-section">
@@ -619,5 +619,15 @@
 
   .acc-content {
     padding: 0 10px 10px;
+  }
+
+  .accordion-view .grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .accordion-view .task-card {
+    min-height: 52px;
+    padding: 10px 14px;
+    gap: 4px;
   }
 </style>

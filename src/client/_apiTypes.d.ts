@@ -21,6 +21,7 @@ export type Trigger = ("adb-settings-updated" | "game-settings-updated")
  * @minItems 1
  */
 export type Profiles1 = [string, ...(string)[]]
+export type ActiveProfile = number
 /**
  * Theme Enum.
  */
@@ -29,6 +30,9 @@ export type Theme = ("catppuccin" | "cerberus" | "crimson" | "fennec" | "modern"
  * Locale Enum.
  */
 export type Locale = ("en" | "jp" | "vn")
+/**
+ * Log Panel Position Enum.
+ */
 export type LogPanelPosition = ("right" | "bottom")
 export type CloseButtonShouldMinimizeTheWindow = boolean
 export type DesktopNotifications = boolean
@@ -121,6 +125,7 @@ advanced?: Advanced
  */
 export interface Profiles {
 profiles?: Profiles1
+active_profile?: ActiveProfile
 [k: string]: unknown
 }
 /**

@@ -127,7 +127,11 @@ class TauriQueueHandler(logging.Handler):
             html_class=getattr(record, "preset", None),
             profile_index=self.profile_index,
         )
-        Emitter.emit(self.app_handle, "log-message", log_message)
+        try:
+            Emitter.emit(self.app_handle, "log-message", log_message)
+        except Exception:
+            # Silence IPC errors during rapid window events
+            pass
 
 
 def _setup_logging() -> None:
@@ -153,7 +157,10 @@ def _setup_logging() -> None:
             )
             app_handle = TauriContext.get_app_handle()
             if app_handle:
-                Emitter.emit(app_handle, "log-message", log_message)
+                try:
+                    Emitter.emit(app_handle, "log-message", log_message)
+                except Exception:
+                    pass
             else:
                 print(f"[ERROR] No AppHandle in current context: {record.getMessage()}")
 

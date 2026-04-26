@@ -209,7 +209,7 @@
                       {#if prop.enum}
                         <select
                           id={`${key}-${propKey}`}
-                          class="form-input"
+                          class="select"
                           bind:value={settingsProps.formData[key][propKey]}
                         >
                           {#each prop.enum as option}
@@ -233,7 +233,7 @@
                         <input
                           id={`${key}-${propKey}`}
                           type="number"
-                          class="form-input"
+                          class="input"
                           min={prop.minimum}
                           max={prop.maximum}
                           step={prop.step ??
@@ -244,7 +244,7 @@
                         <input
                           id={`${key}-${propKey}`}
                           type="text"
-                          class="form-input"
+                          class="input"
                           bind:value={settingsProps.formData[key][propKey]}
                           {...prop.regex ? { pattern: prop.regex } : {}}
                           {...prop.htmlTitle ? { title: prop.htmlTitle } : {}}
@@ -408,6 +408,15 @@
   .save-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .select option {
+    background-color: var(--bg-1);
+    color: var(--text-1);
+  }
+
+  .select:focus option {
+    background-color: var(--bg-1);
   }
 
   .toggle-switch {

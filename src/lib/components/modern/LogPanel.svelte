@@ -2,7 +2,7 @@
   import { t } from "$lib/i18n/i18n";
   import { onMount, tick } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { appSettings, debugLogLevelOverwrite } from "$lib/stores";
+  import { appSettings, debugLogLevelOverwrite, uiState } from "$lib/stores";
   import { EventNames } from "$lib/log/eventNames";
   import {
     formatMessage,
@@ -147,7 +147,12 @@
   }
 </script>
 
-<div class="log-panel" class:collapsed data-position={position}>
+<div
+  class="log-panel"
+  class:collapsed
+  class:compact={$uiState.taskViewVariant === "accordion"}
+  data-position={position}
+>
   <div class="header">
     <span class="status-dot"></span>
     <div class="title">{$t("Live Log")}</div>
@@ -324,5 +329,25 @@
     color: var(--text-4);
     text-align: center;
     font-style: italic;
+  }
+
+  /* Compact Mode Styles */
+  .log-panel.compact[data-position="bottom"] {
+    height: 160px;
+    flex: 0 0 160px;
+  }
+
+  .log-panel.compact[data-position="bottom"] .header {
+    padding: 6px 14px;
+  }
+
+  .log-panel.compact[data-position="bottom"] .scroll-area {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .log-panel.compact[data-position="bottom"] .log-line {
+    grid-template-columns: 68px 58px 1fr;
+    padding: 1px 14px;
   }
 </style>
