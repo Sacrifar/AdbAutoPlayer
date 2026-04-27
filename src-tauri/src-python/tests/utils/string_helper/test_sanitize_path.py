@@ -17,7 +17,7 @@ class TestSanitizePath(unittest.TestCase):
     def test_windows_path(self, mock_expanduser: MagicMock) -> None:
         """Test Windows path."""
         log = rf"adb_path: {mock_expanduser.return_value}\AppData\Local\file.txt"
-        expected = r"adb_path: C:\Users\$env:USERNAME\AppData\Local\file.txt"
+        expected = r"adb_path: %USERPROFILE%\AppData\Local\file.txt"
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
         )
@@ -27,7 +27,7 @@ class TestSanitizePath(unittest.TestCase):
         """Test Windows path with double backslash."""
         log = f"No such file or directory: '{mock_expanduser.return_value}"
         r"\\GolandProjects\\AdbAutoPlayer\\python\\AdbAutoPlayer.toml"
-        expected = r"No such file or directory: 'C:\\Users\\$env:USERNAME"
+        expected = r"No such file or directory: '%USERPROFILE%"
         r"\\GolandProjects\\AdbAutoPlayer\\python\\AdbAutoPlayer.toml"
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
@@ -37,7 +37,7 @@ class TestSanitizePath(unittest.TestCase):
     def test_unix_path(self, mock_expanduser: MagicMock) -> None:
         """Test Unix path."""
         log = f"{mock_expanduser.return_value}/.config/file.txt"
-        expected = "/home/$USER/.config/file.txt"
+        expected = "~/.config/file.txt"
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
         )
@@ -46,7 +46,7 @@ class TestSanitizePath(unittest.TestCase):
     def test_macos_path(self, mock_expanduser: MagicMock) -> None:
         """Test macOS path."""
         log = f"{mock_expanduser.return_value}/Library/file.txt"
-        expected = "/Users/$USER/Library/file.txt"
+        expected = "~/Library/file.txt"
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
         )
@@ -56,8 +56,8 @@ class TestSanitizePath(unittest.TestCase):
         """Test multiple occurrences of username in path."""
         log = rf"adb_path: {mock_expanduser.return_value}\AppData\file.txt"
         r" and D:\Users\mockuser\Desktop\file2.txt"
-        expected = r"adb_path: C:\Users\$env:USERNAME\AppData\file.txt"
-        r" and D:\Users\$env:USERNAME\Desktop\file2.txt"
+        expected = r"adb_path: %USERPROFILE%\AppData\file.txt"
+        r" and D:\Users\mockuser\Desktop\file2.txt"
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)
         )
@@ -66,7 +66,7 @@ class TestSanitizePath(unittest.TestCase):
     def test_cache_hit(self, mock_expanduser: MagicMock) -> None:
         """Test that calling sanitize_path twice hits the cache."""
         log = "/home/mockuser/.config/file.txt"
-        expected = "/home/$USER/.config/file.txt"
+        expected = "~/.config/file.txt"
         # First call initializes the cache (hits the 'is None' branch)
         self.assertEqual(
             expected, adb_auto_player.util.string_helper.StringHelper.sanitize_path(log)

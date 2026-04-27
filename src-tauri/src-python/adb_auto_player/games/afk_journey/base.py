@@ -469,9 +469,13 @@ class AFKJourneyBase(Navigation, HeroScannerMixin, Game):
         )
 
         try:
+            # Tap immediately to avoid skipping due to visual glitches
+            self.tap(Point(x=850, y=1780))
             self._tap_coordinates_till_template_disappears(
                 coordinates=Point(x=850, y=1780),
                 template=result.template,
+                crop_regions=CropRegions(top=0.5),
+                delay=2.0,
             )
         except GameActionFailedError:
             logging.warning("Failed to start Battle, are no Heroes selected?")

@@ -88,34 +88,22 @@ class StringHelper:
 
     @staticmethod
     def sanitize_path(log_message: str) -> str:
-        """Replaces the username in file paths with $USER or $env:USERNAME.
+        """Replaces the username in file paths with %USERPROFILE% or ~.
 
         Works with both Windows and Unix-style paths.
-
-        Args:
-            log_message (str): The log message containing file paths
-
-        Returns:
-            str: The sanitized log message with environment variable placeholders
         """
         if StringHelper._sanitize_replacements is None:
             home_dir: str = os.path.expanduser("~")
             replacements: list[tuple[str, str]] = []
 
             if "\\" in home_dir:  # Windows path
-                username: str = home_dir.rsplit("\\", maxsplit=1)[-1]
+                replacements.append((re.escape(home_dir), "%USERPROFILE%"))
+                # Handle double backslashes which often appear in JSON or escaped logs
                 replacements.append(
-                    (re.escape(f":\\Users\\{username}"), r":\\Users\\$env:USERNAME")
-                )
-                replacements.append(
-                    (
-                        re.escape(f":\\\\Users\\\\{username}"),
-                        r":\\\\Users\\\\$env:USERNAME",
-                    )
+                    (re.escape(home_dir.replace("\\", "\\\\")), "%USERPROFILE%")
                 )
             else:  # Unix path (Linux: /home/user, macOS: /Users/user)
-                parent_dir = home_dir.rsplit("/", maxsplit=1)[0]
-                replacements.append((re.escape(home_dir), f"{parent_dir}/$USER"))
+                replacements.append((re.escape(home_dir), "~"))
 
             StringHelper._sanitize_replacements = replacements
 
