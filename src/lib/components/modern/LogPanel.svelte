@@ -2,7 +2,15 @@
   import { t } from "$lib/i18n/i18n";
   import { onMount, tick } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { appSettings, debugLogLevelOverwrite, uiState } from "$lib/stores";
+  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { homeDir } from "@tauri-apps/api/path";
+  import {
+    activeProfile,
+    appSettings,
+    debugLogLevelOverwrite,
+    profileStates,
+    uiState,
+  } from "$lib/stores";
   import { EventNames } from "$lib/log/eventNames";
   import {
     formatMessage,
@@ -10,6 +18,9 @@
   } from "$lib/log/logHelper";
   import type { TextDisplayCardItem } from "$lib/log/logHelper";
   import { Instant } from "@js-joda/core";
+
+  const awakeMascot = "/images/3583082.png";
+  const sleepMascot = "/images/3583083.png";
 
   interface TaskCompletedEvent {
     profile_index: number;
@@ -145,6 +156,32 @@
     profileEntries = { ...profileEntries };
     onClear();
   }
+
+  const isTaskRunning = $derived(!!$profileStates[profileIndex]?.active_task);
+
+  async function handleLogClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const pathLink = target.closest(".path-link");
+    if (pathLink) {
+      let path = pathLink.getAttribute("data-path");
+      if (path) {
+        // Expand environment variables
+        if (path.includes("%USERPROFILE%")) {
+          const home = await homeDir();
+          path = path.replace("%USERPROFILE%", home);
+        } else if (path.startsWith("~")) {
+          const home = await homeDir();
+          path = path.replace("~", home);
+        }
+
+        try {
+          await revealItemInDir(path);
+        } catch (e) {
+          console.error("Failed to open path:", e);
+        }
+      }
+    }
+  }
 </script>
 
 <div
@@ -161,7 +198,16 @@
     <button class="clear-btn" onclick={handleClear}>{$t("clear")}</button>
   </div>
 
-  <div class="scroll-area" bind:this={scrollContainer}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="scroll-area" bind:this={scrollContainer} onclick={handleLogClick}>
+    <img
+      src={isTaskRunning ? awakeMascot : sleepMascot}
+      alt="mascot"
+      class="mascot-watermark"
+      draggable="false"
+    />
+
     {#each currentEntries as entry}
       <div class="log-line">
         <span class="time">{fmtTime(entry.timestamp)}</span>
@@ -349,5 +395,37 @@
   .log-panel.compact[data-position="bottom"] .log-line {
     grid-template-columns: 68px 58px 1fr;
     padding: 1px 14px;
+  }
+
+  .mascot-watermark {
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    width: 140px;
+    height: auto;
+    opacity: 0.15;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0; /* Behind the text */
+    filter: grayscale(0.2);
+    transition:
+      opacity var(--dur-2),
+      width var(--dur-2);
+  }
+
+  /* Lateral mode specific adjustments */
+  .log-panel[data-position="right"] .mascot-watermark {
+    width: 110px;
+    right: 4px;
+    opacity: 0.12;
+  }
+
+  .log-panel:hover .mascot-watermark {
+    opacity: 0.25;
+  }
+
+  .log-panel.compact .mascot-watermark {
+    width: 90px;
+    right: 4px;
   }
 </style>

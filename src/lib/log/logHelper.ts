@@ -11,8 +11,20 @@ function escapeHtml(unsafe: string): string {
 
 export function formatMessage(message: string): string {
   const urlRegex = /(https?:\/\/[^\s'"]+)/g;
+  // Refined regex for Windows paths and Unix paths
+  // 1. Windows drive: \b[a-zA-Z]:\\...
+  // 2. %USERPROFILE%: %USERPROFILE%\\...
+  // 3. Unix home: ~/...
+  const pathRegex =
+    /(\b[a-zA-Z]:\\[\\\w\s\.\-!@#$%^&()]+|%USERPROFILE%\\[\\\w\s\.\-!@#$%^&()]+|~[\/\w\s\.\-!@#$%^&()]+)/g;
+
   return escapeHtml(message)
     .replace(urlRegex, '<a class="anchor" href="$1" target="_blank">$1</a>')
+    .replace(pathRegex, (match) => {
+      // If it looks like it's inside an HTML tag (already replaced by urlRegex), skip it
+      if (match.includes("://")) return match;
+      return `<span class="path-link cursor-pointer underline text-accent hover:text-accent-hi" data-path="${match}">${match}</span>`;
+    })
     .replace(/\r?\n/g, "<br>");
 }
 
@@ -26,11 +38,9 @@ export function getLogClass(message: string): string {
 }
 
 function sanitizeMessage(message: string): string {
-  // Regex to match Windows user-profile path:
-  // C:\Users\anything_until_next_backslash\
+  // Regex to match Windows user-profile path: C:\Users\username\
   const userPathRegex = /C:\\Users\\[^\\]+\\/gi;
-
-  return message.replace(userPathRegex, "C:\\Users\\$env:USERNAME\\");
+  return message.replace(userPathRegex, "%USERPROFILE%\\");
 }
 
 export function logMessageToTextDisplayCardItem(
