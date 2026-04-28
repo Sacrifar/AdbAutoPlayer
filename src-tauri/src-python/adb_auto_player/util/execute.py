@@ -63,13 +63,14 @@ class Execute:
             kwargs = {}
 
         timeout_mins = 0
+        timeout_enabled = False
         try:
             app_config_dir = SettingsLoader.get_app_config_dir()
             with open(app_config_dir / "AppSettings.json") as f:
                 app_settings = json.load(f)
-                timeout_mins = app_settings.get("advanced", {}).get(
-                    "restart_stuck_task_after_mins", 0
-                )
+                advanced = app_settings.get("advanced", {})
+                timeout_enabled = advanced.get("restart_stuck_task", False)
+                timeout_mins = advanced.get("restart_stuck_task_after_mins", 60)
         except Exception:
             pass
 
@@ -85,7 +86,7 @@ class Execute:
             _thread.interrupt_main()
 
         timer = None
-        if timeout_mins > 0:
+        if timeout_enabled and timeout_mins > 0:
             timer = threading.Timer(timeout_mins * 60, timeout_handler)
             timer.daemon = True
             timer.start()
