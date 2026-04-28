@@ -39,8 +39,17 @@ export function getLogClass(message: string): string {
 
 function sanitizeMessage(message: string): string {
   // Regex to match Windows user-profile path: C:\Users\username\
-  const userPathRegex = /C:\\Users\\[^\\]+\\/gi;
-  return message.replace(userPathRegex, "%USERPROFILE%\\");
+  const windowsUserPathRegex = /C:\\Users\\[^\\]+\\/gi;
+  // Regex to match macOS user-profile path: /Users/username/
+  const macosUserPathRegex = /\/Users\/[^/]+\//gi;
+  // Regex to match Linux user-profile path: /home/username/
+  const linuxUserPathRegex = /\/home\/[^/]+\//gi;
+
+  let sanitized = message.replace(windowsUserPathRegex, "%USERPROFILE%\\");
+  sanitized = sanitized.replace(macosUserPathRegex, "~/");
+  sanitized = sanitized.replace(linuxUserPathRegex, "~/");
+
+  return sanitized;
 }
 
 export function logMessageToTextDisplayCardItem(
