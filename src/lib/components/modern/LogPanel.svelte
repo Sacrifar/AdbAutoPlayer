@@ -19,8 +19,8 @@
   import type { TextDisplayCardItem } from "$lib/log/logHelper";
   import { Instant } from "@js-joda/core";
 
-  const awakeMascot = "/images/3583083.png";
-  const sleepMascot = "/images/3583082.png";
+  const awakeMascot = "/images/3583082.png";
+  const sleepMascot = "/images/3583083.png";
 
   interface TaskCompletedEvent {
     profile_index: number;
@@ -202,7 +202,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="scroll-area" bind:this={scrollContainer} onclick={handleLogClick}>
     <img
-      src={isTaskRunning ? awakeMascot : sleepMascot}
+      src={isTaskRunning ? sleepMascot : awakeMascot}
       alt="mascot"
       class="mascot-watermark"
       draggable="false"
