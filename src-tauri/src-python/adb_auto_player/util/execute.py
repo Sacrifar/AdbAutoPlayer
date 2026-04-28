@@ -12,13 +12,18 @@ This utility simplifies error handling and invocation of callables that may requ
 an instance context or special error processing.
 """
 
+import _thread
 import importlib
 import inspect
+import json
+import logging
 import sys
+import threading
 from collections.abc import Callable
 from typing import cast
 
-from adb_auto_player.exceptions import GenericAdbUnrecoverableError
+from adb_auto_player.exceptions import AutoPlayerError, GenericAdbUnrecoverableError
+from adb_auto_player.file_loader import SettingsLoader
 from adb_auto_player.models.commands import Command
 
 from .summary_generator import SummaryGenerator
@@ -42,7 +47,7 @@ class Execute:
         )
 
     @staticmethod
-    def function(  # noqa: PLR0912
+    def function(  # noqa: PLR0912, PLR0915
         callable_function: Callable,
         instance: object | None = None,
         kwargs: dict | None = None,
@@ -56,6 +61,34 @@ class Execute:
         """
         if kwargs is None:
             kwargs = {}
+
+        timeout_mins = 0
+        try:
+            app_config_dir = SettingsLoader.get_app_config_dir()
+            with open(app_config_dir / "AppSettings.json") as f:
+                app_settings = json.load(f)
+                timeout_mins = app_settings.get("advanced", {}).get(
+                    "restart_stuck_task_after_mins", 0
+                )
+        except Exception:
+            pass
+
+        timeout_triggered = False
+
+        def timeout_handler():
+            nonlocal timeout_triggered
+            timeout_triggered = True
+            logging.error(
+                f"Task exceeded {timeout_mins} minutes timeout. "
+                "Interrupting main thread."
+            )
+            _thread.interrupt_main()
+
+        timer = None
+        if timeout_mins > 0:
+            timer = threading.Timer(timeout_mins * 60, timeout_handler)
+            timer.daemon = True
+            timer.start()
 
         try:
             if instance is not None:
@@ -127,6 +160,15 @@ class Execute:
                 # Function doesn't expect self — call it directly
                 callable_function(**kwargs)
         except KeyboardInterrupt:
+            if timeout_triggered:
+                logging.warning("Task timeout triggered, restarting game...")
+                if instance is not None and hasattr(instance, "restart_game"):
+                    try:
+                        instance.restart_game()
+                    except Exception as ex:
+                        logging.error(f"Failed to restart game: {ex}")
+                return AutoPlayerError(f"Task exceeded {timeout_mins} minutes timeout.")
+
             summary = SummaryGenerator().get_summary_message()
             if summary is not None:
                 print(summary)
@@ -138,6 +180,9 @@ class Execute:
                     '"USB debugging (Security settings)" and enable them.'
                 )
             return e
+        finally:
+            if timer:
+                timer.cancel()
         return None
 
     @staticmethod
