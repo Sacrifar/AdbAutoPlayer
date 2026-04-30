@@ -6,7 +6,131 @@ use std::sync::Mutex;
 use tauri::{Emitter, Manager, State};
 
 const APP_SETTINGS_SCHEMA: &str = r##"
-{"$defs": {"AdvancedSettings": {"description": "Advanced Settings model.", "properties": {"shutdown_after_tasks": {"default": false, "title": "Shutdown after Tasks", "type": "boolean"}}, "title": "AdvancedSettings", "type": "object"}, "Locale": {"description": "Locale Enum.", "enum": ["en", "jp", "vn"], "title": "Locale", "type": "string"}, "LogPanelPosition": {"description": "Log Panel Position Enum.", "enum": ["right", "bottom"], "title": "LogPanelPosition", "type": "string"}, "LoggingSettings": {"description": "Logging settings model.", "properties": {"level": {"default": "INFO", "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"], "title": "Logging Level", "type": "string"}}, "title": "LoggingSettings", "type": "object"}, "NotificationSettings": {"description": "Notification Settings model.", "properties": {"desktop_notifications": {"default": false, "title": "Desktop Notifications", "type": "boolean"}, "discord_webhook": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": null, "htmlTitle": "Discord Webhook has to start with 'https://discordapp.com/api/webhooks/'", "regex": "^https://discordapp\\.com/api/webhooks/.*", "title": "Discord Webhook"}}, "title": "NotificationSettings", "type": "object"}, "ProfileSettings": {"description": "Profile Settings model.", "properties": {"profiles": {"default": ["Default"], "items": {"type": "string"}, "minItems": 1, "title": "Profiles", "type": "array"}, "active_profile": {"default": 0, "title": "Active Profile", "type": "integer"}}, "title": "ProfileSettings", "type": "object"}, "Theme": {"description": "Theme Enum.", "enum": ["catppuccin", "cerberus", "crimson", "fennec", "modern", "mona", "nosh", "nouveau", "pine", "rose", "seafoam", "terminus", "vintage", "vox", "wintry"], "title": "Theme", "type": "string"}, "UISettings": {"description": "UI Settings model.", "properties": {"theme": {"$ref": "#/$defs/Theme", "default": "cerberus"}, "locale": {"$ref": "#/$defs/Locale", "default": "en"}, "log_panel_position": {"$ref": "#/$defs/LogPanelPosition", "default": "right"}, "close_should_minimize": {"default": false, "title": "Close button should minimize the window", "type": "boolean"}}, "title": "UISettings", "type": "object"}}, "description": "App Settings model.", "properties": {"profiles": {"$ref": "#/$defs/ProfileSettings", "title": "Profiles"}, "ui": {"$ref": "#/$defs/UISettings", "title": "User Interface"}, "notifications": {"$ref": "#/$defs/NotificationSettings", "title": "Notifications"}, "logging": {"$ref": "#/$defs/LoggingSettings", "title": "Logging"}, "advanced": {"$ref": "#/$defs/AdvancedSettings", "title": "Advanced"}}, "title": "AppSettings", "type": "object"}
+{
+  "$defs": {
+    "AdvancedSettings": {
+      "description": "Advanced Settings model.",
+      "properties": {
+        "shutdown_after_tasks": {
+          "default": false,
+          "title": "Shutdown after Tasks",
+          "type": "boolean"
+        },
+        "restart_stuck_task": {
+          "default": false,
+          "title": "Restart Game if Task is Stuck",
+          "type": "boolean"
+        },
+        "restart_stuck_task_after_mins": {
+          "default": 60,
+          "title": "Restart After (Minutes)",
+          "type": "integer",
+          "minimum": 3
+        }
+      },
+      "title": "AdvancedSettings",
+      "type": "object"
+    },
+    "Locale": {
+      "description": "Locale Enum.",
+      "enum": ["en", "jp", "vn"],
+      "title": "Locale",
+      "type": "string"
+    },
+    "LogPanelPosition": {
+      "description": "Log Panel Position Enum.",
+      "enum": ["right", "bottom"],
+      "title": "LogPanelPosition",
+      "type": "string"
+    },
+    "LoggingSettings": {
+      "description": "Logging settings model.",
+      "properties": {
+        "level": {
+          "default": "INFO",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
+          "title": "Logging Level",
+          "type": "string"
+        }
+      },
+      "title": "LoggingSettings",
+      "type": "object"
+    },
+    "NotificationSettings": {
+      "description": "Notification Settings model.",
+      "properties": {
+        "desktop_notifications": {
+          "default": false,
+          "title": "Desktop Notifications",
+          "type": "boolean"
+        },
+        "discord_webhook": {
+          "anyOf": [{ "type": "string" }, { "type": "null" }],
+          "default": null,
+          "htmlTitle": "Discord Webhook has to start with 'https://discordapp.com/api/webhooks/'",
+          "regex": "^https://discordapp\\.com/api/webhooks/.*",
+          "title": "Discord Webhook"
+        }
+      },
+      "title": "NotificationSettings",
+      "type": "object"
+    },
+    "ProfileSettings": {
+      "description": "Profile Settings model.",
+      "properties": {
+        "profiles": {
+          "default": ["Default"],
+          "items": { "type": "string" },
+          "minItems": 1,
+          "title": "Profiles",
+          "type": "array"
+        },
+        "active_profile": {
+          "default": 0,
+          "title": "Active Profile",
+          "type": "integer"
+        }
+      },
+      "title": "ProfileSettings",
+      "type": "object"
+    },
+    "Theme": {
+      "description": "Theme Enum.",
+      "enum": [
+        "catppuccin", "cerberus", "crimson", "fennec", "modern", "mona",
+        "nosh", "nouveau", "pine", "rose", "seafoam", "terminus",
+        "vintage", "vox", "wintry"
+      ],
+      "title": "Theme",
+      "type": "string"
+    },
+    "UISettings": {
+      "description": "UI Settings model.",
+      "properties": {
+        "theme": { "$ref": "#/$defs/Theme", "default": "cerberus" },
+        "locale": { "$ref": "#/$defs/Locale", "default": "en" },
+        "log_panel_position": { "$ref": "#/$defs/LogPanelPosition", "default": "right" },
+        "close_should_minimize": {
+          "default": false,
+          "title": "Close button should minimize the window",
+          "type": "boolean"
+        }
+      },
+      "title": "UISettings",
+      "type": "object"
+    }
+  },
+  "description": "App Settings model.",
+  "properties": {
+    "profiles": { "$ref": "#/$defs/ProfileSettings", "title": "Profiles" },
+    "ui": { "$ref": "#/$defs/UISettings", "title": "User Interface" },
+    "notifications": { "$ref": "#/$defs/NotificationSettings", "title": "Notifications" },
+    "logging": { "$ref": "#/$defs/LoggingSettings", "title": "Logging" },
+    "advanced": { "$ref": "#/$defs/AdvancedSettings", "title": "Advanced" }
+  },
+  "title": "AppSettings",
+  "type": "object"
+}
 "##;
 
 // ---------- Enums ----------
@@ -120,6 +244,14 @@ impl Default for ProfileSettings {
 pub struct AdvancedSettings {
     #[serde(default)]
     pub shutdown_after_tasks: bool,
+    #[serde(default)]
+    pub restart_stuck_task: bool,
+    #[serde(default = "default_restart_mins")]
+    pub restart_stuck_task_after_mins: u32,
+}
+
+fn default_restart_mins() -> u32 {
+    60
 }
 
 // ---------- AppSettings ----------

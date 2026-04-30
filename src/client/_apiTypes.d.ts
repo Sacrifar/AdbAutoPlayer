@@ -39,6 +39,8 @@ export type DesktopNotifications = boolean
 export type DiscordWebhook = string
 export type LoggingLevel = ("DEBUG" | "INFO" | "WARNING" | "ERROR" | "FATAL")
 export type ShutdownAfterTasks = boolean
+export type RestartStuckTasks = boolean
+export type RestartGameIfTaskTakesLongerThanMinutes = number
 export type GameTitle = string
 export type Label1 = string
 export type Args1 = string[]
@@ -158,6 +160,8 @@ level?: LoggingLevel
  */
 export interface Advanced {
 shutdown_after_tasks?: ShutdownAfterTasks
+restart_stuck_task?: RestartStuckTasks
+restart_stuck_task_after_mins?: RestartGameIfTaskTakesLongerThanMinutes
 [k: string]: unknown
 }
 export interface ProfileStateUpdate {

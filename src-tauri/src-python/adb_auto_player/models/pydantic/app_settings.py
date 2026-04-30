@@ -96,8 +96,8 @@ class AdvancedSettings(BaseModel):
 
     shutdown_after_tasks: bool = Field(default=False, title="Shutdown after Tasks")
     restart_stuck_task: bool = Field(default=False, title="Restart Stuck Tasks")
-    restart_stuck_task_after_mins: NonNegativeInt = Field(
-        default=60, title="Restart game if task takes longer than (minutes)"
+    restart_stuck_task_after_mins: int = Field(
+        default=60, ge=3, title="Restart game if task takes longer than (minutes)"
     )
 
 
