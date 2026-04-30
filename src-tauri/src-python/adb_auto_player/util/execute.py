@@ -21,7 +21,7 @@ import threading
 import time
 import tomllib
 from collections.abc import Callable
-from typing import cast
+from typing import Any, cast
 
 from adb_auto_player.exceptions import AutoPlayerError, GenericAdbUnrecoverableError
 from adb_auto_player.file_loader import SettingsLoader
@@ -203,22 +203,17 @@ class Execute:
                 except KeyboardInterrupt:
                     if timeout_triggered:
                         logging.warning(
-                            "Task timeout triggered, restarting game and retrying "
-                            "task..."
+                            "Task timeout triggered, restarting game and "
+                            "retrying task..."
                         )
                         if instance is not None and hasattr(instance, "restart_game"):
                             try:
-                                instance.restart_game()
-                                # Reset watchdog for the retry
+                                cast(Any, instance).restart_game()
                                 timeout_triggered = False
-
-                                # Give the game some time to restart before retrying
-                                # the task
                                 logging.info(
                                     "Waiting 40 seconds for game to restart..."
                                 )
                                 time.sleep(40)
-
                                 last_activity_time = time.monotonic()
                                 continue  # Retry the loop
                             except Exception as ex:
@@ -227,11 +222,31 @@ class Execute:
                             f"Task exceeded {timeout_mins} minutes timeout."
                         )
 
+                    # Manual Ctrl+C
                     summary = SummaryGenerator().get_summary_message()
                     if summary is not None:
                         print(summary)
                     sys.exit(0)
                 except Exception as e:
+                    # java.lang.SecurityException should always be fatal
+                    if timeout_enabled and "java.lang.SecurityException" not in str(e):
+                        logging.warning(
+                            f"Task failed with error: {e}. "
+                            "Restarting game and retrying..."
+                        )
+                        if instance is not None and hasattr(instance, "restart_game"):
+                            try:
+                                cast(Any, instance).restart_game()
+                                logging.info(
+                                    "Waiting 40 seconds for game to restart..."
+                                )
+                                time.sleep(40)
+                                last_activity_time = time.monotonic()
+                                continue  # Retry the loop
+                            except Exception as ex:
+                                logging.error(f"Failed to restart game: {ex}")
+                        return e
+
                     if "java.lang.SecurityException" in str(e):
                         return GenericAdbUnrecoverableError(
                             "Missing permissions, check if your device has settings, "
