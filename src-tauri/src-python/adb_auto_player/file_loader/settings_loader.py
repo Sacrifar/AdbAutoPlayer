@@ -4,7 +4,6 @@ import contextvars
 import logging
 from pathlib import Path
 
-from adb_auto_player.decorators import register_cache
 from adb_auto_player.models.decorators import CacheGroup
 from adb_auto_player.models.pydantic import (
     AdbSettings,
@@ -72,6 +71,7 @@ class SettingsLoader:
     @profile_aware_cache(maxsize=1)
     def adb_settings() -> AdbSettings:
         """Locate and load the general settings AdbAutoPlayer.toml file."""
+        from adb_auto_player.decorators import register_cache  # noqa: PLC0415
 
         @register_cache(CacheGroup.ADB_SETTINGS)
         def _load():

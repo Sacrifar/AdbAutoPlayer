@@ -96,26 +96,35 @@ class Navigation(PopupMessageHandler, ABC):
             "battle/exit_door.png",
             "arcane_labyrinth/select_a_crest.png",
             "navigation/resonating_hall_back.png",
+            "navigation/time_of_day.png",
+            "navigation/resonating_hall_shortcut.png",
         ]
 
     def _handle_overview_navigation(
         self, overview: Overview = Overview.WORLD
     ) -> Overview | None:
-        result = self.find_any_template(Navigation._get_overview_navigation_templates())
+        templates = Navigation._get_overview_navigation_templates()
+        result = self.find_any_template(templates)
 
         if result is None:
-            self.press_back_button()
-            sleep(3)
+            # Try to handle any popups that might be blocking navigation
+            if self.handle_popup_messages():
+                sleep(2)
+            else:
+                # Still nothing found, try hitting back
+                self.press_back_button()
+                sleep(3)
             return None
 
+        return_overview: Overview | None = None
         match result.template:
             case (
                 "navigation/homestead/homestead_enter.png"
                 | "navigation/homestead/homestead_invaded.png"
             ):
-                return self._handle_homestead_enter(result, overview)
+                return_overview = self._handle_homestead_enter(result, overview)
             case "navigation/homestead/world.png":
-                return self._handle_homestead_world(result, overview)
+                return_overview = self._handle_homestead_world(result, overview)
             case "navigation/notice.png":
                 # This is the Game Entry Screen
                 self.tap(self.CENTER_POINT)
@@ -130,10 +139,18 @@ class Navigation(PopupMessageHandler, ABC):
                 sleep(1)
                 self.tap(result)
                 sleep(1)
+            case (
+                "navigation/time_of_day.png" | "navigation/resonating_hall_shortcut.png"
+            ):
+                if overview in (Overview.WORLD, Overview.CURRENT):
+                    return_overview = Overview.WORLD
+                # If we wanted homestead but are in world, we might need to
+                # enter homestead but for now let's just return None to let
+                # the loop continue or handle it
             case _:
                 self.tap(result)
                 sleep(2)
-        return None
+        return return_overview
 
     def _handle_homestead_world(
         self,
