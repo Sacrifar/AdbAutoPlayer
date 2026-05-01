@@ -202,7 +202,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="scroll-area" bind:this={scrollContainer} onclick={handleLogClick}>
     <img
-      src={isTaskRunning ? awakeMascot : sleepMascot}
+      src={isTaskRunning ? sleepMascot : awakeMascot}
       alt="mascot"
       class="mascot-watermark"
       draggable="false"

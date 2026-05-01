@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from adb_auto_player.exceptions import GameActionFailedError
+from adb_auto_player.exceptions import GameActionFailedError, GameTimeoutError
 from adb_auto_player.games.afk_journey.base import AFKJourneyBase
 from adb_auto_player.models import ConfidenceValue
 from adb_auto_player.models.geometry import Box, Point
@@ -34,3 +34,27 @@ class TestAFKJourneyBaseCoverage:
         ):
             # The method should return False when GameActionFailedError is caught
             assert bot._start_battle() is False
+
+    def test_find_any_excluded_hero(self):
+        """Test _find_any_excluded_hero success path."""
+        bot = AFKJourneyBase.__new__(AFKJourneyBase)
+
+        match_result = TemplateMatchResult(
+            template="heroes/evie.png",
+            confidence=ConfidenceValue(1.0),
+            box=Box(Point(0, 0), 10, 10),
+        )
+        bot.wait_for_any_template = MagicMock(return_value=match_result)
+
+        excluded = {"heroes/evie.png": "Evie"}
+        result = bot._find_any_excluded_hero(excluded)
+        assert result == "Evie"
+
+    def test_find_any_excluded_hero_timeout(self):
+        """Test _find_any_excluded_hero timeout path."""
+        bot = AFKJourneyBase.__new__(AFKJourneyBase)
+        bot.wait_for_any_template = MagicMock(side_effect=GameTimeoutError("timeout"))
+
+        excluded = {"heroes/evie.png": "Evie"}
+        result = bot._find_any_excluded_hero(excluded)
+        assert result is None
