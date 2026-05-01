@@ -132,6 +132,39 @@ class TestExecuteRestart(unittest.TestCase):
             self.assertIsInstance(result, GenericAdbUnrecoverableError)
             mock_instance.restart_game.assert_not_called()
 
+    def test_restart_on_exception_failure(self) -> None:
+        """Test that the task returns the original error when restart_game fails."""
+        mock_action = MagicMock(side_effect=Exception("Normal error"))
+        cmd = Command(name="ErrorCommand", action=mock_action)
+        commands = {"category": [cmd]}
+
+        mock_instance = MagicMock()
+        mock_instance.restart_game = MagicMock(side_effect=Exception("Restart failed"))
+
+        app_settings = {
+            "advanced": {"restart_stuck_task": True, "restart_stuck_task_after_mins": 5}
+        }
+
+        with (
+            patch("time.sleep", return_value=None),
+            patch(
+                "adb_auto_player.util.execute.tomllib.load", return_value=app_settings
+            ),
+            patch("builtins.open", unittest.mock.mock_open()),
+            patch(
+                "adb_auto_player.file_loader.SettingsLoader.get_app_config_dir",
+                return_value=Path("dummy"),
+            ),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            result = Execute.find_command_and_execute(
+                "errorcommand", commands, instance=mock_instance
+            )
+
+            self.assertIsInstance(result, Exception)
+            self.assertEqual(str(result), "Normal error")
+            mock_instance.restart_game.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
