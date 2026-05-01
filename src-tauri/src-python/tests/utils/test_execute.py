@@ -16,7 +16,7 @@ class TestExecute(unittest.TestCase):
 
         result = Execute.find_command_and_execute("testcommand", commands)
 
-        self.assertIsNone(result)
+        self.assertTrue(result)
 
     def test_find_command_not_found(self) -> None:
         """Test behavior when a command is not found."""
@@ -24,7 +24,7 @@ class TestExecute(unittest.TestCase):
 
         result = Execute.find_command_and_execute("nonexistent", commands)
 
-        self.assertIsNone(result)
+        self.assertFalse(result)
 
     def test_find_command_and_execute_error(self) -> None:
         """Test finding a command that raises an error when executed."""
