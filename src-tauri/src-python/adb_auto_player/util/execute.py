@@ -34,7 +34,9 @@ class Execute:
     """Util class for executing commands, callables, etc."""
 
     @staticmethod
-    def command(command_to_execute: Command) -> Exception | None:
+    def command(
+        command_to_execute: Command, instance: object | None = None
+    ) -> Exception | None:
         """Executes the command.
 
         Returns:
@@ -44,6 +46,7 @@ class Execute:
         """
         return Execute.function(
             callable_function=command_to_execute.action,
+            instance=instance,
             kwargs=command_to_execute.kwargs,
         )
 
@@ -264,13 +267,15 @@ class Execute:
 
     @staticmethod
     def find_command_and_execute(
-        command_name: str, commands: dict[str, list[Command]]
+        command_name: str,
+        commands: dict[str, list[Command]],
+        instance: object | None = None,
     ) -> bool | Exception:
         """Helper that iterates through the command list to execute the correct one."""
         command_name_lower = command_name.lower()
         for category_commands in commands.values():
             for cmd in category_commands:
                 if cmd.name.lower() == command_name_lower:
-                    result = Execute.command(cmd)
+                    result = Execute.command(cmd, instance=instance)
                     return True if result is None else result
         return False
