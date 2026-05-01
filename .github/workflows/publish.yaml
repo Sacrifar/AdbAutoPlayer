@@ -161,7 +161,7 @@ jobs:
         with:
           tagName: ${{ github.event.release.tag_name }}
           releaseName: ${{ github.event.release.tag_name }}
-          releaseBody: "See the assets to download this version and install."
+          releaseBody: ${{ github.event.release.body }}
           releaseDraft: true
           includeDebug: false
           args: '--target ${{ matrix.target }} --config ${{ matrix.config }} --config src-tauri/tauri.bundle.templates.json --verbose'
