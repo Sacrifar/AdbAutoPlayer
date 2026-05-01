@@ -149,6 +149,14 @@ jobs:
       - run: pnpm set-version ${{ github.event.release.tag_name }}
         if: github.event_name == 'release'
 
+      - name: Extract changelog
+        id: extract_changelog
+        if: github.event_name == 'release'
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          node scripts/extract-changelog.cjs ${{ github.event.release.tag_name }} >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - run: pnpm bundle-templates
 
       - name: Build and bundle the app
@@ -161,7 +169,7 @@ jobs:
         with:
           tagName: ${{ github.event.release.tag_name }}
           releaseName: ${{ github.event.release.tag_name }}
-          releaseBody: ${{ github.event.release.body }}
+          releaseBody: ${{ steps.extract_changelog.outputs.body }}
           releaseDraft: true
           includeDebug: false
           args: '--target ${{ matrix.target }} --config ${{ matrix.config }} --config src-tauri/tauri.bundle.templates.json --verbose'
