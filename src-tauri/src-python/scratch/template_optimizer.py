@@ -16,8 +16,7 @@ sys.path.append(str(project_root))
 # ruff: noqa: E402
 from adb_auto_player.file_loader import SettingsLoader
 from adb_auto_player.games.afk_journey.base import AFKJourneyBase
-from adb_auto_player.image_manipulation import Color, ColorFormat, Cropping
-from adb_auto_player.models.image_manipulation import CropRegions
+from adb_auto_player.image_manipulation import Color, ColorFormat
 
 
 def optimize_template() -> None:
@@ -33,6 +32,7 @@ def optimize_template() -> None:
     game = AFKJourneyBase()
     game.open_eyes()
 
+    hero_name = sys.argv[1] if len(sys.argv) > 1 else "evie"
     template_path = (
         project_root
         / "adb_auto_player"
@@ -40,7 +40,7 @@ def optimize_template() -> None:
         / "afk_journey"
         / "templates"
         / "heroes"
-        / "evie.png"
+        / f"{hero_name}.png"
     )
     if not template_path.exists():
         print(f"Error: {template_path} not found!")
@@ -55,17 +55,15 @@ def optimize_template() -> None:
     print("Capturing screenshot...")
     screenshot = game.get_screenshot()
 
-    # Target region where heroes are
-    region = CropRegions(left="5%", right="5%", top="25%", bottom="30%")
-    crop_result = Cropping.crop(screenshot, region)
-    search_area = Color.to_grayscale(crop_result.image, ColorFormat.BGR)
+    # Use the whole screenshot for searching
+    search_area = Color.to_grayscale(screenshot, ColorFormat.BGR)
 
     best_val = -1.0
     best_scale = 1.0
 
     print("Optimizing scale...")
-    # Try scales from 0.5 to 1.5 with small steps
-    for scale in np.linspace(0.5, 1.5, 50):
+    # Try scales from 0.3 to 1.0 with small steps (safer range for portraits)
+    for scale in np.linspace(0.3, 1.0, 100):
         width = int(template.shape[1] * scale)
         height = int(template.shape[0] * scale)
         if width == 0 or height == 0:
@@ -92,7 +90,7 @@ def optimize_template() -> None:
     print(f"\nBest Match Found! Confidence: {best_val * 100:.2f}%")
     print(f"Optimal Scale: {best_scale:.4f}")
 
-    threshold = 0.6
+    threshold = 0.85
     if best_val > threshold:
         width = int(template.shape[1] * best_scale)
         height = int(template.shape[0] * best_scale)
