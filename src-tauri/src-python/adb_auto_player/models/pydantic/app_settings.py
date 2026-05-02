@@ -78,8 +78,11 @@ class NotificationSettings(BaseModel):
         "",
         title="Discord Webhook",
         json_schema_extra={
-            "regex": "^https://discordapp\\.com/api/webhooks/.*",
-            "htmlTitle": "Discord Webhook has to start with 'https://discordapp.com/api/webhooks/'",
+            "regex": "^https://(discord|discordapp)\\.com/api/webhooks/.*",
+            "htmlTitle": (
+                "Discord Webhook has to start with 'https://discord.com/api/webhooks/' "
+                "or 'https://discordapp.com/api/webhooks/'"
+            ),
         },
     )
 

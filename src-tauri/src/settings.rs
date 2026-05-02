@@ -67,8 +67,8 @@ const APP_SETTINGS_SCHEMA: &str = r##"
         "discord_webhook": {
           "anyOf": [{ "type": "string" }, { "type": "null" }],
           "default": null,
-          "htmlTitle": "Discord Webhook has to start with 'https://discordapp.com/api/webhooks/'",
-          "regex": "^https://discordapp\\.com/api/webhooks/.*",
+          "htmlTitle": "Discord Webhook has to start with 'https://discord.com/api/webhooks/' or 'https://discordapp.com/api/webhooks/'",
+          "regex": "^https://(discord|discordapp)\\.com/api/webhooks/.*",
           "title": "Discord Webhook"
         }
       },
