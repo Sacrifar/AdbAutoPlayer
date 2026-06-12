@@ -181,7 +181,18 @@ class Execute:
                                             and attr.__module__ == base_mod_name
                                         ):
                                             if not issubclass(orig_cls, attr):
+                                                # True mixin: doesn't inherit from Base
                                                 cls = attr
+                                            else:
+                                                # Mixin that inherits from Base: find a
+                                                # concrete subclass combining all mixins
+                                                # (e.g., a full game class in game.py)
+                                                for sub in orig_cls.__subclasses__():
+                                                    if not getattr(
+                                                        sub, "__abstractmethods__", None
+                                                    ):
+                                                        cls = sub
+                                                        break
                                             break
                             except Exception:
                                 pass
