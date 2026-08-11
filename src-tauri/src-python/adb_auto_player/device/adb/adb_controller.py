@@ -11,6 +11,21 @@ from adb_auto_player.tauri_context import profile_aware_cache
 
 from .adb_device import AdbDeviceWrapper
 
+# getprop keys/substrings that only ever appear under virtualization.
+# Real hardware is never misdetected as an emulator by these; the risk is the
+# opposite direction (a new/obfuscated emulator not being detected).
+_EMULATOR_PROP_MARKERS = (
+    "ro.kernel.qemu",
+    "ro.boot.qemu",
+    "ro.hardware.virtual_device",
+    "ro.bst.",  # BlueStacks
+    "nemu",  # MuMu / Nemu
+    "microvirt",  # MuMu / LDPlayer lineage
+    "goldfish",  # AOSP emulator (ARM)
+    "ranchu",  # AOSP emulator (x86)
+    "vbox",  # Genymotion / VirtualBox-backed
+)
+
 
 class AdbController:
     """Functions to control an ADB device."""
@@ -311,10 +326,19 @@ class AdbController:
     @profile_aware_cache(maxsize=1)
     def is_controlling_emulator(self):
         """Whether the controlled device is an emulator or not."""
-        result = str(self.d.shell('getprop | grep "Build"'))
-        if "Build" in result:
-            return True
-        logging.debug('getprop does not contain "Build" assuming Phone')
+        props = str(self.d.shell("getprop"))
+        for marker in _EMULATOR_PROP_MARKERS:
+            if marker in props:
+                logging.debug(f"getprop contains {marker!r} assuming Emulator")
+                return True
+        if "Build" in props:
+            logging.debug(
+                "getprop contains 'Build' but no known emulator marker; "
+                "assuming Phone. If this is actually an emulator, please "
+                "report it so its marker can be added."
+            )
+        else:
+            logging.debug("no emulator markers in getprop assuming Phone")
         return False
 
     def get_input_device(self, name: str) -> str | None:
