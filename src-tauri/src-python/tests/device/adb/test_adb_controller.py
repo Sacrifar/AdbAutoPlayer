@@ -141,6 +141,16 @@ class TestIsControllingEmulator:
 
         assert controller.is_controlling_emulator is True
 
+    def test_qemu_marker_set_to_zero_is_not_an_emulator(self):
+        """Regression test for HyperOS (POCO X5 Pro) issue #806.
+
+        Xiaomi/HyperOS ships `ro.kernel.qemu` present but unset (`0`) on
+        physical hardware; only a truthy value should count as an emulator.
+        """
+        controller, _ = _make_controller(["[ro.kernel.qemu]: [0]"])
+
+        assert controller.is_controlling_emulator is False
+
     def test_bluestacks_marker_is_an_emulator(self):
         controller, _ = _make_controller(["[ro.bst.build.type]: [release]"])
 

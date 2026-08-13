@@ -11,13 +11,21 @@ from adb_auto_player.tauri_context import profile_aware_cache
 
 from .adb_device import AdbDeviceWrapper
 
-# getprop keys/substrings that only ever appear under virtualization.
-# Real hardware is never misdetected as an emulator by these; the risk is the
-# opposite direction (a new/obfuscated emulator not being detected).
-_EMULATOR_PROP_MARKERS = (
+# getprop boolean flags that some real hardware ships present-but-unset (e.g.
+# HyperOS keeps "ro.kernel.qemu" defined as "0" on physical Xiaomi/POCO
+# phones for app-compatibility reasons). These must be value-checked, not
+# just checked for key presence, or physical devices get misdetected.
+_EMULATOR_BOOL_PROPS = (
     "ro.kernel.qemu",
     "ro.boot.qemu",
     "ro.hardware.virtual_device",
+)
+
+# getprop substrings that only ever appear under virtualization, regardless of
+# where they show up (build fingerprint, brand, product name, ...).
+# Real hardware is never misdetected as an emulator by these; the risk is the
+# opposite direction (a new/obfuscated emulator not being detected).
+_EMULATOR_SUBSTRING_MARKERS = (
     "ro.bst.",  # BlueStacks
     "nemu",  # MuMu / Nemu
     "microvirt",  # MuMu / LDPlayer lineage
@@ -25,6 +33,8 @@ _EMULATOR_PROP_MARKERS = (
     "ranchu",  # AOSP emulator (x86)
     "vbox",  # Genymotion / VirtualBox-backed
 )
+
+_GETPROP_BOOL_PROP_PATTERN = r"\[{}\]:\s*\[([^\]]*)\]"
 
 
 class AdbController:
@@ -327,7 +337,15 @@ class AdbController:
     def is_controlling_emulator(self):
         """Whether the controlled device is an emulator or not."""
         props = str(self.d.shell("getprop"))
-        for marker in _EMULATOR_PROP_MARKERS:
+        for bool_prop in _EMULATOR_BOOL_PROPS:
+            pattern = _GETPROP_BOOL_PROP_PATTERN.format(re.escape(bool_prop))
+            match = re.search(pattern, props)
+            if match and match.group(1).strip() not in ("", "0"):
+                logging.debug(
+                    f"getprop {bool_prop}={match.group(1)!r} assuming Emulator"
+                )
+                return True
+        for marker in _EMULATOR_SUBSTRING_MARKERS:
             if marker in props:
                 logging.debug(f"getprop contains {marker!r} assuming Emulator")
                 return True
